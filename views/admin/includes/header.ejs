@@ -1,0 +1,581 @@
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#fff;
+    --text:#111827;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --line-strong:#d1d5db;
+    --shadow:0 10px 28px rgba(15,23,42,.08);
+    --sidebar-width:280px;
+    --header-height:60px;
+  }
+
+  html, body{
+    height:100%;
+    margin:0;
+    font-family:'Open Sans',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  *{ box-sizing:border-box; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font:inherit; }
+
+  body{
+    overflow-x:hidden;
+  }
+
+  /* Make bootstrap modals always above sidebar */
+  .modal{ z-index: 2500 !important; }
+  .modal-backdrop{ z-index: 2400 !important; }
+
+  /* Sidebar */
+  #sidenav-main{
+    position:fixed;
+    inset:0 auto 0 0;
+    width:var(--sidebar-width);
+    height:100vh;
+    background:var(--bg);
+    border-right:1px solid var(--line);
+    box-shadow:var(--shadow);
+    z-index:2200;
+    transform:translateX(-100%);
+    transition:transform .25s ease, box-shadow .2s ease;
+    padding:16px 14px;
+    overflow:hidden;
+  }
+
+  #sidenav-main .sidenav-scroll{
+    height:100%;
+    overflow-y:auto;
+    padding-right:6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,.2) transparent;
+  }
+  #sidenav-main .sidenav-scroll::-webkit-scrollbar{ width:6px; }
+  #sidenav-main .sidenav-scroll::-webkit-scrollbar-thumb{
+    background:transparent;
+    border-radius:999px;
+  }
+  #sidenav-main:hover .sidenav-scroll::-webkit-scrollbar-thumb{
+    background:rgba(0,0,0,.22);
+  }
+  #sidenav-main:hover .sidenav-scroll{
+    scrollbar-color: rgba(0,0,0,.22) transparent;
+  }
+
+  body.show-sidenav #sidenav-main{
+    transform:translateX(0);
+  }
+
+  @media (min-width:1200px){
+    #sidenav-main{
+      transform:translateX(0);
+    }
+
+    body.main-with-sidebar main{
+      margin-left:var(--sidebar-width);
+    }
+
+    body.main-with-sidebar .topbar{
+      margin-left:var(--sidebar-width);
+      width:calc(100% - var(--sidebar-width));
+    }
+
+    body.desktop-collapsed #sidenav-main{
+      transform:translateX(-100%);
+    }
+
+    body.desktop-collapsed main,
+    body.desktop-collapsed .topbar{
+      margin-left:0;
+      width:100%;
+    }
+  }
+
+  /* Overlay */
+  #sidenav-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(17,24,39,.38);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+    z-index:2150;
+  }
+
+  body.show-sidenav #sidenav-overlay{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  /* Sidebar header */
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:6px 6px 14px;
+    margin-bottom:10px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand img{
+    height:38px;
+    width:auto;
+    display:block;
+  }
+  .brand .title{
+    font-weight:800;
+    font-size:14px;
+    color:var(--text);
+    line-height:1.2;
+  }
+  .brand .muted{
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  /* Close button in sidebar */
+  #iconSidenav{
+    display:none;
+    position:absolute;
+    top:12px;
+    right:12px;
+    width:36px;
+    height:36px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--text);
+    align-items:center;
+    justify-content:center;
+    z-index:2;
+  }
+
+  @media (max-width:1199.98px){
+    #iconSidenav{ display:inline-flex; }
+  }
+
+  /* Sidebar links */
+  .nav-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+  }
+  .nav-item{
+    margin:4px 0;
+  }
+  .nav-link{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:11px 12px;
+    border-radius:12px;
+    color:var(--text);
+    border:1px solid transparent;
+    transition:background .15s ease, border-color .15s ease, transform .15s ease;
+    width:100%;
+  }
+  .nav-link:hover{
+    background:#f9fafb;
+    border-color:#f3f4f6;
+    transform:translateY(-1px);
+  }
+  .nav-link i{
+    width:18px;
+    text-align:center;
+    color:var(--muted);
+  }
+  .nav-link .nav-link-text{
+    font-weight:600;
+    font-size:14px;
+  }
+
+  .sidebar-submenu{
+    list-style:none;
+    padding-left:14px;
+    margin:4px 0 6px 8px;
+    border-left:1px dashed var(--line-strong);
+  }
+  .sidebar-submenu .nav-link{
+    padding:9px 10px;
+    font-size:13px;
+    border-radius:10px;
+  }
+
+  /* Topbar */
+  .topbar{
+    position:sticky;
+    top:0;
+    left:0;
+    right:0;
+    height:var(--header-height);
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:12px;
+    padding:0 16px;
+    background:rgba(255,255,255,.94);
+    backdrop-filter:saturate(180%) blur(10px);
+    border-bottom:1px solid rgba(229,231,235,.9);
+    z-index:2100;
+    transition:margin-left .25s ease, width .25s ease;
+  }
+
+  .topbar-inner{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:12px;
+  }
+
+  .nav-brand-inline{
+    display:none;
+    align-items:center;
+    gap:8px;
+    flex:0 0 auto;
+  }
+
+  .nav-brand-inline img{
+    height:40px;
+    width:auto;
+    display:block;
+  }
+
+  @media (min-width:1200px){
+    body.desktop-collapsed .nav-brand-inline{
+      display:flex;
+    }
+  }
+
+  /* Hamburger button stays left */
+  #iconNavbarSidenav{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--text);
+    flex:0 0 auto;
+    margin:0;
+    padding:0;
+    box-shadow:0 1px 2px rgba(0,0,0,.03);
+  }
+  #iconNavbarSidenav:hover{
+    background:#f9fafb;
+    border-color:#dbe0e6;
+  }
+
+  .sidenav-toggler-inner{
+    display:inline-flex;
+    flex-direction:column;
+    justify-content:space-between;
+    width:18px;
+    height:14px;
+  }
+  .sidenav-toggler-line{
+    width:100%;
+    height:2px;
+    background:var(--text);
+    border-radius:999px;
+  }
+
+  .topbar-title{
+    font-size:15px;
+    font-weight:700;
+    color:var(--text);
+    white-space:nowrap;
+  }
+  .topbar-subtitle{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+
+  /* Main content */
+  main{
+    display:block;
+    width:100%;
+    min-height:calc(100vh - var(--header-height));
+    transition:margin-left .25s ease, width .25s ease;
+  }
+
+  body.main-with-sidebar main{
+    margin-left:var(--sidebar-width);
+    width:calc(100% - var(--sidebar-width));
+  }
+
+  body.desktop-collapsed main{
+    margin-left:0;
+    width:100%;
+  }
+
+  /* Optional active state */
+  .nav-item .collapse.show + .nav-link,
+  .nav-item .nav-link[aria-expanded="true"]{
+    background:#f8fafc;
+    border-color:#edf2f7;
+  }
+
+  /* Utility */
+  .muted{
+    color:var(--muted);
+  }
+
+  @media (max-width:1199.98px){
+    .topbar{
+      width:100%;
+      margin-left:0;
+    }
+  }
+</style>
+
+<!-- SIDEBAR -->
+<aside id="sidenav-main" aria-hidden="true" aria-label="Main sidebar">
+  <button id="iconSidenav" type="button" aria-label="Close sidebar">
+    <i class="fa fa-times" aria-hidden="true"></i>
+  </button>
+
+  <div class="sidenav-scroll">
+    <div class="brand" role="banner">
+      <a href="#">
+        <img src="/customer/images/web-img-vid/logo.png" alt="logo">
+      </a>
+      <div>
+        <div class="title">Admin Panel</div>
+        <div class="muted">Control center</div>
+      </div>
+    </div>
+
+    <nav aria-label="Main navigation">
+      <ul class="nav-list">
+        <li class="nav-item" data-tooltip="Dashboard">
+          <a class="nav-link" href="/admin/dashboard" data-tooltip="Dashboard">
+            <i class="fa-solid fa-tachometer-alt"></i>
+            <span class="nav-link-text">Dashboard</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link dropdown-toggle" href="#"
+             data-bs-toggle="collapse" data-bs-target="#productsMainMenu"
+             aria-expanded="false" aria-controls="productsMainMenu">
+            <i class="fa-solid fa-box"></i>
+            <span class="nav-link-text">Products</span>
+          </a>
+
+          <ul class="sidebar-submenu collapse" id="productsMainMenu">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/parent-category">
+                <i class="fa-solid fa-layer-group"></i>
+                <span class="nav-link-text">Parent Categories</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/category">
+                <i class="fa-solid fa-th-list"></i>
+                <span class="nav-link-text">Categories</span>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link dropdown-toggle" href="#"
+                 data-bs-toggle="collapse" data-bs-target="#productsSubMenu"
+                 aria-expanded="false" aria-controls="productsSubMenu">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span class="nav-link-text">Products Options</span>
+              </a>
+
+              <ul class="sidebar-submenu collapse" id="productsSubMenu">
+                <li class="nav-item">
+                  <a class="nav-link" href="/admin/add-product">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="nav-link-text">Add Product</span>
+                  </a>
+                </li>
+
+                <li class="nav-item">
+                  <a class="nav-link" href="/admin/product-list">
+                    <i class="fa-solid fa-list"></i>
+                    <span class="nav-link-text">List of Products</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/billing">
+            <i class="fa-solid fa-credit-card"></i>
+            <span class="nav-link-text">Billing</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/virtual-reality">
+            <i class="fa-solid fa-cube"></i>
+            <span class="nav-link-text">Virtual Reality</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/rtl">
+            <i class="fa-solid fa-cog"></i>
+            <span class="nav-link-text">RTL</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</aside>
+
+<!-- OVERLAY -->
+<div id="sidenav-overlay" tabindex="-1" aria-hidden="true"></div>
+
+<!-- TOP NAV -->
+<header class="topbar" role="banner">
+  <div class="topbar-inner">
+    <div class="nav-brand-inline" aria-hidden="true">
+      <a href="#">
+        <img src="/customer/images/web-img-vid/logo.png" alt="logo compact">
+      </a>
+    </div>
+
+    <a id="iconNavbarSidenav" href="#" role="button" aria-controls="sidenav-main" aria-expanded="false"
+       aria-label="Toggle sidebar">
+      <div class="sidenav-toggler-inner" aria-hidden="true">
+        <span class="sidenav-toggler-line"></span>
+        <span class="sidenav-toggler-line"></span>
+        <span class="sidenav-toggler-line"></span>
+      </div>
+    </a>
+
+    <div>
+      <div class="topbar-title">Admin Dashboard</div>
+      <div class="topbar-subtitle">Manage products, categories, and settings</div>
+    </div>
+  </div>
+</header>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- page content goes here -->
+
+<script>
+  (function () {
+    'use strict';
+
+    const toggle = document.getElementById('iconNavbarSidenav');
+    const closeBtn = document.getElementById('iconSidenav');
+    const overlay = document.getElementById('sidenav-overlay');
+    const sidebar = document.getElementById('sidenav-main');
+    const body = document.body;
+
+    if (!toggle || !overlay || !sidebar) return;
+
+    const isDesktop = () => window.innerWidth >= 1200;
+
+    function setAria(open) {
+      sidebar.setAttribute('aria-hidden', String(!open));
+      overlay.setAttribute('aria-hidden', String(!open));
+      toggle.setAttribute('aria-expanded', String(open));
+    }
+
+    function openMobile() {
+      body.classList.add('show-sidenav');
+      body.classList.remove('desktop-collapsed');
+      setAria(true);
+    }
+
+    function closeMobile() {
+      body.classList.remove('show-sidenav');
+      setAria(false);
+    }
+
+    function openDesktop() {
+      body.classList.remove('desktop-collapsed');
+      body.classList.add('main-with-sidebar');
+      setAria(true);
+    }
+
+    function collapseDesktop() {
+      body.classList.add('desktop-collapsed');
+      body.classList.remove('main-with-sidebar');
+      setAria(false);
+    }
+
+    function initState() {
+      if (isDesktop()) {
+        openDesktop();
+      } else {
+        closeMobile();
+      }
+    }
+
+    toggle.addEventListener('click', function (ev) {
+      ev.preventDefault();
+
+      if (isDesktop()) {
+        if (body.classList.contains('desktop-collapsed')) {
+          openDesktop();
+        } else {
+          collapseDesktop();
+        }
+      } else {
+        if (body.classList.contains('show-sidenav')) {
+          closeMobile();
+        } else {
+          openMobile();
+        }
+      }
+    });
+
+    overlay.addEventListener('click', closeMobile);
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function () {
+        if (isDesktop()) collapseDesktop();
+        else closeMobile();
+      });
+    }
+
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape' || ev.key === 'Esc') {
+        if (isDesktop()) {
+          if (!body.classList.contains('desktop-collapsed')) collapseDesktop();
+        } else {
+          if (body.classList.contains('show-sidenav')) closeMobile();
+        }
+      }
+    });
+
+    let resizeTimer = null;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        if (isDesktop()) {
+          body.classList.remove('show-sidenav');
+          if (!body.classList.contains('desktop-collapsed')) openDesktop();
+        } else {
+          body.classList.remove('main-with-sidebar');
+          closeMobile();
+        }
+      }, 100);
+    });
+
+    initState();
+  })();
+</script>

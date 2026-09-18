@@ -1,0 +1,3716 @@
+  <% const safeUser=(typeof user !=='undefined' && user) ? user : null; 
+   const safeStats=(typeof stats !=='undefined' && stats) ? stats : {}; 
+    const safeVisitors=(typeof visitors !=='undefined' && Array.isArray(visitors)) ? visitors : [];
+    const safePagination=(typeof pagination !=='undefined' && pagination) ? pagination : {}; 
+    const seedVisitors=safeVisitors; const seedGraphValues=seedVisitors.slice(0, 7).map(v=> Number(v.page_visit_count || 0));
+    const seedGraphMax = Math.max(1, ...seedGraphValues);
+    const seedTotalVisitors = Number(safeStats.totalVisitors || 0);
+    const seedTotalPageVisits = Number(safeStats.totalPageVisits || 0);
+    const seedTotalUsers = Number(safeStats.totalUsers || safeStats.users || safeStats.totalCustomers || 0);
+    const seedTotalOrders = Number(safeStats.totalOrders || safeStats.orders || 0);
+    const seedTotalIncome = Number(safeStats.totalIncome || safeStats.income || 0);
+    const seedTotalItems = Number(safeStats.totalItems || safeStats.totalProducts || safeStats.items ||
+    safeStats.products || 0);
+    %>
+  <%
+  const ordersApi = "/admin/a/orders/data";
+  const initialOrders = Array.isArray(orderRows) ? orderRows : [];
+  const initialPagination = (typeof pagination !== "undefined" && pagination && typeof pagination === "object")
+    ? pagination
+    : { page: 1, limit: 10, totalRows: initialOrders.length, totalPages: 1, hasPrev: false, hasNext: false };
+
+  const initialQuery = (typeof query !== "undefined" && query && typeof query === "object") ? query : {};
+
+  const safeText = (v, fallback = "—") => {
+    const s = String(v ?? "").trim().replace(/\s+/g, " ");
+    return s || fallback; 
+  };
+
+  const lower = (v) => safeText(v, "").toLowerCase();
+
+  const isUnseenOrder = (order) => {
+    return (
+      order &&
+      (
+        order.is_seen === false ||
+        order.is_seen === 0 ||
+        order.is_seen === "0" ||
+        !order.seen_at ||
+        !order.viewed_at
+      )
+    );
+  };
+
+  const getStatus = (order) => {
+    const raw = lower(order?.order_status || order?.payment_status || "pending");
+    if (["pending", "initiated", "pending_payment"].includes(raw)) return "new";
+    if (["processing", "ongoing"].includes(raw)) return "in progress";
+    if (["completed"].includes(raw)) return "complete";
+    if (["cancelled", "canceled"].includes(raw)) return "cancelled";
+    if (["refunded", "partially_refunded"].includes(raw)) return "refunded";
+    return raw || "new";
+  };
+
+  const getRef = (order) =>
+    order?.order_number || order?.tracking_id || order?.payment_reference || `#${order?.id ?? ""}`;
+
+  const getAmount = (order) => Number(order?.grand_total ?? order?.amount ?? 0);
+
+  const getCurrency = (order) => safeText(order?.currency || "AED", "AED");
+
+  const getDate = (order) =>
+    safeText(order?.created_at_label || order?.created_at || "—", "—");
+%>
+  <%
+  const safeTextFn =
+    typeof safeText === "function"
+      ? safeText
+      : (value, fallback = "") => {
+          const s = String(value ?? "").trim().replace(/\s+/g, " ");
+          return s || fallback;
+        };
+
+  const safeNumberFn =
+    typeof safeNumber === "function"
+      ? safeNumber
+      : (value, fallback = 0) => {
+          const n = Number(value);
+          return Number.isFinite(n) ? n : fallback;
+        };
+
+  const ordersRows = Array.isArray(initialOrders)
+    ? initialOrders
+    : Array.isArray(orderRows)
+      ? orderRows
+      : [];
+
+  const ordersPagination =
+    typeof initialPagination !== "undefined" &&
+    initialPagination &&
+    typeof initialPagination === "object"
+      ? initialPagination
+      : { page: 1, totalPages: 1, totalRows: ordersRows.length };
+
+  const ordersQuery =
+    typeof initialQuery !== "undefined" &&
+    initialQuery &&
+    typeof initialQuery === "object"
+      ? initialQuery
+      : {};
+
+  const ordersWeeklySeries = Array.isArray(weeklySeriesData)
+    ? weeklySeriesData
+    : Array.isArray(orderWeeklySeriesData)
+      ? orderWeeklySeriesData
+      : [];
+
+  const ordersMonthlySeries = Array.isArray(monthlySeriesData)
+    ? monthlySeriesData
+    : Array.isArray(orderMonthlySeriesData)
+      ? orderMonthlySeriesData
+      : [];
+
+  const getRefFn =
+    typeof getRef === "function"
+      ? getRef
+      : (order) =>
+          order?.order_number ||
+          order?.tracking_id ||
+          order?.payment_reference ||
+          order?.id ||
+          "—";
+
+  const getStatusFn =
+    typeof getStatus === "function"
+      ? getStatus
+      : (order) => {
+          const raw = String(order?.order_status || order?.payment_status || "pending").toLowerCase();
+          if (["pending", "initiated", "pending_payment"].includes(raw)) return "new";
+          if (["processing", "ongoing"].includes(raw)) return "in progress";
+          if (["completed"].includes(raw)) return "complete";
+          if (["cancelled", "canceled"].includes(raw)) return "cancelled";
+          if (["refunded", "partially_refunded"].includes(raw)) return "refunded";
+          return raw || "new";
+        };
+
+  const isUnseenOrderFn =
+    typeof isUnseenOrder === "function"
+      ? isUnseenOrder
+      : (order) =>
+          order &&
+          (
+            order.is_seen === false ||
+            order.is_seen === 0 ||
+            order.is_seen === "0" ||
+            !order.seen_at ||
+            !order.viewed_at
+          );
+
+  const getAmountFn =
+    typeof getAmount === "function"
+      ? getAmount
+      : (order) => safeNumberFn(order?.grand_total ?? order?.amount ?? 0);
+
+  const getCurrencyFn =
+    typeof getCurrency === "function"
+      ? getCurrency
+      : (order) => String(order?.currency || "AED").trim() || "AED";
+
+  const getDateFn =
+    typeof getDate === "function"
+      ? getDate
+      : (order) => order?.created_at_label || order?.created_at || "—";
+%>
+  <%
+  const txApiUrl = "/admin/a/account/transaction-history/data";
+
+  const txRows = Array.isArray(transactionRows)
+    ? transactionRows
+    : Array.isArray(transactions)
+      ? transactions
+      : Array.isArray(orderRows)
+        ? orderRows
+        : [];
+
+  const txPagination = (typeof pagination !== "undefined" && pagination && typeof pagination === "object")
+    ? pagination
+    : { page: 1, limit: 10, total: txRows.length, totalPages: 1, hasPrev: false, hasNext: false };
+
+  const txSafeText = (v, fallback = "") => {
+    const s = String(v ?? "").trim().replace(/\s+/g, " ");
+    return s || fallback;
+  };
+
+  const txSafeLower = (v) => txSafeText(v, "").toLowerCase();
+
+  const txGetRef = (row) =>
+    row?.order_number || row?.tracking_id || row?.payment_reference || row?.id || "—";
+
+  const txGetAmount = (row) => Number(row?.grand_total ?? row?.amount ?? 0);
+
+  const txGetCurrency = (row) => txSafeText(row?.currency || "AED", "AED");
+
+  const txGetDate = (row) =>
+    txSafeText(row?.created_at_label || row?.created_at || "—", "—");
+
+  const txGetStatus = (row) => {
+    const raw = txSafeLower(row?.payment_status || row?.order_status || "pending");
+    if (["paid", "completed", "captured", "successful", "success"].includes(raw)) return "paid";
+    if (["pending", "initiated", "pending_payment"].includes(raw)) return "pending";
+    if (["processing", "ongoing"].includes(raw)) return "processing";
+    if (["refunded", "refund", "partially_refunded"].includes(raw)) return "refunded";
+    if (["cancelled", "canceled"].includes(raw)) return "cancelled";
+    return raw || "pending";
+  };
+
+  const txIsUnseen = (row) =>
+    row &&
+    (
+      row.is_seen === false ||
+      row.is_seen === 0 ||
+      row.is_seen === "0" ||
+      !row.seen_at ||
+      !row.viewed_at
+    );
+
+  const txSummary = (typeof summaryData !== "undefined" && summaryData && typeof summaryData === "object")
+    ? summaryData
+    : {};
+
+  const txQuery = (typeof query !== "undefined" && query && typeof query === "object")
+    ? query
+    : {};
+
+  const txQueryStatus = txSafeLower(txQuery.status || "");
+
+  const adminData =
+    (typeof admin !== 'undefined' && admin) ||
+    (typeof user !== 'undefined' && user) ||
+    (typeof sessionAdmin !== 'undefined' && sessionAdmin) ||
+    {};
+
+  const fullNameValue = adminData?.full_name || 'Admin';
+%>
+
+  <!DOCTYPE html>
+  <html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Dashboard | Jood - Quality Good & Products
+    </title>
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/customer/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/customer/css/account.css">
+
+    <style>
+      :root {
+        --radius: 18px;
+        --border: 1px solid rgba(0, 0, 0, 0.08);
+        --shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+        --shadow-hover: 0 16px 36px rgba(0, 0, 0, 0.08);
+        --text: #111;
+        --muted: #6b7280;
+        --soft: #f5f7fb;
+        --chip: #f6f7f9;
+        --primary: #f59e0b;
+      }
+
+      .dashboard-top-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .dashboard-stat-card,
+      .chart-card,
+      .visitor-card,
+      .summary-card,
+      .dashboard-empty {
+        border: var(--border);
+        border-radius: var(--radius);
+        background: #fff;
+      }
+
+      .dashboard-stat-card {
+        padding: 16px;
+        min-height: 132px;
+      }
+
+      .dashboard-stat-card .icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f7fb;
+        color: var(--primary);
+        font-size: 18px;
+        margin-bottom: 12px;
+      }
+
+      .dashboard-stat-card .k {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .35px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 10px;
+      }
+
+      .dashboard-stat-card .v {
+        font-size: 26px;
+        line-height: 1.1;
+        font-weight: 900;
+        color: var(--text);
+        margin-bottom: 8px;
+        word-break: break-word;
+      }
+
+      .dashboard-stat-card .s {
+        font-size: 13px;
+        color: #666;
+        margin: 0;
+      }
+
+      .dashboard-merged-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        margin-top: 16px;
+        align-items: stretch;
+      }
+
+      .dashboard-left,
+      .dashboard-right {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .chart-card {
+        padding: 18px;
+        height: 100%;
+      }
+
+      .chart-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+
+      .chart-head h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text);
+      }
+
+      .chart-head p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .range-switcher {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .range-btn {
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        background: #fff;
+        color: #333;
+        font-weight: 700;
+        font-size: 12px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        transition: all .15s ease;
+      }
+
+      .range-btn:hover {
+        border-color: rgba(13, 110, 253, .35);
+        color: var(--primary);
+      }
+
+      .range-btn.active {
+        background: var(--primary);
+        color: #fff;
+        border-color: var(--primary);
+      }
+
+      .chart-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+
+      .live-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: var(--soft);
+        color: #333;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .chart-wrap {
+        position: relative;
+        width: 100%;
+        height: 320px;
+      }
+
+      .chart-wrap canvas {
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      .chart-foot {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .visitor-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 16px;
+        height: 100%;
+      }
+
+      .visitor-card-shell {
+        grid-column: span 12;
+        height: 100%;
+      }
+
+      .visitor-card {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        padding: 18px;
+        cursor: pointer;
+        text-align: left;
+        transition: transform .18s ease, border-color .18s ease;
+        overflow: hidden;
+        display: block;
+        min-height: 100%;
+        border: var(--border);
+        background: #fff;
+      }
+
+      .visitor-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(0, 0, 0, .12);
+      }
+
+      .visitor-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        height: 100%;
+      }
+
+      .visitor-card-title {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+
+      .visitor-card-count {
+        font-size: 42px;
+        line-height: 1;
+        font-weight: 900;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+
+      .visitor-card-subtitle {
+        font-size: 14px;
+        color: #666;
+        margin: 0;
+      }
+
+      .visitor-card-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .visitor-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: var(--chip);
+        color: #333;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+
+      .tiny-graph {
+        display: flex;
+        align-items: end;
+        gap: 5px;
+        height: 54px;
+        width: 140px;
+        margin-left: auto;
+        margin-top: 6px;
+      }
+
+      .tiny-graph span {
+        display: block;
+        width: 100%;
+        min-width: 10px;
+        border-radius: 999px 999px 4px 4px;
+        background: linear-gradient(180deg, rgba(13, 110, 253, .95), rgba(13, 110, 253, .35));
+        opacity: .95;
+      }
+
+      .small-note {
+        font-size: 12px;
+        color: #7a7a7a;
+        margin-top: 10px;
+      }
+
+      .visitor-click-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      .summary-card {
+        padding: 16px;
+        height: 100%;
+      }
+
+      .summary-card h6 {
+        margin: 0 0 8px;
+        font-size: 13px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .3px;
+        font-weight: 800;
+      }
+
+      .summary-card .value {
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--text);
+        line-height: 1.1;
+      }
+
+      .summary-card .label {
+        font-size: 13px;
+        color: #666;
+        margin-top: 6px;
+      }
+
+      .visitor-table,
+      .table-visits td,
+      .table-visits th {
+        vertical-align: middle;
+        font-size: 13px;
+      }
+
+      .visitor-row {
+        cursor: pointer;
+        transition: background-color .15s ease, transform .15s ease;
+      }
+
+      .visitor-row:hover {
+        background: #f8f9fb;
+      }
+
+      .visitor-key {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        color: #444;
+        word-break: break-all;
+      }
+
+      .detail-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #f5f7fb;
+        font-size: 12px;
+        font-weight: 700;
+        color: #333;
+        margin: 0 6px 6px 0;
+      }
+
+      .dashboard-empty {
+        padding: 28px;
+        text-align: center;
+        color: #666;
+        border-style: dashed;
+      }
+
+      .modal-xl-custom {
+        max-width: 1180px;
+      }
+
+      .modal-xxl-custom {
+        max-width: 1400px;
+      }
+
+      .loading-skeleton {
+        min-height: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+      }
+
+      .visitor-list-wrap {
+        max-height: 62vh;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .page-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 1200px) {
+        .dashboard-top-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .dashboard-merged-row {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .dashboard-top-grid {
+          grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+
+        .visitor-card-count {
+          font-size: 30px;
+        }
+
+        .tiny-graph {
+          width: 92px;
+        }
+
+        .chart-wrap {
+          height: 240px;
+        }
+
+        .range-switcher {
+          justify-content: flex-start;
+        }
+      }
+
+      /* =========================================================
+   DASHBOARD 8 / 4 RESPONSIVE LAYOUT
+========================================================= */
+
+      .dashboard-row {
+        display: grid;
+        grid-template-columns: minmax(0, 8fr) minmax(320px, 4fr);
+        gap: 20px;
+        align-items: start;
+        width: 100%;
+      }
+
+      /* LEFT SIDE */
+      .dashboard-main {
+        min-width: 0;
+        width: 100%;
+      }
+
+      /* RIGHT SIDE */
+      .dashboard-sidebar {
+        min-width: 0;
+        width: 100%;
+        position: sticky;
+        top: 20px;
+      }
+
+      /* =========================================================
+   RESPONSIVE
+========================================================= */
+
+      @media (max-width: 1400px) {
+        .dashboard-row {
+          grid-template-columns: minmax(0, 7fr) minmax(300px, 5fr);
+        }
+      }
+
+      @media (max-width: 1200px) {
+        .dashboard-row {
+          grid-template-columns: 1fr;
+        }
+
+        .dashboard-sidebar {
+          position: relative;
+          top: unset;
+        }
+      }
+
+      /* =========================================================
+   PANELS
+========================================================= */
+
+      .dash-panel {
+        width: 100%;
+        background: #fff;
+        border: 1px solid #e7e7eb;
+        border-radius: 22px;
+        padding: 20px;
+        overflow: hidden;
+      }
+
+      .dash-panel+.dash-panel {
+        margin-top: 20px;
+      }
+
+      /* =========================================================
+   HEADER
+========================================================= */
+
+      .dash-panel__head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+      }
+
+      .dash-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.2;
+      }
+
+      .dash-subtitle {
+        margin: 6px 0 0;
+        color: #667085;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      /* =========================================================
+   SEARCH
+========================================================= */
+
+      .search-wrap {
+        width: 100%;
+        max-width: 420px;
+      }
+
+      .search-input {
+        width: 100%;
+        height: 48px;
+        border: 1px solid #d0d5dd;
+        border-radius: 14px;
+        padding: 0 16px;
+        font-size: 14px;
+        background: #fff;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      .search-input:focus {
+        border-color: #7c3aed;
+      }
+
+      /* =========================================================
+   FILTERS
+========================================================= */
+
+      .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+      }
+
+      .filter-chip {
+        border: 1px solid #d0d5dd;
+        background: #fff;
+        color: #344054;
+        padding: 10px 15px;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all 0.2s ease;
+      }
+
+      .filter-chip:hover {
+        transform: translateY(-1px);
+      }
+
+      .filter-chip.is-active {
+        background: #111827;
+        border-color: #111827;
+        color: #fff;
+      }
+
+      /* =========================================================
+   TABLE + GRAPH CARDS
+========================================================= */
+
+      .table-card,
+      .graph-card {
+        border: 1px solid #eaecf0;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #fff;
+      }
+
+      .card-head {
+        padding: 18px;
+        border-bottom: 1px solid #f1f3f5;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .card-head h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 800;
+        color: #111827;
+      }
+
+      .card-head p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: #667085;
+      }
+
+      /* =========================================================
+   CHART
+========================================================= */
+
+      .graph-controls {
+        min-width: 170px;
+      }
+
+      .graph-select {
+        width: 100%;
+        height: 44px;
+        border: 1px solid #d0d5dd;
+        border-radius: 12px;
+        padding: 0 12px;
+        background: #fff;
+        font-size: 14px;
+        outline: none;
+      }
+
+      .graph-select:focus {
+        border-color: #7c3aed;
+      }
+
+      .graph-box {
+        position: relative;
+        width: 100%;
+        min-height: 350px;
+        padding: 18px;
+      }
+
+      .graph-box canvas {
+        width: 100% !important;
+        height: 320px !important;
+      }
+
+      /* =========================================================
+   TABLE
+========================================================= */
+
+      .table-scroll {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .dash-table {
+        width: 100%;
+        min-width: 860px;
+        border-collapse: collapse;
+      }
+
+      .dash-table thead th {
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #667085;
+        background: #f9fafb;
+        padding: 14px 16px;
+        border-bottom: 1px solid #eaecf0;
+      }
+
+      .dash-table tbody td {
+        padding: 16px;
+        border-bottom: 1px solid #f2f4f7;
+        vertical-align: middle;
+        font-size: 14px;
+      }
+
+      .dash-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .row-unseen {
+        background: #fffdf7;
+      }
+
+      /* =========================================================
+   ORDER INFO
+========================================================= */
+
+      .order-main {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .order-number {
+        font-weight: 800;
+        color: #111827;
+      }
+
+      .customer-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .customer-block strong {
+        color: #111827;
+      }
+
+      .customer-block span {
+        color: #667085;
+        font-size: 13px;
+      }
+
+      /* =========================================================
+   BADGES
+========================================================= */
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .badge-unseen {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        color: #be123c;
+      }
+
+      .badge-status {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .badge-new,
+      .badge-pending {
+        background: #fff7ed;
+        color: #c2410c;
+      }
+
+      .badge-in-progress,
+      .badge-processing,
+      .badge-ongoing {
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+
+      .badge-complete,
+      .badge-completed {
+        background: #ecfdf3;
+        color: #027a48;
+      }
+
+      .badge-cancelled,
+      .badge-canceled {
+        background: #fef2f2;
+        color: #b91c1c;
+      }
+
+      .badge-refunded {
+        background: #f5f3ff;
+        color: #6d28d9;
+      }
+
+      /* =========================================================
+   ACTIONS
+========================================================= */
+
+      .action-link {
+        color: #7c3aed;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .action-link:hover {
+        text-decoration: underline;
+      }
+
+      /* =========================================================
+   EMPTY
+========================================================= */
+
+      .empty-state {
+        padding: 40px 20px;
+        text-align: center;
+        color: #667085;
+        font-size: 14px;
+      }
+
+      /* =========================================================
+   FOOTER
+========================================================= */
+
+      .table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 18px;
+        border-top: 1px solid #f1f3f5;
+        flex-wrap: wrap;
+      }
+
+      .table-meta {
+        font-size: 14px;
+        color: #667085;
+      }
+
+      /* =========================================================
+   PAGINATION
+========================================================= */
+
+      .pagination {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .page-btn {
+        min-width: 38px;
+        height: 38px;
+        border: 1px solid #d0d5dd;
+        background: #fff;
+        color: #344054;
+        border-radius: 10px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .page-btn:hover:not(:disabled) {
+        border-color: #7c3aed;
+        color: #7c3aed;
+      }
+
+      .page-btn.is-active {
+        background: #111827;
+        border-color: #111827;
+        color: #fff;
+      }
+
+      .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .tx-page {
+        padding: 20px;
+      }
+
+      .tx-grid {
+        display: grid;
+        grid-template-columns: 8fr 4fr;
+        gap: 18px;
+        align-items: start;
+      }
+
+      @media (max-width: 992px) {
+        .tx-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .tx-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        overflow: hidden;
+      }
+
+      .tx-card__head {
+        display:flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        padding: 18px 18px 12px;
+        border-bottom: 1px solid #eef2f7;
+      }
+
+      .tx-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 800;
+        color: #111827;
+      }
+
+      .tx-subtitle {
+        margin: 6px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .tx-filters {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr 1fr 1fr auto;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      @media (max-width: 992px) {
+        .tx-filters {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .tx-filters {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .tx-input,
+      .tx-select,
+      .tx-date,
+      .tx-btn {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid #d1d5db;
+        background: #fff;
+        padding: 11px 14px;
+        font-size: 14px;
+        outline: none;
+      }
+
+      .tx-input:focus,
+      .tx-select:focus,
+      .tx-date:focus {
+        border-color: #7c3aed;
+      }
+
+      .tx-btn {
+        border: 1px solid #111827;
+        background: #111827;
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s ease;
+      }
+
+      .tx-btn:hover {
+        transform: translateY(-1px);
+        opacity: 0.95;
+      }
+
+      .tx-kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        padding: 18px;
+      }
+
+      @media (max-width: 992px) {
+        .tx-kpis {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      .kpi {
+        border: 1px solid #eef2f7;
+        border-radius: 16px;
+        padding: 14px;
+        background: #fafafa;
+      }
+
+      .kpi__label {
+        font-size: 12px;
+        color: #6b7280;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .kpi__value {
+        margin-top: 8px;
+        font-size: 20px;
+        font-weight: 800;
+        color: #111827;
+      }
+
+      .tx-table-wrap {
+        padding: 0 18px 18px;
+      }
+
+      .tx-table-scroll {
+        overflow-x: auto;
+      }
+
+      .tx-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 980px;
+      }
+
+      .tx-table th {
+        text-align: left;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #6b7280;
+        padding: 14px 12px;
+        border-bottom: 1px solid #eef2f7;
+        background: #fcfcfd;
+      }
+
+      .tx-table td {
+        padding: 14px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        font-size: 14px;
+        color: #111827;
+      }
+
+      .tx-row-unseen {
+        background: #fffdf7;
+        font-weight: 700;
+      }
+
+      .tx-order-main {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .tx-ref {
+        font-weight: 800;
+        color: #111827;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        line-height: 1;
+        white-space: nowrap;
+      }
+
+      .badge-unseen {
+        background: #fff1f2;
+        color: #be123c;
+        border: 1px solid #fecdd3;
+      }
+
+      .badge-paid {
+        background: #ecfdf3;
+        color: #027a48;
+      }
+
+      .badge-pending {
+        background: #fff7ed;
+        color: #c2410c;
+      }
+
+      .badge-processing {
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+
+      .badge-refunded {
+        background: #f5f3ff;
+        color: #6d28d9;
+      }
+
+      .badge-cancelled {
+        background: #fef2f2;
+        color: #b91c1c;
+      }
+
+      .tx-customer {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .tx-customer span {
+        color: #6b7280;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .tx-action {
+        color: #7c3aed;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .tx-action:hover {
+        text-decoration: underline;
+      }
+
+      .tx-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 0 18px 18px;
+      }
+
+      .tx-meta {
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .tx-pagination {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .page-btn {
+        border: 1px solid #d1d5db;
+        background: #fff;
+        color: #111827;
+        border-radius: 12px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .page-btn.is-active {
+        background: #111827;
+        color: #fff;
+        border-color: #111827;
+      }
+
+      .page-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .tx-chart-card {
+        padding: 18px;
+      }
+
+      .tx-chart-box {
+        position: relative;
+        min-height: 330px;
+      }
+
+      .tx-refresh {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .empty-state {
+        padding: 30px 12px;
+        text-align: center;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="account-layout" id="accountLayout">
+      <aside class="account-sidebar" id="accountSidebar" aria-label="Account Sidebar">
+        <%- include('../../includes/account-sidebar', { user: adminData, admin: adminData, activePage: 'dashboard' }) %>
+      </aside>
+
+      <div class="account-right">
+        <header class="account-topbar" aria-label="Account Topbar">
+          <div class="account-topbar-left">
+            <button type="button" class="account-toggle-btn" id="accountToggleBtn" aria-label="Toggle sidebar" aria-controls="accountSidebar" aria-expanded="false"><i class="fa fa-bars"></i></button>
+          </div>
+          <div class="account-topbar-right">
+            <div class="account-user-mini"><i class="fa fa-user-circle"></i><span id="topbarUserName"><%= fullNameValue %></span></div>
+          </div>
+        </header>
+
+        <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+        <main class="account-content">
+
+          <section class="account-page-header">
+            <div class="account-hero">
+              <div class="account-hero-text">
+                <h1 class="account-title">Dashboard</h1>
+              </div>
+            </div>
+          </section>
+
+          <section class="dashboard-top-grid">
+            <div class="dashboard-stat-card">
+              <div class="icon"><i class="fa fa-eye"></i></div>
+              <div class="k">Visitors</div>
+              <div class="v" id="statVisitors"><%= seedTotalVisitors %></div>
+              <div class="s">Unique visitors from page activity.</div>
+            </div>
+
+            <div class="dashboard-stat-card">
+              <div class="icon"><i class="fa fa-users"></i></div>
+              <div class="k">Users</div>
+              <div class="v" id="statUsers"><%= seedTotalUsers %></div>
+              <div class="s">Registered users in the system.</div>
+            </div>
+
+            <div class="dashboard-stat-card">
+              <div class="icon"><i class="fa fa-shopping-cart"></i></div>
+              <div class="k">Orders</div>
+              <div class="v" id="statOrders"><%= seedTotalOrders %></div>
+              <div class="s">Total orders received.</div>
+            </div>
+
+            <div class="dashboard-stat-card">
+              <div class="icon"><i class="fa-solid fa-money-check-dollar"></i></div>
+              <div class="k">Total Income</div>
+              <div class="v" id="statIncome"><%= seedTotalIncome %></div>
+              <div class="s">Revenue overview.</div>
+            </div>
+
+            <div class="dashboard-stat-card">
+              <div class="icon"><i class="fa fa-cubes"></i></div>
+              <div class="k">Items / Products</div>
+              <div class="v" id="statItems"><%= seedTotalItems %></div>
+              <div class="s">Inventory or product count.</div>
+            </div>
+          </section>
+
+          <section class="dashboard-merged-row">
+            <div class="dashboard-left">
+              <div class="chart-card">
+                <div class="chart-head">
+                  <div>
+                    <h3>Visitor Trend</h3>
+                    <p>Live visitor activity grouped by time range.</p>
+                  </div>
+
+                  <div class="range-switcher" id="rangeSwitcher">
+                    <button type="button" class="range-btn active" data-range="day">Day</button>
+                    <button type="button" class="range-btn" data-range="week">Week</button>
+                    <button type="button" class="range-btn" data-range="month">Month</button>
+                    <button type="button" class="range-btn" data-range="year">Year</button>
+                  </div>
+                </div>
+
+                <div class="chart-toolbar">
+                  <div class="live-badge">
+                    <i class="fa fa-rss"></i>
+                    <span id="chartLiveState">Live updating</span>
+                  </div>
+
+                  <div class="live-badge">
+                    <i class="fa fa-clock-o"></i>
+                    <span id="chartUpdatedAt">Last updated: —</span>
+                  </div>
+
+                  <button type="button" class="btn btn-sm btn-outline-primary" id="refreshChartBtn">
+                    Refresh
+                  </button>
+                </div>
+
+                <div class="chart-wrap">
+                  <canvas id="visitorTrendChart"></canvas>
+                </div>
+
+                <div class="chart-foot">
+                  <div id="chartRangeLabel">Showing day view</div>
+                  <div id="chartSummaryText">Loading visitor chart...</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-right">
+              <div class="visitor-summary-grid">
+                <div class="visitor-card-shell">
+                  <button type="button" class="visitor-card" id="openVisitorListBtn" aria-label="Open visitor dashboard details">
+                    <div class="visitor-card-top">
+                      <div style="flex:1 1 auto; min-width:0;">
+                        <div class="visitor-card-title">Visitors</div>
+                        <div class="visitor-card-count" id="totalVisitorsText"><%= seedTotalVisitors %></div>
+
+                        <p class="visitor-card-subtitle">
+                          Unique visitors tracked from <strong>page_visits</strong>
+                        </p>
+
+                        <div class="visitor-card-badges">
+                          <span class="visitor-chip">
+                            <i class="fa fa-eye"></i>
+                            <span id="totalPageVisitsText"><%= seedTotalPageVisits %></span> page visits
+                          </span>
+                          <span class="visitor-chip">
+                            <i class="fa fa-clock-o"></i>
+                            Latest activity first
+                          </span>
+                        </div>
+
+                        <div class="visitor-click-hint">
+                          <i class="fa fa-search"></i>
+                          Click to open visitor list and detail history
+                        </div>
+                      </div>
+
+                      <div class="text-end" style="flex:0 0 auto;">
+                        <div class="tiny-graph" id="tinyGraph" aria-hidden="true">
+                          <% if (seedGraphValues.length) { %>
+                          <% seedGraphValues.forEach((value) => { %>
+                          <span style="height:<%= Math.max(18, Math.round((value / seedGraphMax) * 100)) %>%;"></span>
+                          <% }); %>
+                          <% } else { %>
+                          <span style="height:20%;"></span>
+                          <span style="height:35%;"></span>
+                          <span style="height:55%;"></span>
+                          <span style="height:42%;"></span>
+                          <% } %>
+                        </div>
+                        <div class="small-note">Tap to open full visitor view</div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="dashboard-row">
+            <div class="dash-panel">
+              <div class="dash-panel__head">
+                <div>
+                  <h2 class="dash-title">Orders</h2>
+                  <p class="dash-subtitle">Search, filter, and review the latest orders.</p>
+                </div>
+
+                <div class="dash-actions">
+                 <button id="viewMoreOrders" class="tx-btn" type="button">View more</button>
+                </div>
+              </div>
+
+              <div class="filter-bar" id="orderFilterBar">
+                <button type="button" class="filter-chip is-active" data-section="all">All</button>
+                <button type="button" class="filter-chip" data-section="pending">New</button>
+                <button type="button" class="filter-chip" data-section="processing">In Progress</button>
+                <button type="button" class="filter-chip" data-section="completed">Complete</button>
+                <button type="button" class="filter-chip" data-section="cancelled">Cancelled</button>
+                <button type="button" class="filter-chip" data-section="refunded">Refunded</button>
+              </div>
+
+              <div class="table-card">
+                <div class="table-scroll">
+                  <table class="dash-table">
+                    <thead>
+                      <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Total</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+
+                    <tbody id="ordersTableBody">
+                      <% if (ordersRows.length) { %>
+                      <% ordersRows.forEach((order) => {
+                        const unseen = isUnseenOrderFn(order);
+                        const status = getStatusFn(order);
+                        const ref = getRefFn(order);
+                        const amount = getAmountFn(order);
+                        const currency = getCurrencyFn(order);
+                        const dateLabel = getDateFn(order);
+                    %>
+                      <tr class="<%= unseen ? 'row-unseen' : '' %>">
+                        <td>
+                          <div class="order-main">
+                            <div class="order-number"><%= ref %></div>
+                            <% if (unseen) { %>
+                            <span class="badge badge-unseen">Unseen</span>
+                            <% } %>
+                          </div>
+                        </td>
+
+                        <td>
+                          <div class="customer-block">
+                            <strong><%= order.customer_name || 'Guest' %></strong>
+                            <span><%= order.email || order.phone || '—' %></span>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span class="badge badge-status badge-<%= status.replace(/\s+/g, '-') %>">
+                            <%= status %>
+                          </span>
+                        </td>
+
+                        <td><%= order.payment_status || '—' %></td>
+
+                        <td><strong><%= currency %> <%= amount.toFixed(2) %></strong></td>
+
+                        <td><%= dateLabel %></td>
+
+                        <td>
+                          <a class="action-link" href="/admin/a/orders/<%= encodeURIComponent(ref) %>">View</a>
+                        </td>
+                      </tr>
+                      <% }) %>
+                      <% } else { %>
+                      <tr>
+                        <td colspan="7">
+                          <div class="empty-state">No orders found.</div>
+                        </td>
+                      </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="table-footer">
+                  <div class="table-meta" id="ordersMeta">
+                    Showing <span id="ordersShown"><%= ordersRows.length %></span> orders
+                    <span id="ordersRefreshState" style="margin-left:10px;"></span>
+                  </div>
+
+                  <div class="pagination" id="ordersPagination"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-panel">
+              <div class="graph-card">
+                <div class="card-head">
+                  <div>
+                    <h3>Orders Graph</h3>
+                    <p>Revenue trend from your order history.</p>
+                  </div>
+
+                  <div class="graph-controls">
+                    <select id="orderChartRange" class="graph-select">
+                      <option value="week" selected>Weekly</option>
+                      <option value="month">Monthly</option>
+                      <option value="year">Yearly</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="graph-box">
+                  <canvas id="ordersChart"></canvas>
+                </div>
+
+                <div style="padding: 0 16px 16px; color: #667085; font-size: 13px;" id="ordersChartState">
+                  Chart loading...
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="tx-page">
+            <div class="tx-card">
+              <div class="tx-card__head">
+                <h2 class="tx-title">Transaction History</h2>
+                <p class="tx-subtitle">Track orders, payments, refunds, and live status updates.</p>
+
+                <div class="tx-filters">
+                  <input id="txSearch" class="tx-input" type="text" placeholder="Search order, customer, email, phone..." value="<%= txSafeText(txQuery.q || '') %>">
+
+                  <select id="txStatus" class="tx-select">
+                    <option value="" <%= !txQueryStatus ? "selected" : "" %>>All Status</option>
+                    <option value="paid" <%= txQueryStatus === "paid" ? "selected" : "" %>>Paid</option>
+                    <option value="pending" <%= txQueryStatus === "pending" ? "selected" : "" %>>Pending</option>
+                    <option value="processing" <%= txQueryStatus === "processing" ? "selected" : "" %>>Processing</option>
+                    <option value="refunded" <%= txQueryStatus === "refunded" ? "selected" : "" %>>Refunded</option>
+                    <option value="cancelled" <%= txQueryStatus === "cancelled" ? "selected" : "" %>>Cancelled</option>
+                  </select>
+
+                  <input id="txFrom" class="tx-date" type="date" value="<%= txSafeText(txQuery.from || '') %>">
+
+                  <input id="txTo" class="tx-date" type="date" value="<%= txSafeText(txQuery.to || '') %>">
+
+                  <button id="txApply" class="tx-btn" type="button">Apply</button>
+                </div>
+              </div>
+
+              <div class="tx-kpis">
+                <div class="kpi">
+                  <div class="kpi__label">Total Transactions</div>
+                  <div class="kpi__value"><%= txSummary.totalCount || txPagination.total || txRows.length %></div>
+                </div>
+
+                <div class="kpi">
+                  <div class="kpi__label">Paid</div>
+                  <div class="kpi__value"><%= txSummary.paidCount || 0 %></div>
+                </div>
+
+                <div class="kpi">
+                  <div class="kpi__label">Pending</div>
+                  <div class="kpi__value"><%= txSummary.pendingCount || 0 %></div>
+                </div>
+
+                <div class="kpi">
+                  <div class="kpi__label">Refunded</div>
+                  <div class="kpi__value"><%= txSummary.refundedCount || 0 %></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tx-grid" style="margin-top:18px;">
+              <div class="tx-card">
+                <div class="tx-card__head">
+                  <div>
+                    <h3 class="tx-title" style="font-size:18px;">Transactions Table</h3>
+                    <p class="tx-subtitle">Rows are sorted with new transactions at the top.</p>
+                  </div>
+                  
+                  <div class="dash-actions">
+                    <button id="viewMoreTransactions" class="tx-btn" type="button">View more</button>
+                  </div>
+                </div>
+                
+
+                <div class="tx-table-wrap">
+                  <div class="tx-table-scroll">
+                    <table class="tx-table">
+                      <thead>
+                        <tr>
+                          <th>Transaction</th>
+                          <th>Customer</th>
+                          <th>Status</th>
+                          <th>Payment</th>
+                          <th>Total</th>
+                          <th>Date</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+
+                      <tbody id="txTableBody">
+                        <% if (txRows.length) { %>
+                        <% txRows.forEach((row) => {
+                           const txUnseen = txIsUnseen(row);
+                           const txStatus = txGetStatus(row);
+                      %>
+                        <tr class="<%= txUnseen ? 'tx-row-unseen' : '' %>">
+                          <td>
+                            <div class="tx-order-main">
+                              <span class="tx-ref"><%= txGetRef(row) %></span>
+                              <% if (txUnseen) { %>
+                              <span class="badge badge-unseen">Unseen</span>
+                              <% } %>
+                            </div>
+                          </td>
+
+                          <td>
+                            <div class="tx-customer">
+                              <strong><%= row.customer_name || 'Guest' %></strong>
+                              <span><%= row.email || row.phone || '—' %></span>
+                            </div>
+                          </td>
+
+                          <td>
+                            <span class="badge badge-<%= txStatus %>"><%= txStatus %></span>
+                          </td>
+
+                          <td><%= row.payment_method || '—' %></td>
+
+                          <td>
+                            <strong><%= txGetCurrency(row) %> <%= txGetAmount(row).toFixed(2) %></strong>
+                          </td>
+
+                          <td><%= txGetDate(row) %></td>
+
+                          <td>
+                            <a class="tx-action" href="/admin/a/orders/<%= encodeURIComponent(txGetRef(row)) %>"> View </a>
+                          </td>
+                        </tr>
+                        <% }) %>
+                        <% } else { %>
+                        <tr>
+                          <td colspan="7">
+                            <div class="empty-state">No transactions found.</div>
+                          </td>
+                        </tr>
+                        <% } %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="tx-footer">
+                  <div class="tx-meta" id="txMeta">
+                    Showing <strong><%= txRows.length %></strong> transactions
+                    <span id="txRefreshState" style="margin-left:10px;"></span>
+                  </div>
+
+                  <div class="tx-pagination" id="txPagination"></div>
+                </div>
+              </div>
+
+              <div class="tx-card">
+                <div class="tx-chart-card">
+                  <div class="tx-card__head" style="padding:0 0 12px;">
+                    <h3 class="tx-title" style="font-size:18px;">Revenue Graph</h3>
+                    <p class="tx-subtitle">Weekly chart with live refresh.</p>
+                  </div>
+
+                  <div class="tx-filters" style="grid-template-columns: 1fr;">
+                    <select id="txChartRange" class="tx-select">
+                      <option value="day">Day</option>
+                      <option value="week" selected>Week</option>
+                      <option value="month">Month</option>
+                      <option value="year">Year</option>
+                    </select>
+                  </div>
+
+                  <div class="tx-chart-box" style="margin-top:14px;">
+                    <canvas id="txChart"></canvas>
+                  </div>
+
+                  <div class="tx-refresh" id="txChartState">Chart loading...</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <script>
+            window.__TX_API__ = "<%= txApiUrl %>";
+            window.__TX_INITIAL_ROWS__ = <%- JSON.stringify(txRows) %>;
+            window.__TX_INITIAL_PAGINATION__ = <%- JSON.stringify(txPagination) %>;
+
+            window.__ORDERS_API__ = "<%= ordersApi %>";
+            window.__INITIAL_ORDERS__ = <%- JSON.stringify(ordersRows) %>;
+            window.__INITIAL_PAGINATION__ = <%- JSON.stringify(ordersPagination) %>;
+            window.__ORDER_WEEKLY_SERIES__ = <%- JSON.stringify(ordersWeeklySeries) %>;
+            window.__ORDER_MONTHLY_SERIES__ = <%- JSON.stringify(ordersMonthlySeries) %>;
+          </script>
+        </main>
+        <%- include('../../includes/account-footer') %>
+      </div>
+    </div>
+
+    <div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+    <div class="modal fade" id="visitorListModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl modal-xl-custom">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <h5 class="modal-title mb-1">Visitor Dashboard</h5>
+              <div class="text-muted small">
+                <span id="visitorListCountText">0</span> visitor row(s) loaded
+              </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-3">
+                <div class="summary-card">
+                  <h6>Unique Visitors</h6>
+                  <div class="value" id="modalTotalVisitors"><%= seedTotalVisitors %></div>
+                  <div class="label">Counted from distinct visitor keys.</div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-3">
+                <div class="summary-card">
+                  <h6>Page Visits</h6>
+                  <div class="value" id="modalTotalPageVisits"><%= seedTotalPageVisits %></div>
+                  <div class="label">Total rows in page_visits.</div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-3">
+                <div class="summary-card">
+                  <h6>Page</h6>
+                  <div class="value">
+                    <span id="modalPage"><%= safePagination.page || 1 %></span> /
+                    <span id="modalTotalPages"><%= safePagination.totalPages || 1 %></span>
+                  </div>
+                  <div class="label">Current page view of the visitor list.</div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-3">
+                <div class="summary-card">
+                  <h6>Rows</h6>
+                  <div class="value" id="modalRowsCount">0</div>
+                  <div class="label">Loaded rows in this page.</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="visitorListLoading" class="loading-skeleton">
+              <div class="text-center">
+                <i class="fa fa-spinner fa-spin fa-2x mb-3"></i>
+                <div>Loading visitor data...</div>
+              </div>
+            </div>
+
+            <div id="visitorListError" class="dashboard-empty d-none"></div>
+
+            <div id="visitorListEmpty" class="dashboard-empty d-none">
+              <i class="fa fa-info-circle fa-2x mb-3"></i>
+              <div>No visitor data found.</div>
+            </div>
+
+            <div id="visitorListWrap" class="visitor-list-wrap d-none">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle visitor-table mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th width="90">#</th>
+                      <th>Visitor Key</th>
+                      <th width="130">Visits</th>
+                      <th width="170">First Visit</th>
+                      <th width="170">Last Visit</th>
+                      <th width="140">IP</th>
+                      <th width="120">Action</th>
+                    </tr>
+                  </thead>
+
+                  <tbody id="visitorTableBody">
+                    <tr>
+                      <td colspan="7" class="text-center text-muted py-4">No data loaded yet.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer d-flex justify-content-between">
+            <div class="text-muted small" id="visitorListFooter">Ready</div>
+            <div class="page-nav">
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="visitorPrevBtn" disabled>Prev</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="visitorNextBtn" disabled>Next</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="reloadVisitorsBtn">Reload</button>
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="visitorDetailModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xxl modal-xxl-custom">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div>
+              <h5 class="modal-title mb-1">Visitor Detail</h5>
+              <div class="text-muted small" id="visitorDetailSubtitle">
+                Select a visitor to see their visit timeline.
+              </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <div id="visitorDetailLoading" class="dashboard-empty d-none">
+              <i class="fa fa-spinner fa-spin fa-2x mb-3"></i>
+              <div>Loading visit history...</div>
+            </div>
+
+            <div id="visitorDetailEmpty" class="dashboard-empty">
+              <i class="fa fa-user fa-2x mb-3"></i>
+              <div>Open a visitor from the list to display the full visit history.</div>
+            </div>
+
+            <div id="visitorDetailContent" class="d-none">
+              <div class="row g-3 mb-3">
+                <div class="col-12 col-md-3">
+                  <div class="summary-card">
+                    <h6>Visitor Key</h6>
+                    <div class="value" style="font-size:18px; word-break: break-all;" id="detailVisitorKey">—</div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                  <div class="summary-card">
+                    <h6>Total Visits</h6>
+                    <div class="value" id="detailTotalVisits">0</div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                  <div class="summary-card">
+                    <h6>First Visit</h6>
+                    <div class="value" style="font-size:16px;" id="detailFirstVisit">—</div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-3">
+                  <div class="summary-card">
+                    <h6>Last Visit</h6>
+                    <div class="value" style="font-size:16px;" id="detailLastVisit">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="summary-card mb-3">
+                <h6>Summary</h6>
+                <div class="detail-pill"><i class="fa fa-globe"></i> IP: <span id="detailIp">—</span></div>
+                <div class="detail-pill"><i class="fa fa-link"></i> Last URL: <span id="detailLastUrl">—</span></div>
+                <div class="detail-pill"><i class="fa fa-desktop"></i> User Agent: <span id="detailUserAgent">—</span></div>
+              </div>
+
+              <div class="summary-card">
+                <h6>Pages Visited</h6>
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover table-visits align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th width="90">#</th>
+                        <th width="180">Visited At</th>
+                        <th width="110">Method</th>
+                        <th width="320">URL</th>
+                        <th>User Agent</th>
+                      </tr>
+                    </thead>
+                    <tbody id="detailVisitsBody">
+                      <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No data loaded yet.</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer d-flex justify-content-between">
+            <div class="text-muted small" id="detailFooterText">Ready</div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+    <script>
+      (() => {
+          "use strict";
+
+          const $ = (selector, root = document) => root.querySelector(selector);
+          const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+          const els = {
+            layout: $("#accountLayout"),
+            sidebar: $("#accountSidebar"),
+            toggleBtn: $("#accountToggleBtn"),
+            backdrop: $("#accountBackdrop"),
+            topbar: $(".account-topbar"),
+
+            visitorTrendChart: $("#visitorTrendChart"),
+            chartRangeSwitcher: $("#rangeSwitcher"),
+            chartRangeLabel: $("#chartRangeLabel"),
+            chartSummaryText: $("#chartSummaryText"),
+            chartLiveState: $("#chartLiveState"),
+            chartUpdatedAt: $("#chartUpdatedAt"),
+            refreshChartBtn: $("#refreshChartBtn"),
+            tinyGraph: $("#tinyGraph"),
+
+            openVisitorListBtn: $("#openVisitorListBtn"),
+            visitorListModalEl: $("#visitorListModal"),
+            visitorDetailModalEl: $("#visitorDetailModal"),
+
+            visitorListCountText: $("#visitorListCountText"),
+            visitorListLoading: $("#visitorListLoading"),
+            visitorListError: $("#visitorListError"),
+            visitorListEmpty: $("#visitorListEmpty"),
+            visitorListWrap: $("#visitorListWrap"),
+            visitorTableBody: $("#visitorTableBody"),
+            visitorPrevBtn: $("#visitorPrevBtn"),
+            visitorNextBtn: $("#visitorNextBtn"),
+            reloadVisitorsBtn: $("#reloadVisitorsBtn"),
+            visitorListFooter: $("#visitorListFooter"),
+            modalTotalVisitors: $("#modalTotalVisitors"),
+            modalTotalPageVisits: $("#modalTotalPageVisits"),
+            modalPage: $("#modalPage"),
+            modalTotalPages: $("#modalTotalPages"),
+            modalRowsCount: $("#modalRowsCount"),
+
+            visitorDetailLoading: $("#visitorDetailLoading"),
+            visitorDetailEmpty: $("#visitorDetailEmpty"),
+            visitorDetailContent: $("#visitorDetailContent"),
+            visitorDetailSubtitle: $("#visitorDetailSubtitle"),
+            detailVisitorKey: $("#detailVisitorKey"),
+            detailTotalVisits: $("#detailTotalVisits"),
+            detailFirstVisit: $("#detailFirstVisit"),
+            detailLastVisit: $("#detailLastVisit"),
+            detailIp: $("#detailIp"),
+            detailLastUrl: $("#detailLastUrl"),
+            detailUserAgent: $("#detailUserAgent"),
+            detailVisitsBody: $("#detailVisitsBody"),
+            detailFooterText: $("#detailFooterText"),
+
+            orderSearchInput: $("#orderSearchInput"),
+            orderFilterBar: $("#orderFilterBar"),
+            ordersTableBody: $("#ordersTableBody"),
+            ordersShown: $("#ordersShown"),
+            ordersRefreshState: $("#ordersRefreshState"),
+            ordersPagination: $("#ordersPagination"),
+            orderChartRange: $("#orderChartRange"),
+            ordersChart: $("#ordersChart"),
+            ordersChartState: $("#ordersChartState"),
+
+            txSearch: $("#txSearch"),
+            txStatus: $("#txStatus"),
+            txFrom: $("#txFrom"),
+            txTo: $("#txTo"),
+            txApply: $("#txApply"),
+            txTableBody: $("#txTableBody"),
+            txMeta: $("#txMeta"),
+            txRefreshState: $("#txRefreshState"),
+            txPagination: $("#txPagination"),
+            txChartRange: $("#txChartRange"),
+            txChart: $("#txChart"),
+            txChartState: $("#txChartState"),
+          };
+
+          if (!els.layout || !els.sidebar || !els.toggleBtn) return;
+
+          const CFG = {
+            sidebarWide: 280,
+            sidebarCollapsed: 78,
+            mobileBreakpoint: 991,
+            ordersPageSize: 8,
+            txPageSize: 8,
+            visitorPageSize: 10,
+            refreshIntervalMs: 20000,
+            currencyFallback: "AED",
+            visitorListApi: window.__VISITOR_LIST_API__ || window.__VISITOR_API__ || "",
+            visitorDetailApi: window.__VISITOR_DETAIL_API__ || "",
+            dashboardRefreshApi: window.__DASHBOARD_REFRESH_API__ || "",
+          };
+
+          const state = {
+            orders: {
+              all: normalizeOrders(window.__INITIAL_ORDERS__ || []),
+              filtered: [],
+              page: 1,
+              pageSize: CFG.ordersPageSize,
+              section: "all",
+              search: "",
+            },
+            tx: {
+              all: normalizeTransactions(window.__TX_INITIAL_ROWS__ || []),
+              filtered: [],
+              page: 1,
+              pageSize: CFG.txPageSize,
+              search: "",
+              status: "",
+              from: "",
+              to: "",
+            },
+            visitors: {
+              rows: [],
+              page: 1,
+              totalPages: 1,
+              totalRows: 0,
+              totalVisitors: Number($("#modalTotalVisitors")?.textContent || 0) || 0,
+              totalPageVisits: Number($("#modalTotalPageVisits")?.textContent || 0) || 0,
+              activeKey: "",
+              activeRow: null,
+            },
+            charts: {
+              visitorRange: "day",
+              ordersRange: String(els.orderChartRange?.value || "week"),
+              txRange: String(els.txChartRange?.value || "week"),
+              visitorChart: null,
+              ordersChart: null,
+              txChart: null,
+            },
+            timers: {
+              refresh: null,
+              clock: null,
+              orderSearch: null,
+              txSearch: null,
+            },
+            ui: {
+              mobileSidebarOpen: false,
+              detailModalOpen: false,
+              listModalOpen: false,
+            },
+          };
+
+          const visitorListModal = getBootstrapModal(els.visitorListModalEl);
+          const visitorDetailModal = getBootstrapModal(els.visitorDetailModalEl);
+
+
+          init();
+
+          function init() {
+            initLayout();
+            initClock();
+            initOrders();
+            initTransactions();
+            initCharts();
+            initVisitors();
+            initGlobalEvents();
+            scheduleAutoRefresh();
+
+            renderOrders();
+            renderTransactions();
+            renderVisitorChart(state.charts.visitorRange);
+            renderOrdersChart(state.charts.ordersRange);
+            renderTxChart(state.charts.txRange);
+
+            updateClockLabels();
+          }
+
+          function initLayout() {
+            const mobile = isMobile();
+            if (mobile) {
+              els.layout.classList.remove("sidebar-expanded");
+              els.layout.classList.remove("sidebar-collapsed");
+              els.sidebar.classList.remove("collapsed");
+              els.sidebar.classList.remove("open");
+              els.backdrop?.classList.remove("show");
+              els.toggleBtn.setAttribute("aria-expanded", "false");
+              document.body.style.overflow = "";
+            } else {
+              els.layout.classList.add("sidebar-expanded");
+              els.layout.classList.remove("sidebar-collapsed");
+              els.sidebar.classList.remove("open");
+              els.sidebar.classList.remove("collapsed");
+              els.backdrop?.classList.remove("show");
+              els.toggleBtn.setAttribute("aria-expanded", "true");
+              document.body.style.overflow = "";
+            }
+
+            els.toggleBtn.addEventListener("click", () => {
+              if (isMobile()) {
+                if (els.sidebar.classList.contains("open")) {
+                  closeMobileSidebar();
+                } else {
+                  openMobileSidebar();
+                }
+                return;
+              }
+
+              const collapsed = els.layout.classList.contains("sidebar-collapsed");
+              if (collapsed) {
+                els.layout.classList.remove("sidebar-collapsed");
+                els.layout.classList.add("sidebar-expanded");
+                els.sidebar.classList.remove("collapsed");
+                els.toggleBtn.setAttribute("aria-expanded", "true");
+              } else {
+                els.layout.classList.add("sidebar-collapsed");
+                els.layout.classList.remove("sidebar-expanded");
+                els.sidebar.classList.add("collapsed");
+                els.toggleBtn.setAttribute("aria-expanded", "false");
+              }
+            });
+
+            els.backdrop?.addEventListener("click", closeMobileSidebar);
+
+            window.addEventListener("resize", () => {
+              if (isMobile()) {
+                els.layout.classList.remove("sidebar-collapsed");
+                els.layout.classList.remove("sidebar-expanded");
+                els.sidebar.classList.remove("collapsed");
+                els.sidebar.classList.remove("open");
+                els.backdrop?.classList.remove("show");
+                document.body.style.overflow = "";
+                els.toggleBtn.setAttribute("aria-expanded", "false");
+              } else {
+                els.sidebar.classList.remove("open");
+                els.backdrop?.classList.remove("show");
+                document.body.style.overflow = "";
+                if (!els.layout.classList.contains("sidebar-collapsed")) {
+                  els.layout.classList.add("sidebar-expanded");
+                }
+                els.toggleBtn.setAttribute("aria-expanded", els.layout.classList.contains("sidebar-collapsed") ? "false" : "true");
+              }
+            });
+
+            document.addEventListener("keydown", (e) => {
+              if (e.key === "Escape") {
+                closeMobileSidebar();
+                if (visitorListModal?.isShown()) visitorListModal.hide();
+                if (visitorDetailModal?.isShown()) visitorDetailModal.hide();
+              }
+            });
+          }
+
+          function openMobileSidebar() {
+            els.sidebar.classList.add("open");
+            els.backdrop?.classList.add("show");
+            document.body.style.overflow = "hidden";
+            els.toggleBtn.setAttribute("aria-expanded", "true");
+          }
+
+          function closeMobileSidebar() {
+            els.sidebar.classList.remove("open");
+            els.backdrop?.classList.remove("show");
+            if (!document.querySelector(".modal.show")) {
+              document.body.style.overflow = "";
+            }
+            els.toggleBtn.setAttribute("aria-expanded", "false");
+          }
+
+          function initClock() {
+            const tick = () => {
+              updateClockLabels();
+            };
+            tick();
+            clearInterval(state.timers.clock);
+            state.timers.clock = setInterval(tick, 1000);
+          }
+
+          function updateClockLabels() {
+            if (els.chartUpdatedAt) {
+              els.chartUpdatedAt.textContent = `Last updated: ${new Date().toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })}`;
+            }
+          }
+
+          function initOrders() {
+            state.orders.filtered = [...state.orders.all];
+
+            els.orderSearchInput?.addEventListener("input", debounce(() => {
+              state.orders.search = String(els.orderSearchInput.value || "").trim().toLowerCase();
+              state.orders.page = 1;
+              renderOrders();
+              renderOrdersChart(state.charts.ordersRange);
+            }, 150));
+
+            els.orderFilterBar?.addEventListener("click", (e) => {
+              const btn = e.target.closest(".filter-chip");
+              if (!btn) return;
+
+              $$(".filter-chip", els.orderFilterBar).forEach((chip) => chip.classList.remove("is-active"));
+              btn.classList.add("is-active");
+
+              state.orders.section = String(btn.dataset.section || "all");
+              state.orders.page = 1;
+              renderOrders();
+              renderOrdersChart(state.charts.ordersRange);
+            });
+
+            els.ordersPagination?.addEventListener("click", (e) => {
+              const btn = e.target.closest("[data-page]");
+              if (!btn) return;
+              const page = Number(btn.dataset.page || 1);
+              if (!Number.isFinite(page)) return;
+              state.orders.page = page;
+              renderOrders();
+            });
+
+            els.orderChartRange?.addEventListener("change", () => {
+              state.charts.ordersRange = String(els.orderChartRange.value || "week");
+              renderOrdersChart(state.charts.ordersRange);
+            });
+          }
+
+          function initTransactions() {
+            state.tx.filtered = [...state.tx.all];
+
+            const applyTxFilters = () => {
+              state.tx.search = String(els.txSearch?.value || "").trim().toLowerCase();
+              state.tx.status = String(els.txStatus?.value || "").trim().toLowerCase();
+              state.tx.from = String(els.txFrom?.value || "").trim();
+              state.tx.to = String(els.txTo?.value || "").trim();
+              state.tx.page = 1;
+              renderTransactions();
+              renderTxChart(state.charts.txRange);
+            };
+
+            els.txSearch?.addEventListener("input", debounce(applyTxFilters, 150));
+            els.txStatus?.addEventListener("change", applyTxFilters);
+            els.txFrom?.addEventListener("change", applyTxFilters);
+            els.txTo?.addEventListener("change", applyTxFilters);
+            els.txApply?.addEventListener("click", applyTxFilters);
+
+            els.txPagination?.addEventListener("click", (e) => {
+              const btn = e.target.closest("[data-page]");
+              if (!btn) return;
+              const page = Number(btn.dataset.page || 1);
+              if (!Number.isFinite(page)) return;
+              state.tx.page = page;
+              renderTransactions();
+            });
+
+            els.txChartRange?.addEventListener("change", () => {
+              state.charts.txRange = String(els.txChartRange.value || "week");
+              renderTxChart(state.charts.txRange);
+            });
+          }
+
+          function initCharts() {
+            els.refreshChartBtn?.addEventListener("click", async () => {
+              await refreshDashboardSnapshot();
+              renderVisitorChart(state.charts.visitorRange);
+              renderOrdersChart(state.charts.ordersRange);
+              renderTxChart(state.charts.txRange);
+              flashChartStatus("Chart refreshed");
+            });
+
+            els.chartRangeSwitcher?.addEventListener("click", (e) => {
+              const btn = e.target.closest(".range-btn");
+              if (!btn) return;
+
+              $$(".range-btn", els.chartRangeSwitcher).forEach((b) => b.classList.remove("active"));
+              btn.classList.add("active");
+
+              state.charts.visitorRange = String(btn.dataset.range || "day");
+              renderVisitorChart(state.charts.visitorRange);
+            });
+          }
+
+          function initVisitors() {
+            els.openVisitorListBtn?.addEventListener("click", async () => {
+              showVisitorListModal();
+              await loadVisitorPage(1);
+            });
+
+            els.reloadVisitorsBtn?.addEventListener("click", async () => {
+              await loadVisitorPage(state.visitors.page || 1);
+            });
+
+            els.visitorPrevBtn?.addEventListener("click", async () => {
+              if (state.visitors.page > 1) {
+                await loadVisitorPage(state.visitors.page - 1);
+              }
+            });
+
+            els.visitorNextBtn?.addEventListener("click", async () => {
+              if (state.visitors.page < state.visitors.totalPages) {
+                await loadVisitorPage(state.visitors.page + 1);
+              }
+            });
+
+            els.visitorTableBody?.addEventListener("click", (e) => {
+              const btn = e.target.closest("[data-visitor-key]");
+              if (!btn) return;
+              const key = String(btn.dataset.visitorKey || "");
+              const row = state.visitors.rows.find((r) => String(r.visitorKey) === key) || null;
+              if (!row) return;
+              openVisitorDetail(row);
+            });
+
+            if (visitorListModal) {
+              const modalEl = els.visitorListModalEl;
+              modalEl?.addEventListener("hidden.bs.modal", () => {
+                state.ui.listModalOpen = false;
+              });
+              modalEl?.addEventListener("shown.bs.modal", () => {
+                state.ui.listModalOpen = true;
+              });
+            }
+
+            if (visitorDetailModal) {
+              const modalEl = els.visitorDetailModalEl;
+              modalEl?.addEventListener("hidden.bs.modal", () => {
+                state.ui.detailModalOpen = false;
+                state.visitors.activeKey = "";
+                state.visitors.activeRow = null;
+                if (els.visitorDetailEmpty) els.visitorDetailEmpty.classList.remove("d-none");
+                if (els.visitorDetailContent) els.visitorDetailContent.classList.add("d-none");
+              });
+              modalEl?.addEventListener("shown.bs.modal", () => {
+                state.ui.detailModalOpen = true;
+              });
+            }
+          }
+
+          function initGlobalEvents() {
+            document.addEventListener("click", (e) => {
+              const rowBtn = e.target.closest(".js-open-visitor-detail");
+              if (rowBtn) {
+                const key = String(rowBtn.dataset.visitorKey || "");
+                const row = state.visitors.rows.find((r) => String(r.visitorKey) === key) || null;
+                if (row) openVisitorDetail(row);
+              }
+            });
+          }
+
+          async function refreshDashboardSnapshot() {
+            if (!CFG.dashboardRefreshApi) return;
+
+            try {
+              const res = await fetch(CFG.dashboardRefreshApi, {
+                headers: {
+                  Accept: "application/json",
+                  "X-Requested-With": "XMLHttpRequest",
+                },
+                cache: "no-store",
+              });
+
+              if (!res.ok) return;
+
+              const data = await res.json();
+              const payload = data.data || data;
+
+              if (Array.isArray(payload.orders)) {
+                state.orders.all = normalizeOrders(payload.orders);
+                state.orders.page = 1;
+                renderOrders();
+              }
+
+              if (Array.isArray(payload.transactions)) {
+                state.tx.all = normalizeTransactions(payload.transactions);
+                state.tx.page = 1;
+                renderTransactions();
+              }
+
+              if (payload.visitors) {
+                if (Array.isArray(payload.visitors.rows)) {
+                  state.visitors.rows = normalizeVisitorRows(payload.visitors.rows);
+                  renderVisitorListRows();
+                }
+              }
+
+              if (payload.totals) {
+                updateTopStats(payload.totals);
+              }
+            } catch (err) {
+              console.error(err);
+            }
+          }
+
+          function updateTopStats(totals) {
+            if (!totals) return;
+            const map = {
+              statVisitors: totals.visitors,
+              statUsers: totals.users,
+              statOrders: totals.orders,
+              statIncome: formatMoney(totals.income),
+              statItems: totals.items,
+            };
+
+            Object.entries(map).forEach(([id, value]) => {
+              const el = document.getElementById(id);
+              if (!el || value == null) return;
+              el.textContent = String(value);
+            });
+          }
+
+          function renderOrders() {
+            const filtered = state.orders.all.filter((row) => {
+              const searchHit = !state.orders.search || row.searchBlob.includes(state.orders.search);
+              const sectionHit = matchesOrderSection(row, state.orders.section);
+              return searchHit && sectionHit;
+            });
+
+            state.orders.filtered = filtered;
+
+            const total = filtered.length;
+            const pageSize = state.orders.pageSize;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            state.orders.page = clamp(state.orders.page, 1, totalPages);
+
+            const start = (state.orders.page - 1) * pageSize;
+            const pageRows = filtered.slice(start, start + pageSize);
+
+            if (els.ordersShown) els.ordersShown.textContent = String(total);
+            if (els.ordersRefreshState) els.ordersRefreshState.textContent = total ? "" : "No matching orders";
+
+            if (!els.ordersTableBody) return;
+
+            if (!pageRows.length) {
+              els.ordersTableBody.innerHTML = `
+        <tr>
+          <td colspan="7"><div class="empty-state">No orders found.</div></td>
+        </tr>
+      `;
+              renderPagination(els.ordersPagination, state.orders.page, totalPages);
+              return;
+            }
+
+            els.ordersTableBody.innerHTML = pageRows.map((order) => {
+              const ref = getOrderRef(order);
+              const status = getOrderStatus(order);
+              const amount = getOrderAmount(order);
+              const currency = getOrderCurrency(order);
+              const dateLabel = getOrderDate(order);
+              const unseen = isUnseenOrder(order);
+
+              return `
+        <tr class="${unseen ? "row-unseen" : ""}">
+          <td>
+            <div class="order-main">
+              <div class="order-number">${escapeHtml(ref)}</div>
+              ${unseen ? `<span class="badge badge-unseen">Unseen</span>` : ""}
+            </div>
+          </td>
+          <td>
+            <div class="customer-block">
+              <strong>${escapeHtml(order.customer_name || order.full_name || "Guest")}</strong>
+              <span>${escapeHtml(order.email || order.phone || "—")}</span>
+            </div>
+          </td>
+          <td>
+            <span class="badge badge-status badge-${escapeHtml(status.replace(/\s+/g, "-"))}">${escapeHtml(status)}</span>
+          </td>
+          <td>${escapeHtml(order.payment_status || order.payment_method || "—")}</td>
+          <td><strong>${escapeHtml(currency)} ${Number(amount || 0).toFixed(2)}</strong></td>
+          <td>${escapeHtml(dateLabel)}</td>
+          <td>
+            <a class="action-link" href="/admin/a/orders/${encodeURIComponent(ref)}">View</a>
+          </td>
+        </tr>
+      `;
+            }).join("");
+
+            renderPagination(els.ordersPagination, state.orders.page, totalPages);
+            if (els.ordersMeta) {
+              els.ordersMeta.firstChild?.nodeValue;
+            }
+          }
+
+          document.getElementById('viewMoreOrders')?.addEventListener('click', () => {
+            window.location.href = '../../../admin/a/orders';
+          });
+
+          document.getElementById('viewMoreTransactions')?.addEventListener('click', () => {
+            window.location.href = '../../../admin/a/account/transaction-history';
+          });
+
+          function renderTransactions() {
+            const filtered = state.tx.all.filter((row) => {
+              const searchHit = !state.tx.search || row.searchBlob.includes(state.tx.search);
+              const statusHit = !state.tx.status || row.statusKey === state.tx.status || row.paymentStatusKey === state.tx.status;
+              const fromHit = !state.tx.from || !row.dateKey || row.dateKey >= state.tx.from;
+              const toHit = !state.tx.to || !row.dateKey || row.dateKey <= state.tx.to;
+              return searchHit && statusHit && fromHit && toHit;
+            });
+
+            state.tx.filtered = filtered;
+
+            const total = filtered.length;
+            const pageSize = state.tx.pageSize;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            state.tx.page = clamp(state.tx.page, 1, totalPages);
+
+            const start = (state.tx.page - 1) * pageSize;
+            const pageRows = filtered.slice(start, start + pageSize);
+
+            if (els.txMeta) {
+              const strong = els.txMeta.querySelector("strong");
+              if (strong) strong.textContent = String(total);
+            }
+
+            if (els.txRefreshState) els.txRefreshState.textContent = total ? "" : "No matching transactions";
+
+            if (!els.txTableBody) return;
+
+            if (!pageRows.length) {
+              els.txTableBody.innerHTML = `
+        <tr>
+          <td colspan="7"><div class="empty-state">No transactions found.</div></td>
+        </tr>
+      `;
+              renderPagination(els.txPagination, state.tx.page, totalPages);
+              return;
+            }
+
+            els.txTableBody.innerHTML = pageRows.map((row) => {
+              const ref = getTxRef(row);
+              const status = getTxStatus(row);
+              const amount = getTxAmount(row);
+              const currency = getTxCurrency(row);
+              const dateLabel = getTxDate(row);
+              const unseen = isUnseenTx(row);
+
+              return `
+        <tr class="${unseen ? "tx-row-unseen" : ""}">
+          <td>
+            <div class="tx-order-main">
+              <span class="tx-ref">${escapeHtml(ref)}</span>
+              ${unseen ? `<span class="badge badge-unseen">Unseen</span>` : ""}
+            </div>
+          </td>
+          <td>
+            <div class="tx-customer">
+              <strong>${escapeHtml(row.customer_name || row.full_name || "Guest")}</strong>
+              <span>${escapeHtml(row.email || row.phone || "—")}</span>
+            </div>
+          </td>
+          <td><span class="badge badge-${escapeHtml(status)}">${escapeHtml(status)}</span></td>
+          <td>${escapeHtml(row.payment_method || row.payment_status || "—")}</td>
+          <td><strong>${escapeHtml(currency)} ${Number(amount || 0).toFixed(2)}</strong></td>
+          <td>${escapeHtml(dateLabel)}</td>
+          <td>
+            <a class="tx-action" href="/admin/a/orders/${encodeURIComponent(ref)}">View</a>
+          </td>
+        </tr>
+      `;
+            }).join("");
+
+            renderPagination(els.txPagination, state.tx.page, totalPages);
+          }
+
+          function renderPagination(container, currentPage, totalPages) {
+            if (!container) return;
+
+            if (totalPages <= 1) {
+              container.innerHTML = "";
+              return;
+            }
+
+            const pages = buildPagination(currentPage, totalPages);
+
+            container.innerHTML = `
+              <button type="button" class="page-btn" data-page="${currentPage - 1}" ${currentPage <= 1 ? "disabled" : ""}>Prev</button>
+              ${pages.map((page) => {
+                if (page === "...") {
+                  return `<span class="page-ellipsis">...</span>`;
+                }
+
+                return `
+                  <button type="button" class="page-btn ${page === currentPage ? "active" : ""}" data-page="${page}">
+                    ${page}
+                  </button>
+                `;
+              }).join("")}
+              <button type="button" class="page-btn" data-page="${currentPage + 1}" ${currentPage >= totalPages ? "disabled" : ""}>Next</button>
+            `;
+  }
+
+  function buildPagination(currentPage, totalPages) {
+    const pages = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+      return pages;
+    }
+
+    const start = Math.max(1, currentPage - 1);
+    const end = Math.min(totalPages, currentPage + 1);
+
+    pages.push(1);
+
+    if (start > 2) pages.push("...");
+
+    for (let i = start; i <= end; i++) {
+      if (i !== 1 && i !== totalPages) pages.push(i);
+    }
+
+    if (end < totalPages - 1) pages.push("...");
+
+    if (totalPages !== 1) pages.push(totalPages);
+
+    return [...new Set(pages)];
+  }
+
+  function renderVisitorChart(range) {
+    if (!els.visitorTrendChart || typeof Chart === "undefined") return;
+
+    const series = getVisitorSeries(range);
+    const ctx = els.visitorTrendChart.getContext("2d");
+
+    if (state.charts.visitorChart) state.charts.visitorChart.destroy();
+
+    state.charts.visitorChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: series.labels,
+        datasets: [{
+          label: "Visitors",
+          data: series.values,
+          borderWidth: 3,
+          tension: 0.35,
+          fill: true,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { maxRotation: 0, autoSkip: true } },
+          y: { beginAtZero: true },
+        },
+      },
+    });
+
+    if (els.chartRangeLabel) {
+      els.chartRangeLabel.textContent = `
+      Showing $ {
+        range
+      }
+      view`;
+    }
+
+    if (els.chartSummaryText) {
+      const total = series.values.reduce((sum, n) => sum + Number(n || 0), 0);
+      els.chartSummaryText.textContent = `
+      Total visitors in this view: $ {
+        total
+      }
+      `;
+    }
+
+    if (els.chartLiveState) {
+      els.chartLiveState.textContent = "Live updating";
+    }
+
+    updateClockLabels();
+  }
+
+  function renderOrdersChart(range) {
+    if (!els.ordersChart || typeof Chart === "undefined") return;
+
+    const series = getOrdersSeries(range, state.orders.all);
+    const ctx = els.ordersChart.getContext("2d");
+
+    if (state.charts.ordersChart) state.charts.ordersChart.destroy();
+
+    state.charts.ordersChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: series.labels,
+        datasets: [{
+          label: "Revenue",
+          data: series.values,
+          borderWidth: 3,
+          tension: 0.35,
+          fill: true,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { maxRotation: 0, autoSkip: true } },
+          y: { beginAtZero: true },
+        },
+      },
+    });
+
+    if (els.ordersChartState) {
+      const total = series.values.reduce((sum, n) => sum + Number(n || 0), 0);
+      els.ordersChartState.textContent = `
+      Revenue in this view: $ {
+        formatMoney(total)
+      }
+      `;
+    }
+  }
+
+  function renderTxChart(range) {
+    if (!els.txChart || typeof Chart === "undefined") return;
+
+    const series = getTxSeries(range, state.tx.all);
+    const ctx = els.txChart.getContext("2d");
+
+    if (state.charts.txChart) state.charts.txChart.destroy();
+
+    state.charts.txChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: series.labels,
+        datasets: [{
+          label: "Revenue",
+          data: series.values,
+          borderWidth: 3,
+          tension: 0.35,
+          fill: true,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { maxRotation: 0, autoSkip: true } },
+          y: { beginAtZero: true },
+        },
+      },
+    });
+
+    if (els.txChartState) {
+      const total = series.values.reduce((sum, n) => sum + Number(n || 0), 0);
+      els.txChartState.textContent = `
+      Revenue in this view: $ {
+        formatMoney(total)
+      }
+      `;
+    }
+  }
+
+  function getVisitorSeries(range) {
+    const serverSeries = window.__VISITOR_TREND__ || window.__VISITOR_SERIES__ || null;
+
+    if (serverSeries && typeof serverSeries === "object") {
+      const candidate = serverSeries[range] || serverSeries[String(range)] || serverSeries.default;
+      const normalized = normalizeSeries(candidate);
+      if (normalized.values.length) return normalized;
+    }
+
+    const tinyValues = readTinyGraphValues();
+    const fallback = tinyValues.length ? tinyValues : [5, 12, 18, 14, 20, 16, 22];
+    return {
+      labels: buildGenericLabels(range, fallback.length),
+      values: fallback,
+    };
+  }
+
+  function getOrdersSeries(range, rows) {
+    const serverWeekly = normalizeSeries(window.__ORDER_WEEKLY_SERIES__);
+    const serverMonthly = normalizeSeries(window.__ORDER_MONTHLY_SERIES__);
+    const serverYearly = normalizeSeries(window.__ORDER_YEARLY_SERIES__);
+
+    if (range === "week" && serverWeekly.values.length) return serverWeekly;
+    if (range === "month" && serverMonthly.values.length) return serverMonthly;
+    if (range === "year" && serverYearly.values.length) return serverYearly;
+
+    return aggregateRevenueSeries(rows, range);
+  }
+
+  function getTxSeries(range, rows) {
+    const serverDaily = normalizeSeries(window.__TX_DAILY_SERIES__);
+    const serverWeekly = normalizeSeries(window.__TX_WEEKLY_SERIES__);
+    const serverMonthly = normalizeSeries(window.__TX_MONTHLY_SERIES__);
+    const serverYearly = normalizeSeries(window.__TX_YEARLY_SERIES__);
+
+    if (range === "day" && serverDaily.values.length) return serverDaily;
+    if (range === "week" && serverWeekly.values.length) return serverWeekly;
+    if (range === "month" && serverMonthly.values.length) return serverMonthly;
+    if (range === "year" && serverYearly.values.length) return serverYearly;
+
+    return aggregateRevenueSeries(rows, range);
+  }
+
+  function aggregateRevenueSeries(rows, range) {
+    const items = rows
+      .map((row) => ({
+        amount: Number(getRowAmount(row)),
+        date: toDateObject(getRowDate(row)),
+      }))
+      .filter((item) => item.date && !Number.isNaN(item.date.getTime()));
+
+    if (!items.length) {
+      return {
+        labels: buildGenericLabels(range, 7),
+        values: new Array(7).fill(0),
+      };
+    }
+
+    let bucketFn;
+    let labels = [];
+    let values = [];
+
+    if (range === "year") {
+      const map = new Map();
+      items.forEach(({ amount, date }) => {
+        const key = `
+      $ {
+        date.getFullYear()
+      } - $ {
+        String(date.getMonth() + 1).padStart(2, "0")
+      }
+      `;
+        map.set(key, (map.get(key) || 0) + amount);
+      });
+
+      const sorted = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+      labels = sorted.map(([key]) => key);
+      values = sorted.map(([, value]) => Number(value.toFixed(2)));
+      return { labels, values };
+    }
+
+    if (range === "month") {
+      const map = new Map();
+      items.forEach(({ amount, date }) => {
+        const key = date.toISOString().slice(0, 10);
+        map.set(key, (map.get(key) || 0) + amount);
+      });
+
+      const sorted = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-31);
+      labels = sorted.map(([key]) => key.slice(5));
+      values = sorted.map(([, value]) => Number(value.toFixed(2)));
+      return { labels, values };
+    }
+
+    if (range === "week") {
+      const map = new Map();
+      items.forEach(({ amount, date }) => {
+        const key = date.toISOString().slice(0, 10);
+        map.set(key, (map.get(key) || 0) + amount);
+      });
+
+      const sorted = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-7);
+      labels = sorted.map(([key]) => key.slice(5));
+      values = sorted.map(([, value]) => Number(value.toFixed(2)));
+      return { labels, values };
+    }
+
+    bucketFn = (date) => {
+      const hour = date.getHours();
+      return `
+      $ {
+        String(hour).padStart(2, "0")
+      }: 00`;
+    };
+
+    const map = new Map();
+    items.forEach(({ amount, date }) => {
+      const key = bucketFn(date);
+      map.set(key, (map.get(key) || 0) + amount);
+    });
+
+    const sorted = [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    labels = sorted.map(([key]) => key);
+    values = sorted.map(([, value]) => Number(value.toFixed(2)));
+
+    if (!labels.length) {
+      return {
+        labels: buildGenericLabels(range, 7),
+        values: new Array(7).fill(0),
+      };
+    }
+
+    return { labels, values };
+  }
+
+  async function loadVisitorPage(page = 1) {
+    if (!CFG.visitorListApi) {
+      renderVisitorListError("Visitor list API is not configured.");
+      return;
+    }
+
+    renderVisitorListLoading(true);
+
+    try {
+      const url = new URL(CFG.visitorListApi, window.location.origin);
+      url.searchParams.set("page", String(page));
+
+      const res = await fetch(url.toString(), {
+        headers: {
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+        cache: "no-store",
+      });
+
+      if (!res.ok) throw new Error(`
+      Visitor list request failed($ {
+        res.status
+      })`);
+
+      const json = await res.json();
+      const payload = json.data || json;
+
+      const rows = extractRows(payload);
+      const pagination = payload.pagination || json.pagination || {};
+      const summary = payload.summary || json.summary || {};
+
+      state.visitors.rows = normalizeVisitorRows(rows);
+      state.visitors.page = Number(pagination.page || page || 1);
+      state.visitors.totalPages = Number(pagination.totalPages || pagination.total_pages || 1);
+      state.visitors.totalRows = Number(pagination.total || pagination.totalRows || state.visitors.rows.length);
+      state.visitors.totalVisitors = Number(summary.totalVisitors || summary.total_visitors || state.visitors.totalVisitors);
+      state.visitors.totalPageVisits = Number(summary.totalPageVisits || summary.total_page_visits || state.visitors.totalPageVisits);
+
+      renderVisitorListRows();
+      renderVisitorSummaryCards();
+
+      if (els.visitorListFooter) {
+        els.visitorListFooter.textContent = `
+      Page $ {
+        state.visitors.page
+      } of $ {
+        state.visitors.totalPages
+      }
+      `;
+      }
+
+      renderVisitorListLoading(false);
+      renderVisitorListError("");
+      renderVisitorListEmptyIfNeeded();
+
+    } catch (err) {
+      console.error(err);
+      renderVisitorListLoading(false);
+      renderVisitorListError("Failed to load visitor data.");
+    }
+  }
+
+  function showVisitorListModal() {
+    if (visitorListModal) {
+      visitorListModal.show();
+    }
+  }
+
+  async function openVisitorDetail(row) {
+    state.visitors.activeKey = String(row.visitorKey || "");
+    state.visitors.activeRow = row;
+
+    if (visitorDetailModal) {
+      visitorDetailModal.show();
+    }
+
+    renderVisitorDetailLoading(true);
+    renderVisitorDetailEmpty(false);
+
+    try {
+      let detail = row;
+
+      if (CFG.visitorDetailApi && state.visitors.activeKey) {
+        const url = new URL(CFG.visitorDetailApi, window.location.origin);
+        url.searchParams.set("key", state.visitors.activeKey);
+
+        const res = await fetch(url.toString(), {
+          headers: {
+            Accept: "application/json",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+          cache: "no-store",
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          detail = json.data || json;
+        }
+      }
+
+      renderVisitorDetail(detail);
+      renderVisitorDetailLoading(false);
+    } catch (err) {
+      console.error(err);
+      renderVisitorDetailLoading(false);
+      renderVisitorDetailEmpty(true);
+      if (els.visitorDetailSubtitle) {
+        els.visitorDetailSubtitle.textContent = "Unable to load visitor details.";
+      }
+    }
+  }
+
+  function renderVisitorDetail(detail) {
+    if (!detail) {
+      renderVisitorDetailEmpty(true);
+      return;
+    }
+
+    renderVisitorDetailEmpty(false);
+
+    const key = String(detail.visitorKey || detail.key || detail.visitor_key || "—");
+    const visits = Array.isArray(detail.visits) ? detail.visits : Array.isArray(detail.rows) ? detail.rows : [];
+    const totalVisits = Number(detail.totalVisits || detail.total_visits || visits.length || 0);
+    const firstVisit = detail.firstVisit || detail.first_visit || visits[visits.length - 1]?.visited_at || visits[visits.length - 1]?.created_at || "—";
+    const lastVisit = detail.lastVisit || detail.last_visit || visits[0]?.visited_at || visits[0]?.created_at || "—";
+    const ip = detail.ip || detail.lastIp || detail.last_ip || "—";
+    const lastUrl = detail.lastUrl || detail.last_url || visits[0]?.url || "—";
+    const userAgent = detail.userAgent || detail.user_agent || "—";
+
+    if (els.detailVisitorKey) els.detailVisitorKey.textContent = key;
+    if (els.detailTotalVisits) els.detailTotalVisits.textContent = String(totalVisits);
+    if (els.detailFirstVisit) els.detailFirstVisit.textContent = formatDateTime(firstVisit);
+    if (els.detailLastVisit) els.detailLastVisit.textContent = formatDateTime(lastVisit);
+    if (els.detailIp) els.detailIp.textContent = ip;
+    if (els.detailLastUrl) els.detailLastUrl.textContent = lastUrl;
+    if (els.detailUserAgent) els.detailUserAgent.textContent = userAgent;
+    if (els.detailFooterText) els.detailFooterText.textContent = `
+      Visitor $ {
+        key
+      }
+      `;
+
+    if (els.detailVisitsBody) {
+      const rows = visits.map((visit, index) => ` <
+      tr >
+        <
+        td > $ {
+          index + 1
+        } < /td> <
+        td > $ {
+          escapeHtml(formatDateTime(visit.visited_at || visit.created_at || visit.time || "—"))
+        } < /td> <
+        td > $ {
+          escapeHtml(visit.method || visit.http_method || "—")
+        } < /td> <
+        td style = "word-break:break-word;" > $ {
+          escapeHtml(visit.url || visit.page_url || "—")
+        } < /td> <
+        td style = "word-break:break-word;" > $ {
+          escapeHtml(visit.user_agent || visit.agent || "—")
+        } < /td> <
+        /tr>
+      `).join("");
+
+      els.detailVisitsBody.innerHTML = rows || ` <
+      tr > < td colspan = "5"
+      class = "text-center text-muted py-4" > No visit history found. < /td></tr >
+        `;
+    }
+
+    if (els.visitorDetailSubtitle) {
+      els.visitorDetailSubtitle.textContent = `
+      Visit timeline
+      for $ {
+        key
+      }
+      `;
+    }
+  }
+
+  function renderVisitorListRows() {
+    if (!els.visitorTableBody) return;
+
+    if (!state.visitors.rows.length) {
+      els.visitorTableBody.innerHTML = ` <
+      tr >
+        <
+        td colspan = "7"
+      class = "text-center text-muted py-4" > No data loaded yet. < /td> <
+        /tr>
+      `;
+      if (els.visitorListCountText) els.visitorListCountText.textContent = "0";
+      if (els.modalRowsCount) els.modalRowsCount.textContent = "0";
+      if (els.visitorPrevBtn) els.visitorPrevBtn.disabled = true;
+      if (els.visitorNextBtn) els.visitorNextBtn.disabled = true;
+      return;
+    }
+
+    if (els.visitorListCountText) els.visitorListCountText.textContent = String(state.visitors.rows.length);
+    if (els.modalRowsCount) els.modalRowsCount.textContent = String(state.visitors.rows.length);
+    if (els.modalPage) els.modalPage.textContent = String(state.visitors.page);
+    if (els.modalTotalPages) els.modalTotalPages.textContent = String(state.visitors.totalPages);
+
+    els.visitorTableBody.innerHTML = state.visitors.rows.map((row, index) => ` <
+      tr >
+        <
+        td > $ {
+          (state.visitors.page - 1) * CFG.visitorPageSize + index + 1
+        } < /td> <
+        td style = "word-break:break-all;" > $ {
+          escapeHtml(row.visitorKey)
+        } < /td> <
+        td > $ {
+          escapeHtml(row.visits)
+        } < /td> <
+        td > $ {
+          escapeHtml(formatDateTime(row.firstVisit))
+        } < /td> <
+        td > $ {
+          escapeHtml(formatDateTime(row.lastVisit))
+        } < /td> <
+        td > $ {
+          escapeHtml(row.ip)
+        } < /td> <
+        td >
+        <
+        button
+      type = "button"
+      class = "btn btn-sm btn-dark js-open-visitor-detail"
+      data - visitor - key = "${escapeHtml(row.visitorKey)}" >
+        View <
+        /button> <
+        /td> <
+        /tr>
+      `).join("");
+
+    if (els.visitorPrevBtn) els.visitorPrevBtn.disabled = state.visitors.page <= 1;
+    if (els.visitorNextBtn) els.visitorNextBtn.disabled = state.visitors.page >= state.visitors.totalPages;
+  }
+
+  function renderVisitorSummaryCards() {
+    if (els.modalTotalVisitors) els.modalTotalVisitors.textContent = String(state.visitors.totalVisitors || 0);
+    if (els.modalTotalPageVisits) els.modalTotalPageVisits.textContent = String(state.visitors.totalPageVisits || 0);
+    if (els.modalPage) els.modalPage.textContent = String(state.visitors.page || 1);
+    if (els.modalTotalPages) els.modalTotalPages.textContent = String(state.visitors.totalPages || 1);
+  }
+
+  function renderVisitorListLoading(show) {
+    els.visitorListLoading?.classList.toggle("d-none", !show);
+  }
+
+  function renderVisitorListError(message) {
+    if (!els.visitorListError) return;
+    if (message) {
+      els.visitorListError.textContent = message;
+      els.visitorListError.classList.remove("d-none");
+    } else {
+      els.visitorListError.textContent = "";
+      els.visitorListError.classList.add("d-none");
+    }
+  }
+
+  function renderVisitorListEmptyIfNeeded() {
+    const hasData = state.visitors.rows.length > 0;
+    els.visitorListWrap?.classList.toggle("d-none", !hasData);
+    els.visitorListEmpty?.classList.toggle("d-none", hasData);
+  }
+
+  function renderVisitorDetailLoading(show) {
+    els.visitorDetailLoading?.classList.toggle("d-none", !show);
+  }
+
+  function renderVisitorDetailEmpty(show) {
+    els.visitorDetailEmpty?.classList.toggle("d-none", !show);
+    els.visitorDetailContent?.classList.toggle("d-none", show);
+  }
+
+  async function loadVisitorListIfNeeded() {
+    if (state.visitors.rows.length) {
+      renderVisitorListRows();
+      renderVisitorSummaryCards();
+      renderVisitorListEmptyIfNeeded();
+      return;
+    }
+    await loadVisitorPage(1);
+  }
+
+  function flashChartStatus(text) {
+    if (els.chartLiveState) els.chartLiveState.textContent = text;
+    updateClockLabels();
+    window.clearTimeout(flashChartStatus._timer);
+    flashChartStatus._timer = window.setTimeout(() => {
+      if (els.chartLiveState) els.chartLiveState.textContent = "Live updating";
+    }, 1800);
+  }
+
+  function scheduleAutoRefresh() {
+    clearInterval(state.timers.refresh);
+    state.timers.refresh = setInterval(async () => {
+      await refreshDashboardSnapshot();
+      renderOrders();
+      renderTransactions();
+    }, CFG.refreshIntervalMs);
+  }
+
+  function matchesOrderSection(row, section) {
+    if (!section || section === "all") return true;
+    const status = getOrderStatus(row);
+    const payment = String(row.payment_status || row.payment_method || "").toLowerCase();
+
+    if (section === "pending" || section === "new") {
+      return status.includes("pending") || payment.includes("pending") || payment.includes("new");
+    }
+
+    return status.includes(section) || payment.includes(section);
+  }
+
+  function isUnseenOrder(row) {
+    return toBool(row.is_unseen ?? row.unseen ?? row.seen ?? row.viewed);
+  }
+
+  function isUnseenTx(row) {
+    return toBool(row.is_unseen ?? row.unseen ?? row.seen ?? row.viewed);
+  }
+
+  function getOrderRef(row) {
+    return String(row.ref || row.order_ref || row.order_number || row.reference || row.id || row.order_id || "—");
+  }
+
+  function getTxRef(row) {
+    return String(row.ref || row.tx_ref || row.transaction_ref || row.order_number || row.order_ref || row.id || row.transaction_id || "—");
+  }
+
+  function getOrderAmount(row) {
+    return Number(row.amount ?? row.total ?? row.grand_total ?? row.total_amount ?? row.subtotal ?? 0);
+  }
+
+  function getTxAmount(row) {
+    return Number(row.amount ?? row.total ?? row.grand_total ?? row.total_amount ?? 0);
+  }
+
+  function getOrderCurrency(row) {
+    return String(row.currency || row.currency_code || row.payment_currency || CFG.currencyFallback);
+  }
+
+  function getTxCurrency(row) {
+    return String(row.currency || row.currency_code || row.payment_currency || CFG.currencyFallback);
+  }
+
+  function getOrderDate(row) {
+    return formatDateTime(getRowDate(row));
+  }
+
+  function getTxDate(row) {
+    return formatDateTime(getRowDate(row));
+  }
+
+  function getOrderStatus(row) {
+    return normalizeStatus(row.status || row.order_status || row.delivery_status || row.state || row.payment_status || "pending");
+  }
+
+  function getTxStatus(row) {
+    return normalizeStatus(row.status || row.payment_status || row.tx_status || "pending");
+  }
+
+  function normalizeStatus(value) {
+    const s = String(value || "").trim().toLowerCase();
+    if (!s) return "pending";
+    if (s.includes("complete")) return "completed";
+    if (s.includes("cancel")) return "cancelled";
+    if (s.includes("refund")) return "refunded";
+    if (s.includes("process")) return "processing";
+    if (s.includes("paid")) return "paid";
+    if (s.includes("pending")) return "pending";
+    return s.replace(/\s+/g, "-");
+  }
+
+  function normalizeOrders(rows) {
+    return (Array.isArray(rows) ? rows : []).map((row, index) => {
+      const date = getRowDate(row);
+      const searchBlob = [
+        row.id,
+        row.order_id,
+        row.order_number,
+        row.order_ref,
+        row.ref,
+        row.customer_name,
+        row.full_name,
+        row.email,
+        row.phone,
+        row.status,
+        row.order_status,
+        row.payment_status,
+        row.payment_method,
+      ].filter(Boolean).join(" ").toLowerCase();
+
+      return {
+        ...row,
+        __index: index,
+        searchBlob,
+        dateKey: toDateKey(date),
+        statusKey: getOrderStatus(row),
+        paymentStatusKey: normalizeStatus(row.payment_status || ""),
+      };
+    });
+  }
+
+  function normalizeTransactions(rows) {
+    return (Array.isArray(rows) ? rows : []).map((row, index) => {
+      const date = getRowDate(row);
+      const searchBlob = [
+        row.id,
+        row.tx_ref,
+        row.transaction_ref,
+        row.order_number,
+        row.order_ref,
+        row.ref,
+        row.customer_name,
+        row.full_name,
+        row.email,
+        row.phone,
+        row.status,
+        row.payment_status,
+        row.payment_method,
+      ].filter(Boolean).join(" ").toLowerCase();
+
+      return {
+        ...row,
+        __index: index,
+        searchBlob,
+        dateKey: toDateKey(date),
+        statusKey: getTxStatus(row),
+        paymentStatusKey: normalizeStatus(row.payment_status || ""),
+      };
+    });
+  }
+
+  function normalizeVisitorRows(rows) {
+    return (Array.isArray(rows) ? rows : []).map((row, index) => {
+      const visitorKey = String(row.visitor_key || row.visitorKey || row.key || row.id || `
+      visitor - $ {
+        index + 1
+      }
+      `);
+      const visits = Number(row.visits || row.total_visits || row.totalVisits || 0);
+      return {
+        ...row,
+        visitorKey,
+        visits,
+        firstVisit: row.first_visit || row.firstVisit || row.created_at || row.first_seen || null,
+        lastVisit: row.last_visit || row.lastVisit || row.updated_at || row.last_seen || null,
+        ip: row.ip || row.last_ip || row.ip_address || "—",
+        userAgent: row.user_agent || row.userAgent || "—",
+      };
+    });
+  }
+
+  function getRowDate(row) {
+    return row.created_at || row.updated_at || row.date || row.order_date || row.transaction_date || row.paid_at || row.createdAt || "";
+  }
+
+  function getRowAmount(row) {
+    return row.amount ?? row.total ?? row.grand_total ?? row.total_amount ?? 0;
+  }
+
+  function toDateObject(value) {
+    if (!value) return null;
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
+  function toDateKey(value) {
+    const d = toDateObject(value);
+    if (!d) return "";
+    return d.toISOString().slice(0, 10);
+  }
+
+  function formatDate(value) {
+    const d = toDateObject(value);
+    if (!d) return "—";
+    return d.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function formatDateTime(value) {
+    const d = toDateObject(value);
+    if (!d) return "—";
+    return d.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function formatMoney(value, currency = CFG.currencyFallback) {
+    return `
+      $ {
+        Number(value || 0).toFixed(2)
+      }
+      $ {
+        currency
+      }
+      `;
+  }
+
+  function extractRows(payload) {
+    if (!payload) return [];
+    if (Array.isArray(payload)) return payload;
+    return payload.rows || payload.data || payload.items || payload.results || [];
+  }
+
+  function normalizeSeries(input) {
+    if (!input) return { labels: [], values: [] };
+
+    if (Array.isArray(input)) {
+      if (!input.length) return { labels: [], values: [] };
+
+      if (typeof input[0] === "number") {
+        return {
+          labels: input.map((_, i) => String(i + 1)),
+          values: input.map((n) => Number(n || 0)),
+        };
+      }
+
+      if (typeof input[0] === "object") {
+        return {
+          labels: input.map((item, i) => String(item.label ?? item.name ?? item.month ?? item.day ?? item.date ?? i + 1)),
+          values: input.map((item) => Number(item.value ?? item.total ?? item.amount ?? item.count ?? 0)),
+        };
+      }
+    }
+
+    if (typeof input === "object") {
+      const labels = Array.isArray(input.labels) ? input.labels.map(String) : [];
+      const values = Array.isArray(input.values || input.data) ? (input.values || input.data).map((n) => Number(n || 0)) : [];
+      return { labels, values };
+    }
+
+    return { labels: [], values: [] };
+  }
+
+  function buildGenericLabels(range, count) {
+    const n = Math.max(1, count || 7);
+    if (range === "year") {
+      return ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].slice(0, n);
+    }
+    if (range === "month") {
+      return Array.from({ length: n }, (_, i) => `
+      Day $ {
+        i + 1
+      }
+      `);
+    }
+    if (range === "week") {
+      return ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].slice(0, n);
+    }
+    return Array.from({ length: n }, (_, i) => `
+      $ {
+        i + 1
+      }
+      `);
+  }
+
+  function readTinyGraphValues() {
+    if (!els.tinyGraph) return [];
+    return $$(".tiny-graph span", els.tinyGraph)
+      .map((span) => {
+        const h = span.style.height || "0%";
+        return Number.parseFloat(h) || 0;
+      })
+      .filter((n) => n > 0);
+  }
+
+  function getBootstrapModal(el) {
+    if (!el || !window.bootstrap || !bootstrap.Modal) return null;
+    return bootstrap.Modal.getOrCreateInstance(el);
+  }
+
+  function showModal(modal) {
+    if (modal) modal.show();
+  }
+
+  function hideModal(modal) {
+    if (modal) modal.hide();
+  }
+
+  function isMobile() {
+    return window.innerWidth <= CFG.mobileBreakpoint;
+  }
+
+  function debounce(fn, delay = 150) {
+    let timer = null;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, Number(value || 0)));
+  }
+
+  function toBool(value) {
+    if (value === true) return true;
+    if (value === false) return false;
+    if (value == null) return false;
+    const s = String(value).trim().toLowerCase();
+    return ["1", "true", "yes", "y", "seen", "viewed", "opened"].includes(s);
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+})();
+    </script>
+  </body>
+
+  </html>

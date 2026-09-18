@@ -1,0 +1,2491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' && csrfToken ? csrfToken : '' %>" />
+
+  <title>Orders — Admin | JOOD</title>
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+
+  <script src="/admin/js/vendor/modernizr-2.8.3.min.js"></script>
+
+  <style>
+  :root {
+    --bg: #ffffff;
+    --card: #ffffff;
+    --border: #e5eaf3;
+    --border-strong: #cfd8e3;
+    --text: #1f2937;
+    --muted: #64748b;
+    --primary: #f59e0b;
+    --primary-hover: #d97706;
+    --primary-soft: rgba(245, 158, 11, 0.12);
+    --radius: 22px;
+    --soft: #f8fafc;
+    --brand: #111827;
+    --brand-soft: #eef2ff;
+    --ok: #166534;
+    --ok-bg: #ecfdf3;
+    --warn: #9a3412;
+    --warn-bg: #fff7ed;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --info: #1d4ed8;
+    --line-strong: var(--border-strong);
+    --sidebar-w: 280px;
+    --subsidebar-w: 290px;
+    --topbar-h: 66px;
+    --sidebar-collapsed: 78px;
+    --sidebar-wide: 280px;
+    --topbar-height: 66px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  img, svg, canvas, video { max-width: 100%; height: auto; }
+  input, select, button, textarea { font: inherit; }
+
+  .page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    gap: 16px;
+    padding: 16px;
+    align-items: start;
+    min-width: 0;
+  }
+
+  .sidebar,
+  .card,
+  .hero,
+  .stats-card,
+  .detail-box,
+  .offcanvas-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 16px;
+    padding: 16px;
+    overflow: hidden;
+  }
+
+  .sidebar-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -.01em;
+  }
+
+  .sidebar-subtitle {
+    margin: 4px 0 0;
+    font-size: .84rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tab-btn {
+    width: 100%;
+    border: 1px solid transparent;
+    background: #fff;
+    border-radius: 12px;
+    padding: 11px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    transition: .18s ease;
+    font-size: .92rem;
+    color: var(--text);
+    transition: background .2s ease, transform .2s ease;
+    font-weight: 500;
+  }
+
+  .tab-btn:hover {
+    background: rgba(245, 158, 11, 0.08);
+    transform: translateX(2px);
+    border-radius: 10px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .tab-btn.active {
+    background: var(--primary-soft);
+      border-radius: 10px;
+      font-weight: 700;
+  }
+
+  .tab-count {
+    font-size: .78rem;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(17, 24, 39, .06);
+    color: inherit;
+    flex: 0 0 auto;
+  }
+
+  .tab-btn.active .tab-count {
+    background: rgba(255,255,255,.14);
+  }
+
+  .content {
+    min-width: 0;
+  }
+
+  .hero {
+    padding: 18px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .hero h1 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: -.02em;
+  }
+
+  .hero p {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: .92rem;
+    line-height: 1.55;
+    max-width: 920px;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 12px;
+    background: #fff;
+    font-size: .82rem;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .stats-card {
+    padding: 14px;
+  }
+
+  .stats-card small {
+    display: block;
+    color: var(--muted);
+    font-size: .74rem;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-weight: 800;
+  }
+
+  .stats-card strong {
+    font-size: 1.05rem;
+    letter-spacing: -.01em;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -.01em;
+  }
+
+  .section-subtitle {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: .84rem;
+    line-height: 1.5;
+  }
+
+  .filter-links,
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .filter-link,
+  .mini-btn,
+  .btn-soft,
+  .btn-primaryx,
+  .btn-dangerx {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    font-size: .82rem;
+    font-weight: 800;
+    color: var(--text);
+    cursor: pointer;
+    transition: .18s ease;
+  }
+
+  .filter-link:hover,
+  .mini-btn:hover,
+  .btn-soft:hover {
+    background: #ffffff;
+    border-color: #d7e0ec;
+  }
+
+  .btn-primaryx {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+  }
+
+  .btn-primaryx:hover {
+    background: #000;
+    color: #fff;
+  }
+
+  .card {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .form-box {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    min-width: 0;
+  }
+
+  .form-label {
+    display: block;
+    margin: 0 0 6px;
+    font-weight: 800;
+    color: var(--text);
+    font-size: .84rem;
+  }
+
+  .form-control,
+  .form-select {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid #dbe3ec;
+    background: #fff;
+    color: var(--text);
+    font-size: .92rem;
+    padding: 10px 12px;
+    outline: none;
+    margin:10px;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #b8c4d1;
+  }
+
+  .form-full { grid-column: 1 / -1; }
+
+  .search-results {
+    display: grid;
+    gap: 10px;
+  }
+
+  .search-result-item,
+  .order-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    background: #fff;
+  }
+
+  .search-result-top,
+  .order-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .search-result-title,
+  .order-no {
+    font-weight: 900;
+    font-size: .95rem;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .search-result-subtitle,
+  .order-mini {
+    color: var(--muted);
+    font-size: .82rem;
+    margin-top: 3px;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: .77rem;
+    font-weight: 900;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+
+  .badge.pending { background: var(--warn-bg); color: var(--warn); border-color: #fde68a; }
+  .badge.confirmed,
+  .badge.processing,
+  .badge.ongoing { background: var(--info-bg); color: var(--info); border-color: #bfdbfe; }
+  .badge.completed { background: var(--ok-bg); color: var(--ok); border-color: #c7eed6; }
+  .badge.incomplete { background: #fefce8; color: #a16207; border-color: #fde68a; }
+  .badge.cancelled { background: var(--danger-bg); color: var(--danger); border-color: #f3c9c9; }
+  .badge.refunded { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+  .badge.unknown { background: #f8fafc; color: #475569; border-color: #e2e8f0; }
+
+  .table-wrap {
+    overflow: auto;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: #fff;
+  }
+
+  .order-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1020px;
+  }
+
+  .order-table th,
+  .order-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+    font-size: .88rem;
+  }
+
+  .order-table th {
+    background: #ffffff;
+    color: #334155;
+    font-weight: 900;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    white-space: nowrap;
+  }
+
+  .order-table td.muted { color: var(--muted); }
+  .order-table td.amount { font-weight: 900; white-space: nowrap; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .meta-grid,
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+
+  .meta-item,
+  .detail-box {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    min-width: 0;
+  }
+
+  .meta-item small,
+  .detail-box .k {
+    display: block;
+    color: var(--muted);
+    font-size: .74rem;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-weight: 800;
+  }
+
+  .meta-item strong,
+  .detail-box .v {
+    display: block;
+    font-size: .88rem;
+    word-break: break-word;
+    font-weight: 700;
+  }
+
+  .actions {
+    margin-top: 14px;
+    justify-content: flex-start;
+  }
+
+  .mini-btn {
+    border-radius: 11px;
+    padding: 8px 10px;
+    text-decoration: none;
+  }
+
+  .empty-state {
+    padding: 18px;
+    color: var(--muted);
+    font-size: .92rem;
+    line-height: 1.5;
+    border: 1px dashed #d8e0ea;
+    border-radius: 14px;
+    background: #ffffff;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 800;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .pill-neutral { background: #ffffff; color: #64748b; border-color: #e2e8f0; }
+  .pill-ok { background: var(--ok-bg); color: var(--ok); border-color: #c7eed6; }
+  .pill-warn { background: var(--warn-bg); color: var(--warn); border-color: #fde68a; }
+  .pill-danger { background: var(--danger-bg); color: var(--danger); border-color: #f3c9c9; }
+
+  .offcanvas-backdropx {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: .2s ease;
+    z-index: 1040;
+  }
+
+  .offcanvas-backdropx.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .offcanvas-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(560px, 100vw);
+    height: 100vh;
+    background: #fff;
+    transform: translateX(100%);
+    transition: transform .25s ease;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--border);
+  }
+
+  .offcanvas-panel.show {
+    transform: translateX(0);
+  }
+
+  .offcanvas-head {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .offcanvas-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 900;
+  }
+
+  .offcanvas-subtitle {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: .9rem;
+    line-height: 1.45;
+  }
+
+  .offcanvas-bodyx {
+    padding: 18px 20px 22px;
+    overflow: auto;
+    flex: 1;
+  }
+
+  .offcanvas-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.34);
+    opacity: 0;
+    pointer-events: none;
+    transition: .2s ease;
+    z-index: 1035;
+  }
+
+  .drawer-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .filter-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(560px, 100vw);
+    height: 100vh;
+    background: #fff;
+    transform: translateX(100%);
+    transition: transform .25s ease;
+    z-index: 1045;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid var(--border);
+  }
+
+  .filter-drawer.show {
+    transform: translateX(0);
+  }
+
+  .filter-drawer-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .filter-drawer-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 900;
+  }
+
+  .filter-drawer-subtitle {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: .9rem;
+    line-height: 1.45;
+  }
+
+  .filter-drawer-body {
+    padding: 18px 20px 22px;
+    overflow: auto;
+    flex: 1;
+  }
+
+  .toast {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1060;
+    min-width: 220px;
+    max-width: 90vw;
+    padding: 12px 14px;
+    border-radius: 13px;
+    background: #0f172a;
+    color: #fff;
+    font-size: .86rem;
+    transform: translateY(18px);
+    opacity: 0;
+    pointer-events: none;
+    transition: .25s ease;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+
+  .toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .result-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 0;
+    scrollbar-width: none;
+  }
+
+  .result-actions::-webkit-scrollbar { display: none; }
+
+  /* Account layout / sidebar */
+  .account-layout {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    position: relative;
+    display: block;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .account-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-collapsed);
+    height: 100vh;
+    background: #fff;
+    border-right: 1px solid var(--border);
+    z-index: 1040;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: width 0.25s ease, transform 0.25s ease;
+  }
+
+  .account-layout.sidebar-collapsed .account-sidebar,
+  .account-sidebar.collapsed {
+    width: var(--sidebar-collapsed);
+  }
+
+  .account-layout.sidebar-expanded .account-sidebar,
+  .account-sidebar.expanded {
+    width: var(--sidebar-wide);
+  }
+
+  .account-layout.sidebar-collapsed .account-name,
+  .account-layout.sidebar-collapsed .account-email,
+  .account-layout.sidebar-collapsed .link-text,
+  .account-sidebar.collapsed .account-name,
+  .account-sidebar.collapsed .account-email,
+  .account-sidebar.collapsed .link-text {
+    display: none;
+  }
+
+  .account-layout.sidebar-collapsed .account-profile,
+  .account-sidebar.collapsed .account-profile {
+    align-items: center;
+  }
+
+  .account-layout.sidebar-collapsed .account-nav-link,
+  .account-sidebar.collapsed .account-nav-link {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .account-layout.sidebar-collapsed .account-nav-link i,
+  .account-sidebar.collapsed .account-nav-link i {
+    width: auto;
+    min-width: 22px;
+    font-size: 18px;
+  }
+
+  .account-layout.sidebar-collapsed .account-sidebar-brand,
+  .account-sidebar.collapsed .account-sidebar-brand {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .account-right {
+    min-width: 0;
+    margin-left: var(--sidebar-collapsed);
+    width: calc(100% - var(--sidebar-collapsed));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    transition: margin-left 0.25s ease, width 0.25s ease;
+  }
+
+  .account-layout.sidebar-expanded .account-right {
+    margin-left: var(--sidebar-wide);
+    width: calc(100% - var(--sidebar-wide));
+  }
+
+  .account-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-collapsed);
+    right: 0;
+    height: var(--topbar-height);
+    min-height: var(--topbar-height);
+    padding: 10px 18px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: auto;
+    transition: left 0.25s ease;
+  }
+
+  .account-layout.sidebar-expanded .account-topbar {
+    left: var(--sidebar-wide);
+  }
+
+  .topbar-left,
+  .topbar-right,
+  .account-topbar-left,
+  .account-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .account-toggle-btn,
+  .btn-export-wide,
+  .btn-secure,
+  .btn-ghost {
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0 14px;
+    font-weight: 800;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .account-toggle-btn {
+    width: 44px;
+    padding: 0;
+    flex: 0 0 auto;
+  }
+
+  .btn-secure {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .btn-secure:hover {
+    background: var(--primary-hover);
+    color: #fff;
+  }
+
+  .btn-ghost:hover,
+  .btn-export-wide:hover,
+  .account-toggle-btn:hover {
+    border-color: var(--line-strong);
+  }
+
+  .account-toggle-btn i,
+  .btn-export-wide i,
+  .btn-secure i,
+  .btn-ghost i {
+    font-size: 16px;
+    flex: 0 0 auto;
+  }
+
+  .topbar-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .topbar-title .title {
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-title .sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .account-user-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .account-user-mini i {
+    font-size: 20px;
+    color: #475569;
+    flex: 0 0 auto;
+  }
+
+  .account-user-mini span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 220px;
+  }
+
+  .account-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.22);
+    z-index: 1035;
+  }
+
+  .account-backdrop.show {
+    display: block;
+  }
+
+  .account-content-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overflow-x: hidden;
+    padding: calc(var(--topbar-height) + 18px) 18px 18px;
+    background: var(--bg);
+    width: 100%;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .account-content-wrap::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .account-content-wrap::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+  }
+
+  .account-content-wrap:hover::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+  }
+
+  .account-content-wrap::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .history-page-shell {
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, var(--subsidebar-w)) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  .history-subsidebar {
+    position: sticky;
+    top: calc(var(--topbar-height) + 16px);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .history-subsidebar-mobilebar { display: none; }
+
+  .history-sidepanel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .history-sidepanel-header {
+    padding: 14px;
+    background: #fff;
+    min-width: 0;
+  }
+
+  .history-sidepanel-label {
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .history-sidepanel-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .history-sidepanel-subtitle {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .history-sidepanel-body {
+    border-top: 1px solid var(--border);
+    background: #fff;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .history-main { min-width: 0; }
+
+  .account-sidebar-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #fff;
+    border: 1px solid var(--border);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  .table-wrap,
+  .orders-table-wrap,
+  .billing-results-list,
+  .account-content-wrap {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .table-wrap::-webkit-scrollbar,
+  .orders-table-wrap::-webkit-scrollbar,
+  .billing-results-list::-webkit-scrollbar,
+  .account-content-wrap::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .table-wrap::-webkit-scrollbar-thumb,
+  .orders-table-wrap::-webkit-scrollbar-thumb,
+  .billing-results-list::-webkit-scrollbar-thumb,
+  .account-content-wrap::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+  }
+
+  .table-wrap:hover::-webkit-scrollbar-thumb,
+  .orders-table-wrap:hover::-webkit-scrollbar-thumb,
+  .billing-results-list:hover::-webkit-scrollbar-thumb,
+  .account-content-wrap:hover::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+  }
+
+  .table-wrap::-webkit-scrollbar-track,
+  .orders-table-wrap::-webkit-scrollbar-track,
+  .billing-results-list::-webkit-scrollbar-track,
+  .account-content-wrap::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  @media (max-width: 1199px) {
+    .shell {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+      position: relative;
+      top: 0;
+    }
+
+    .stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .history-page-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .history-subsidebar {
+      position: relative;
+      top: auto;
+    }
+
+    .account-layout.sidebar-collapsed .account-sidebar,
+    .account-sidebar.collapsed {
+      width: var(--sidebar-collapsed);
+    }
+
+    .account-layout.sidebar-expanded .account-sidebar,
+    .account-sidebar.expanded {
+      width: var(--sidebar-wide);
+    }
+  }
+
+  @media (max-width: 991px) {
+    .stats, .grid, .detail-grid, .meta-grid, .form-grid { grid-template-columns: 1fr 1fr; }
+
+    .account-sidebar {
+      width: var(--sidebar-wide);
+      transform: translateX(-100%);
+    }
+
+    .account-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .account-layout.sidebar-collapsed .account-sidebar,
+    .account-sidebar.collapsed {
+      width: var(--sidebar-wide);
+    }
+
+    .account-right {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .account-topbar {
+      left: 0 !important;
+      width: 100%;
+    }
+
+    .account-content-wrap {
+      padding: calc(var(--topbar-height) + 14px) 14px 14px;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .account-user-mini {
+      display: inline-flex;
+      max-width: 180px;
+    }
+
+    .account-user-mini span {
+      max-width: 120px;
+    }
+
+    .history-subsidebar {
+      position: relative !important;
+      top: auto !important;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .history-subsidebar-mobilebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 14px 12px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-sidepanel-header {
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      border-top: 0;
+    }
+
+    .history-sidepanel-body {
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      border-radius: 0;
+    }
+
+    .account-backdrop.show {
+      display: block;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .shell, .card, .sidebar { padding: 14px; }
+    .stats, .grid, .detail-grid, .meta-grid, .form-grid { grid-template-columns: 1fr; }
+    .hero, .section-head, .search-result-top, .order-top, .actions { flex-direction: column; }
+    .hero-meta, .filter-links { justify-content: flex-start; }
+    .offcanvas-panel, .filter-drawer { width: 100vw; }
+
+    .account-sidebar {
+      width: var(--sidebar-wide);
+      transform: translateX(-100%);
+    }
+
+    .account-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .account-right {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .account-topbar {
+      left: 0;
+    }
+
+    .account-sidebar-close {
+      display: inline-flex;
+    }
+
+    .account-content-wrap {
+      padding: calc(var(--topbar-height) + 14px) 12px 12px;
+    }
+
+    .history-subsidebar {
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .history-subsidebar-mobilebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-subsidebar-inner {
+      display: block;
+    }
+
+    .topbar-right {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .topbar-left {
+      width: 100%;
+    }
+
+    .account-user-mini {
+      max-width: 100%;
+    }
+
+    .account-user-mini span {
+      max-width: 90px;
+    }
+  }
+
+  .result-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 0;
+    scrollbar-width: none;
+  }
+
+  .result-actions::-webkit-scrollbar { display: none; }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0;
+  }
+
+  .details-grid .detail-box {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .details-grid .detail-box .k {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .details-grid .detail-box .v {
+    font-size: 0.92rem;
+    color: var(--text);
+    font-weight: 900;
+    word-break: break-word;
+  }
+  </style>
+</head>
+<body>
+<%
+  const safeText = (v, fallback = '—') => {
+    const s = String(v ?? '').trim().replace(/\s+/g, ' ');
+    return s || fallback;
+  };
+
+  const safeLower = (v) => safeText(v, '').toLowerCase();
+
+  const parseDt = (v) => {
+    if (!v) return null;
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const fmtDt = (v) => {
+    const d = parseDt(v);
+    return d
+      ? d.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : 'Not available';
+  };
+
+  const money = (value, currency = 'AED') => {
+    const amount = Number(value || 0);
+    const code = String(currency || 'AED').trim() || 'AED';
+    try {
+      return new Intl.NumberFormat('en-AE', {
+        style: 'currency',
+        currency: code,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    } catch {
+      return `${code} ${amount.toFixed(2)}`;
+    }
+  };
+
+  const pageOrders = Array.isArray(orderRows)
+    ? orderRows
+    : Array.isArray(orders)
+      ? orders
+      : [];
+
+  const pageRecentOrders = Array.isArray(recentOrders) ? recentOrders : [];
+  const pageLiveSearchResults = Array.isArray(liveSearchResults) ? liveSearchResults : [];
+  const pageSummary = typeof summaryData !== 'undefined' && summaryData ? summaryData : {};
+  const pageFilters = typeof filters !== 'undefined' && filters ? filters : {};
+  const pageOrderSearchResult = typeof orderSearchResult !== 'undefined' ? orderSearchResult : (typeof quickOrderResult !== 'undefined' ? quickOrderResult : null);
+
+  const totalCount = Number(pageSummary.totalCount || pageOrders.length || 0);
+  const totalAmount = Number(pageSummary.totalAmount || 0);
+  const paidCount = Number(pageSummary.paidCount || 0);
+  const pendingCount = Number(pageSummary.pendingCount || 0);
+  const refundedCount = Number(pageSummary.refundedCount || 0);
+  const cancelledCount = Number(pageSummary.cancelledCount || 0);
+  const uniqueCustomers = Number(pageSummary.uniqueCustomers || 0);
+  const currency = pageSummary.currency || 'AED';
+
+  const allowedSections = ['all', 'pending', 'confirmed', 'processing', 'ongoing', 'completed', 'incomplete', 'cancelled', 'refunded'];
+  const activeSection = allowedSections.includes(safeLower(pageFilters.section || 'all')) ? safeLower(pageFilters.section || 'all') : 'all';
+
+  const sectionCounts = pageOrders.reduce((acc, order) => {
+    const raw = safeLower(order.payment_status || order.order_status || 'pending');
+    const mapped = ['pending', 'confirmed', 'processing', 'ongoing', 'completed', 'incomplete', 'cancelled', 'refunded'].includes(raw)
+      ? raw
+      : 'incomplete';
+
+    acc.all += 1;
+    if (acc[mapped] !== undefined) acc[mapped] += 1;
+    return acc;
+  }, {
+    all: 0,
+    pending: 0,
+    confirmed: 0,
+    processing: 0,
+    ongoing: 0,
+    completed: 0,
+    incomplete: 0,
+    cancelled: 0,
+    refunded: 0
+  });
+
+  const visibleOrders = activeSection === 'all'
+    ? pageOrders
+    : pageOrders.filter((order) => {
+        const raw = safeLower(order.payment_status || order.order_status || 'pending');
+        const mapped = ['pending', 'confirmed', 'processing', 'ongoing', 'completed', 'incomplete', 'cancelled', 'refunded'].includes(raw)
+          ? raw
+          : 'incomplete';
+        return mapped === activeSection;
+      });
+
+  const currentRoute = '/admin/a/orders';
+  const liveSearchApi = '/admin/a/orders/search/live';
+  const dataApi = '/admin/a/orders/data';
+  const summaryApi = '/admin/a/orders/summary';
+  const exportApi = '/admin/a/orders/export';
+  const csrfTokenValue = safeText(typeof csrfToken !== 'undefined' ? csrfToken : '', '');
+  const adminName = safeText((admin && (admin.full_name || admin.name)) || (user && (user.full_name || user.name)) || 'Admin', 'Admin');
+  const initialSearchValue = safeText(pageFilters.q || '', '');
+  const liveSearchInitial = pageLiveSearchResults.map((o) => ({
+    id: o.id,
+    order_number: o.order_number,
+    tracking_id: o.tracking_id,
+    payment_reference: o.payment_reference,
+    customer_name: o.customer_name,
+    email: o.email,
+    phone: o.phone,
+    payment_status: o.payment_status,
+    order_status: o.order_status,
+    payment_method: o.payment_method,
+    gateway_provider: o.gateway_provider,
+    amount: o.amount,
+    currency: o.currency,
+    created_at: o.created_at,
+    detail_url: o.detail_url,
+  }));
+%>
+
+<div class="account-layout sidebar-collapsed" id="accountLayout">
+      <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+        <%- include('../includes/account-sidebar', { user, activePage: 'orders' }) %>
+      </aside>
+
+  <div class="account-right">
+    <header class="account-topbar" aria-label="Admin Topbar">
+      <div class="topbar-left">
+        <button type="button" class="account-toggle-btn" id="accountToggleBtn" aria-label="Toggle admin sidebar" aria-controls="accountSidebar" aria-expanded="false">
+          <i class="fa fa-bars"></i>
+        </button>
+        <div class="topbar-title">
+          <div class="title">Orders Dashboard</div>
+          <div class="sub">Admin access • live search</div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="account-user-mini">
+          <i class="fa fa-user-circle"></i>
+          <span id="topbarUserName"><%= adminName %></span>
+        </div>
+        <button type="button" class="btn-primaryx" id="openFilterDrawerBtn"><i class="fa fa-filter"></i> Filters</button>
+      </div>
+    </header>
+
+    <div class="account-backdrop" id="accountBackdrop"></div>
+    <button type="button" class="account-sidebar-close" id="accountSidebarClose" aria-label="Close sidebar">
+      <i class="fa fa-times"></i>
+    </button>
+
+    <div class="drawer-backdrop" id="drawerBackdrop" aria-hidden="true"></div>
+    <aside class="filter-drawer" id="filterDrawer" aria-label="Orders filter drawer">
+      <div class="filter-drawer-header">
+        <div>
+          <h3 class="filter-drawer-title">Filters</h3>
+          <p class="filter-drawer-subtitle">Search, sort, and narrow results without leaving the page.</p>
+        </div>
+        <button type="button" class="offcanvas-close" id="closeFilterDrawerBtn" aria-label="Close filters">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="filter-drawer-body">
+        <form id="filterForm" method="GET" action="<%= currentRoute %>">
+          <div class="form-grid">
+            <div class="form-box form-full">
+              <label class="form-label" for="q">Search keyword</label>
+              <input type="text" class="form-control" id="q" name="q" value="<%= initialSearchValue %>" placeholder="Order number, tracking ID, payment reference, customer, email, or phone">
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="section">Section</label>
+              <select class="form-select" id="section" name="section">
+                <% allowedSections.forEach((key) => { %>
+                  <option value="<%= key %>" <%= activeSection === key ? 'selected' : '' %>><%= key.charAt(0).toUpperCase() + key.slice(1) %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="status">Payment status</label>
+              <select class="form-select" id="status" name="status">
+                <option value="">All</option>
+                <option value="pending" <%= safeLower(pageFilters.status || '') === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="confirmed" <%= safeLower(pageFilters.status || '') === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                <option value="processing" <%= safeLower(pageFilters.status || '') === 'processing' ? 'selected' : '' %>>Processing</option>
+                <option value="ongoing" <%= safeLower(pageFilters.status || '') === 'ongoing' ? 'selected' : '' %>>Ongoing</option>
+                <option value="completed" <%= safeLower(pageFilters.status || '') === 'completed' ? 'selected' : '' %>>Completed</option>
+                <option value="cancelled" <%= safeLower(pageFilters.status || '') === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                <option value="refunded" <%= safeLower(pageFilters.status || '') === 'refunded' ? 'selected' : '' %>>Refunded</option>
+              </select>
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="payment_method">Payment method</label>
+              <select class="form-select" id="payment_method" name="payment_method">
+                <option value="">All</option>
+                <option value="cod" <%= safeLower(pageFilters.payment_method || '') === 'cod' ? 'selected' : '' %>>COD</option>
+                <option value="bank_transfer" <%= safeLower(pageFilters.payment_method || '') === 'bank_transfer' ? 'selected' : '' %>>Bank Transfer</option>
+                <option value="card" <%= safeLower(pageFilters.payment_method || '') === 'card' ? 'selected' : '' %>>Card</option>
+              </select>
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="gateway_provider">Gateway</label>
+              <select class="form-select" id="gateway_provider" name="gateway_provider">
+                <option value="">All</option>
+                <option value="manual" <%= safeLower(pageFilters.gateway_provider || '') === 'manual' ? 'selected' : '' %>>Manual</option>
+                <option value="stripe" <%= safeLower(pageFilters.gateway_provider || '') === 'stripe' ? 'selected' : '' %>>Stripe</option>
+                <option value="checkout_com" <%= safeLower(pageFilters.gateway_provider || '') === 'checkout_com' ? 'selected' : '' %>>Checkout.com</option>
+                <option value="telr" <%= safeLower(pageFilters.gateway_provider || '') === 'telr' ? 'selected' : '' %>>Telr</option>
+                <option value="paypal" <%= safeLower(pageFilters.gateway_provider || '') === 'paypal' ? 'selected' : '' %>>PayPal</option>
+                <option value="paytabs" <%= safeLower(pageFilters.gateway_provider || '') === 'paytabs' ? 'selected' : '' %>>PayTabs</option>
+              </select>
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="order_status">Order status</label>
+              <select class="form-select" id="order_status" name="order_status">
+                <option value="">All</option>
+                <option value="pending" <%= safeLower(pageFilters.order_status || '') === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="confirmed" <%= safeLower(pageFilters.order_status || '') === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                <option value="processing" <%= safeLower(pageFilters.order_status || '') === 'processing' ? 'selected' : '' %>>Processing</option>
+                <option value="ongoing" <%= safeLower(pageFilters.order_status || '') === 'ongoing' ? 'selected' : '' %>>Ongoing</option>
+                <option value="completed" <%= safeLower(pageFilters.order_status || '') === 'completed' ? 'selected' : '' %>>Completed</option>
+                <option value="cancelled" <%= safeLower(pageFilters.order_status || '') === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                <option value="refunded" <%= safeLower(pageFilters.order_status || '') === 'refunded' ? 'selected' : '' %>>Refunded</option>
+              </select>
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="sort">Sort</label>
+              <select class="form-select" id="sort" name="sort">
+                <option value="created_at" <%= safeLower(pageFilters.sort || '') === 'created_at' ? 'selected' : '' %>>Created date</option>
+                <option value="updated_at" <%= safeLower(pageFilters.sort || '') === 'updated_at' ? 'selected' : '' %>>Updated date</option>
+                <option value="total" <%= safeLower(pageFilters.sort || '') === 'total' ? 'selected' : '' %>>Total amount</option>
+                <option value="status" <%= safeLower(pageFilters.sort || '') === 'status' ? 'selected' : '' %>>Payment status</option>
+                <option value="order_status" <%= safeLower(pageFilters.sort || '') === 'order_status' ? 'selected' : '' %>>Order status</option>
+                <option value="customer_name" <%= safeLower(pageFilters.sort || '') === 'customer_name' ? 'selected' : '' %>>Customer name</option>
+                <option value="payment_method" <%= safeLower(pageFilters.sort || '') === 'payment_method' ? 'selected' : '' %>>Payment method</option>
+                <option value="tracking_id" <%= safeLower(pageFilters.sort || '') === 'tracking_id' ? 'selected' : '' %>>Tracking ID</option>
+                <option value="payment_reference" <%= safeLower(pageFilters.sort || '') === 'payment_reference' ? 'selected' : '' %>>Payment reference</option>
+              </select>
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="dir">Direction</label>
+              <select class="form-select" id="dir" name="dir">
+                <option value="desc" <%= safeLower(pageFilters.dir || '') !== 'asc' ? 'selected' : '' %>>Newest first</option>
+                <option value="asc" <%= safeLower(pageFilters.dir || '') === 'asc' ? 'selected' : '' %>>Oldest first</option>
+              </select>
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="from">From date</label>
+              <input type="date" class="form-control" id="from" name="from" value="<%= safeText(pageFilters.from || '', '') %>">
+            </div>
+
+            <div class="form-box">
+              <label class="form-label" for="to">To date</label>
+              <input type="date" class="form-control" id="to" name="to" value="<%= safeText(pageFilters.to || '', '') %>">
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top:16px;">
+            <button type="submit" class="btn-primaryx"><i class="fa fa-filter"></i> Apply Filters</button>
+            <button type="button" class="mini-btn" id="clearFiltersBtn"><i class="fa fa-undo"></i> Clear</button>
+          </div>
+        </form>
+      </div>
+    </aside>
+
+    <div class="account-content-wrap">
+      <div class="history-page-shell">
+        <aside class="history-subsidebar" id="historySubSidebar" aria-label="Order Sidebar">
+          <div class="history-subsidebar-mobilebar">
+            <div>
+              <div class="history-sidepanel-label">Orders</div>
+              <h3 class="history-sidepanel-title">Navigation</h3>
+            </div>
+            <span class="pill pill-neutral"><i class="fa fa-list"></i> <%= totalCount %></span>
+          </div>
+
+          <div class="history-subsidebar-inner" id="historySubSidebarInner">
+            <div class="history-sidepanel">
+              <div class="history-sidepanel-header">
+                <div>
+                  <div class="history-sidepanel-label">Admin Pages</div>
+                  <h3 class="history-sidepanel-title">Order Sections</h3>
+                  <p class="history-sidepanel-subtitle">Switch between order groups using these quick sections.</p>
+                </div>
+              </div>
+              <div class="history-sidepanel-body" style="padding:14px;">
+                <div class="tabs" id="orderTabs">
+                  <% allowedSections.forEach((key) => { %>
+                    <button type="button" class="tab-btn <%= activeSection === key ? 'active' : '' %>" data-tab="<%= key %>">
+                      <span><%= key.charAt(0).toUpperCase() + key.slice(1) %></span>
+                      <span class="tab-count"><%= sectionCounts[key] || 0 %></span>
+                    </button>
+                  <% }) %>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="history-main">
+          <section class="hero">
+            <div>
+              <h1>Orders Dashboard</h1>
+              <p>Complete admin access to all customer orders. Use the sidebar to switch sections, and the filter drawer to search and narrow results.</p>
+            </div>
+
+            <div class="hero-meta">
+              <span class="meta-chip"><i class="fa fa-list"></i> Total: <%= totalCount %></span>
+              <span class="meta-chip"><i class="fa fa-money"></i> <%= money(totalAmount, currency) %></span>
+            </div>
+          </section>
+
+          <section class="stats">
+            <div class="stats-card"><small>Paid</small><strong><%= paidCount %></strong></div>
+            <div class="stats-card"><small>Pending</small><strong><%= pendingCount %></strong></div>
+            <div class="stats-card"><small>Refunded</small><strong><%= refundedCount %></strong></div>
+            <div class="stats-card"><small>Cancelled</small><strong><%= cancelledCount %></strong></div>
+            <div class="stats-card"><small>Customers</small><strong><%= uniqueCustomers %></strong></div>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <div class="filter-links">
+                <button type="button" class="filter-link" id="refreshLiveBtn"><i class="fa fa-refresh"></i> Refresh</button>
+                <button type="button" class="filter-link" id="openFilterDrawerBtn2"><i class="fa fa-filter"></i> Filters</button>
+              </div>
+            </div>
+
+            <div style="margin-top:14px;">
+              <div class="section-head">
+                <div>
+                  <h3 class="section-title" style="font-size:.96rem;">Search Results</h3>
+                  <p class="section-subtitle">Top matching orders shown here.</p>
+                </div>
+                <span class="pill pill-neutral" id="liveCountPill"><%= liveSearchInitial.length %> result<%= liveSearchInitial.length === 1 ? '' : 's' %></span>
+              </div>
+
+              <div class="search-results" id="liveSearchResults">
+                <% if (liveSearchInitial.length) { %>
+                  <% liveSearchInitial.forEach((item) => { %>
+                    <div class="search-result-item" data-order-id="<%= item.id %>" data-detail-url="<%= item.detail_url || '' %>">
+                      <div class="search-result-top">
+                        <div>
+                          <h4 class="search-result-title"><%= item.order_number || item.tracking_id || item.payment_reference || ('Order #' + item.id) %></h4>
+                          <div class="search-result-subtitle"><%= item.customer_name || 'Customer' %> • <%= safeText(item.email || item.phone || 'Contact unavailable') %></div>
+                        </div>
+                        <span class="badge <%= safeLower(item.payment_status || item.order_status || 'unknown') %>"><%= item.payment_status || item.order_status || 'unknown' %></span>
+                      </div>
+                      <div class="detail-grid" style="margin:0;">
+                        <div class="detail-box"><div class="k">Amount</div><div class="v"><%= money(item.amount || 0, item.currency || currency) %></div></div>
+                        <div class="detail-box"><div class="k">Method</div><div class="v"><%= item.payment_method || '—' %></div></div>
+                        <div class="detail-box"><div class="k">Gateway</div><div class="v"><%= item.gateway_provider || '—' %></div></div>
+                        <div class="detail-box"><div class="k">Created</div><div class="v"><%= fmtDt(item.created_at) %></div></div>
+                      </div>
+                      <div class="actions">
+                        <button type="button" class="mini-btn primary js-open-offcanvas" data-order-ref="<%= item.order_number || item.tracking_id || item.payment_reference || item.id %>"><i class="fa fa-eye"></i> Details</button>
+                        <a class="mini-btn" href="<%= item.detail_url || '#' %>"><i class="fa fa-external-link"></i> Open</a>
+                      </div>
+                    </div>
+                  <% }) %>
+                <% } else { %>
+                  <div class="empty-state">No live search results yet. Start typing to search.</div>
+                <% } %>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h3 class="section-title">All Orders</h3>
+                <p class="section-subtitle">Showing <%= visibleOrders.length %> order(s) for the selected section.</p>
+              </div>
+              <div class="filter-links">
+                <button type="button" class="filter-link" id="refreshOrdersBtn"><i class="fa fa-refresh"></i> Refresh </button>
+                <button type="button" class="filter-link" id="exportOrdersBtn"><i class="fa fa-download"></i> Export </button>
+              </div>
+            </div>
+
+            <% if (!visibleOrders.length) { %>
+              <div class="empty-state">No orders found for this selection.</div>
+            <% } else { %>
+              <div class="table-wrap d-none d-lg-block">
+                <table class="order-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Order</th>
+                      <th>Customer</th>
+                      <th>Status</th>
+                      <th>Amount</th>
+                      <th>Method</th>
+                      <th>Gateway</th>
+                      <th>Created</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% visibleOrders.forEach((order) => { %>
+                      <tr>
+                        <td><%= order.id %></td>
+                        <td>
+                          <div style="font-weight:900;"><%= order.order_number || order.tracking_id || '—' %></div>
+                          <div class="muted"><%= order.payment_reference || '—' %></div>
+                        </td>
+                        <td>
+                          <div style="font-weight:800;"><%= order.customer_name || '—' %></div>
+                          <div class="muted"><%= order.email || order.phone || '—' %></div>
+                        </td>
+                        <td>
+                          <span class="badge <%= safeLower(order.payment_status || order.order_status || 'unknown') %>"><%= order.payment_status || order.order_status || 'unknown' %></span>
+                          <div class="muted" style="margin-top:6px;"><%= order.order_status || '—' %></div>
+                        </td>
+                        <td class="amount"><%= money(order.grand_total || order.amount || 0, order.currency || currency) %></td>
+                        <td><%= order.payment_method || '—' %></td>
+                        <td><%= order.gateway_provider || '—' %></td>
+                        <td><%= fmtDt(order.created_at) %></td>
+                        <td>
+                          <div class="actions">
+                            <a class="mini-btn" href="<%= order.detail_url || '#' %>"><i class="fa fa-external-link"></i> Open</a>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="grid d-lg-none">
+                <% visibleOrders.forEach((order) => { %>
+                  <article class="order-card">
+                    <div class="order-top">
+                      <div>
+                        <h4 class="order-no"><%= order.order_number || order.tracking_id || ('Order #' + order.id) %></h4>
+                        <div class="order-mini">Customer: <%= order.customer_name || '—' %><br>Created: <%= fmtDt(order.created_at) %></div>
+                      </div>
+                      <span class="badge <%= safeLower(order.payment_status || order.order_status || 'unknown') %>"><%= order.payment_status || order.order_status || 'unknown' %></span>
+                    </div>
+
+                    <div class="meta-grid">
+                      <div class="meta-item"><small>Amount</small><strong><%= money(order.grand_total || order.amount || 0, order.currency || currency) %></strong></div>
+                      <div class="meta-item"><small>Method</small><strong><%= order.payment_method || '—' %></strong></div>
+                      <div class="meta-item"><small>Gateway</small><strong><%= order.gateway_provider || '—' %></strong></div>
+                      <div class="meta-item"><small>Reference</small><strong><%= order.payment_reference || '—' %></strong></div>
+                    </div>
+
+                    <div class="actions">
+                      <button type="button" class="mini-btn primary js-open-offcanvas" data-order-ref="<%= order.order_number || order.tracking_id || order.payment_reference || order.id %>"><i class="fa fa-eye"></i> Details</button>
+                      <a class="mini-btn" href="<%= order.detail_url || '#' %>"><i class="fa fa-external-link"></i> Open</a>
+                    </div>
+                  </article>
+                <% }) %>
+              </div>
+            <% } %>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h3 class="section-title">Recent Orders</h3>
+                <p class="section-subtitle">Newest entries loaded for quick review.</p>
+              </div>
+            </div>
+
+            <% if (!pageRecentOrders.length) { %>
+              <div class="empty-state">No recent orders available.</div>
+            <% } else { %>
+              <div class="grid">
+                <% pageRecentOrders.forEach((order) => { %>
+                  <article class="order-card">
+                    <div class="order-top">
+                      <div>
+                        <h4 class="order-no"><%= order.order_number || order.tracking_id || ('Order #' + order.id) %></h4>
+                        <div class="order-mini"><%= order.customer_name || '—' %> • <%= fmtDt(order.created_at) %></div>
+                      </div>
+                      <span class="badge <%= safeLower(order.payment_status || order.order_status || 'unknown') %>"><%= order.payment_status || order.order_status || 'unknown' %></span>
+                    </div>
+
+                    <div class="meta-grid">
+                      <div class="meta-item"><small>Total</small><strong><%= money(order.grand_total || order.amount || 0, order.currency || currency) %></strong></div>
+                      <div class="meta-item"><small>Tracking ID</small><strong><%= order.tracking_id || '—' %></strong></div>
+                    </div>
+
+                    <div class="actions">
+                      <button type="button" class="mini-btn primary js-open-offcanvas" data-order-ref="<%= order.order_number || order.tracking_id || order.payment_reference || order.id %>"><i class="fa fa-eye"></i> View</button>
+                    </div>
+                  </article>
+                <% }) %>
+              </div>
+            <% } %>
+          </section>
+
+          <section class="card">
+            <div class="section-head">
+              <div>
+                <h3 class="section-title">Latest Order Lookup</h3>
+                <p class="section-subtitle">If you searched by order number, tracking ID, or payment reference, the matched record appears here.</p>
+              </div>
+            </div>
+
+            <% if (pageOrderSearchResult && pageOrderSearchResult.order) { %>
+              <div class="detail-grid">
+                <div class="detail-box"><div class="k">Order Number</div><div class="v"><%= pageOrderSearchResult.order.order_number || '—' %></div></div>
+                <div class="detail-box"><div class="k">Tracking ID</div><div class="v"><%= pageOrderSearchResult.order.tracking_id || '—' %></div></div>
+                <div class="detail-box"><div class="k">Payment Reference</div><div class="v"><%= pageOrderSearchResult.order.payment_reference || '—' %></div></div>
+                <div class="detail-box"><div class="k">Amount</div><div class="v"><%= money(pageOrderSearchResult.order.grand_total || pageOrderSearchResult.order.amount || 0, pageOrderSearchResult.order.currency || currency) %></div></div>
+                <div class="detail-box"><div class="k">Customer</div><div class="v"><%= pageOrderSearchResult.order.customer_name || '—' %></div></div>
+                <div class="detail-box"><div class="k">Created</div><div class="v"><%= fmtDt(pageOrderSearchResult.order.created_at) %></div></div>
+              </div>
+              <div class="actions" style="margin-top:14px;">
+                <button type="button" class="mini-btn primary js-open-offcanvas" data-order-ref="<%= pageOrderSearchResult.order.order_number || pageOrderSearchResult.order.tracking_id || pageOrderSearchResult.order.payment_reference || pageOrderSearchResult.order.id %>"><i class="fa fa-eye"></i> Open detail</button>
+              </div>
+            <% } else { %>
+              <div class="empty-state">No specific order lookup loaded yet.</div>
+            <% } %>
+          </section>
+
+          <% if (typeof pagination !== 'undefined' && pagination && pagination.totalPages > 1) { %>
+            <section class="card">
+              <div class="section-head">
+                <div>
+                  <h3 class="section-title">Pagination</h3>
+                  <p class="section-subtitle">Page <%= pagination.page %> of <%= pagination.totalPages %></p>
+                </div>
+              </div>
+              <div class="actions">
+                <% if (pagination.hasPrev) { %>
+                  <a class="mini-btn" href="<%= currentRoute %>?<%= new URLSearchParams(Object.assign({}, pageFilters, { page: pagination.prevPage })).toString() %>"><i class="fa fa-chevron-left"></i> Previous</a>
+                <% } %>
+                <% if (pagination.hasNext) { %>
+                  <a class="mini-btn" href="<%= currentRoute %>?<%= new URLSearchParams(Object.assign({}, pageFilters, { page: pagination.nextPage })).toString() %>"><i class="fa fa-chevron-right"></i> Next</a>
+                <% } %>
+              </div>
+            </section>
+          <% } %>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="offcanvas-backdropx" id="offcanvasBackdrop" aria-hidden="true"></div>
+<aside class="offcanvas-panel" id="orderOffcanvas" aria-label="Order details offcanvas">
+  <div class="offcanvas-head">
+    <div>
+      <h3 class="offcanvas-title">Order Details</h3>
+      <p class="offcanvas-subtitle">Fast admin review panel for live order details.</p>
+    </div>
+    <button type="button" class="offcanvas-close" id="closeOffcanvasBtn" aria-label="Close order details"><i class="fa fa-times"></i></button>
+  </div>
+  <div class="offcanvas-bodyx" id="offcanvasBody">
+    <div class="empty-state">Select an order to load details here.</div>
+  </div>
+</aside>
+
+<div class="toast" id="toastLine" role="status" aria-live="polite"></div>
+
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/main.js"></script>
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/main.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  const currentRoute = <%- JSON.stringify(currentRoute) %>;
+  const liveSearchApi = <%- JSON.stringify(liveSearchApi) %>;
+  const dataApi = <%- JSON.stringify(dataApi) %>;
+  const exportApi = <%- JSON.stringify(exportApi) %>;
+  const csrfToken = <%- JSON.stringify(csrfTokenValue) %>;
+  const initialSection = <%- JSON.stringify(activeSection) %>;
+  const searchInitial = <%- JSON.stringify(liveSearchInitial) %>;
+
+  const accountLayout = document.getElementById('accountLayout');
+  const accountToggleBtn = document.getElementById('accountToggleBtn');
+  const accountSidebar = document.getElementById('accountSidebar');
+  const accountSidebarClose = document.getElementById('accountSidebarClose');
+  const accountBackdrop = document.getElementById('accountBackdrop');
+
+  const openFilterDrawerBtn = document.getElementById('openFilterDrawerBtn');
+  const openFilterDrawerBtn2 = document.getElementById('openFilterDrawerBtn2');
+  const filterDrawer = document.getElementById('filterDrawer');
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+  const closeFilterDrawerBtn = document.getElementById('closeFilterDrawerBtn');
+  const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+
+  const tabs = Array.from(document.querySelectorAll('[data-tab]'));
+  const filterForm = document.getElementById('filterForm');
+  const refreshOrdersBtn = document.getElementById('refreshOrdersBtn');
+  const exportOrdersBtn = document.getElementById('exportOrdersBtn');
+  const liveSearchInput = document.getElementById('liveSearchInput');
+  const liveSearchResults = document.getElementById('liveSearchResults');
+  const liveCountPill = document.getElementById('liveCountPill');
+  const refreshLiveBtn = document.getElementById('refreshLiveBtn');
+  const clearLiveSearchBtn = document.getElementById('clearLiveSearchBtn');
+  const openFirstResultBtn = document.getElementById('openFirstResultBtn');
+
+  const offcanvas = document.getElementById('orderOffcanvas');
+  const offcanvasBackdrop = document.getElementById('offcanvasBackdrop');
+  const offcanvasBody = document.getElementById('offcanvasBody');
+  const closeOffcanvasBtn = document.getElementById('closeOffcanvasBtn');
+  const toast = document.getElementById('toastLine');
+
+  let liveTimer = null;
+  let liveRequestController = null;
+
+  function showToast(message) {
+    if (!toast || !message) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function getCsrf() {
+    return (csrfToken || document.querySelector('meta[name="csrf-token"]')?.content || '').trim();
+  }
+
+  function isMobile() {
+    return window.innerWidth <= 768;
+  }
+
+  function lockBody(locked) {
+    document.body.style.overflow = locked ? 'hidden' : '';
+  }
+
+  function openMobileSidebar() {
+    accountSidebar?.classList.add('open');
+    accountBackdrop?.classList.add('show');
+    lockBody(true);
+    accountToggleBtn?.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeMobileSidebar() {
+    accountSidebar?.classList.remove('open');
+    accountBackdrop?.classList.remove('show');
+    lockBody(false);
+    accountToggleBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  function expandDesktopSidebar() {
+    accountLayout?.classList.add('sidebar-expanded');
+    accountLayout?.classList.remove('sidebar-collapsed');
+    accountSidebar?.classList.add('expanded');
+    accountSidebar?.classList.remove('collapsed');
+    accountBackdrop?.classList.remove('show');
+    lockBody(false);
+    accountToggleBtn?.setAttribute('aria-expanded', 'true');
+  }
+
+  function collapseDesktopSidebar() {
+    accountLayout?.classList.add('sidebar-collapsed');
+    accountLayout?.classList.remove('sidebar-expanded');
+    accountSidebar?.classList.add('collapsed');
+    accountSidebar?.classList.remove('expanded');
+    accountBackdrop?.classList.remove('show');
+    lockBody(false);
+    accountToggleBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleAccountSidebar() {
+    if (isMobile()) {
+      if (accountSidebar?.classList.contains('open')) {
+        closeMobileSidebar();
+      } else {
+        openMobileSidebar();
+      }
+      return;
+    }
+
+    const expanded = accountLayout?.classList.contains('sidebar-expanded');
+    if (expanded) {
+      collapseDesktopSidebar();
+    } else {
+      expandDesktopSidebar();
+    }
+  }
+
+  function syncSidebarAfterResize() {
+    if (!isMobile()) {
+      accountSidebar?.classList.remove('open');
+      accountBackdrop?.classList.remove('show');
+      lockBody(false);
+    } else {
+      if (!accountSidebar?.classList.contains('open')) {
+        accountBackdrop?.classList.remove('show');
+      }
+      lockBody(accountSidebar?.classList.contains('open'));
+    }
+  }
+
+  function openFilterDrawer() {
+    filterDrawer?.classList.add('show');
+    drawerBackdrop?.classList.add('show');
+    lockBody(true);
+  }
+
+  function closeFilterDrawer() {
+    filterDrawer?.classList.remove('show');
+    drawerBackdrop?.classList.remove('show');
+    if (!(isMobile() && accountSidebar?.classList.contains('open'))) {
+      lockBody(false);
+    }
+  }
+
+  function openOffcanvas() {
+    offcanvas?.classList.add('show');
+    offcanvasBackdrop?.classList.add('show');
+    lockBody(true);
+  }
+
+  function closeOffcanvas() {
+    offcanvas?.classList.remove('show');
+    offcanvasBackdrop?.classList.remove('show');
+    if (
+      !filterDrawer?.classList.contains('show') &&
+      !(isMobile() && accountSidebar?.classList.contains('open'))
+    ) {
+      lockBody(false);
+    }
+  }
+
+  function badgeClass(status) {
+    const s = String(status || 'unknown').toLowerCase();
+    if (['paid', 'completed', 'captured', 'successful', 'success'].includes(s)) return 'completed';
+    if (['pending', 'initiated', 'pending_payment'].includes(s)) return 'pending';
+    if (['processing', 'confirmed', 'ongoing'].includes(s)) return 'processing';
+    if (['refunded', 'refund', 'partially_refunded'].includes(s)) return 'refunded';
+    if (['cancelled', 'canceled'].includes(s)) return 'cancelled';
+    if (['incomplete'].includes(s)) return 'incomplete';
+    return 'unknown';
+  }
+
+  function money(value, currency) {
+    const amount = Number(value || 0);
+    const code = String(currency || 'AED').trim() || 'AED';
+    try {
+      return new Intl.NumberFormat('en-AE', {
+        style: 'currency',
+        currency: code,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    } catch {
+      return `${code} ${amount.toFixed(2)}`;
+    }
+  }
+
+  function setActiveSection(section) {
+    tabs.forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === section));
+    const url = new URL(window.location.href);
+    url.searchParams.set('section', section);
+    window.history.replaceState({}, '', url.toString());
+  }
+
+  function bindOffcanvasButtons() {
+    document.querySelectorAll('.js-open-offcanvas').forEach((btn) => {
+      if (btn.dataset.bound === '1') return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', () => {
+        const ref = btn.dataset.orderRef || btn.getAttribute('data-order-ref') || '';
+        loadOrderDetail(ref);
+      });
+    });
+  }
+
+  function renderSearchResults(results) {
+    const list = Array.isArray(results) ? results : [];
+    if (liveCountPill) {
+      liveCountPill.textContent = `${list.length} result${list.length === 1 ? '' : 's'}`;
+    }
+
+    if (!liveSearchResults) return;
+
+    if (!list.length) {
+      liveSearchResults.innerHTML = '<div class="empty-state">No search results found.</div>';
+      bindOffcanvasButtons();
+      return;
+    }
+
+    liveSearchResults.innerHTML = list.map((item) => `
+      <div class="search-result-item" data-order-id="${item.id || ''}" data-detail-url="${item.detail_url || ''}">
+        <div class="search-result-top">
+          <div>
+            <h4 class="search-result-title">${item.order_number || item.tracking_id || item.payment_reference || `Order #${item.id}`}</h4>
+            <div class="search-result-subtitle">${item.customer_name || 'Customer'} • ${item.email || item.phone || 'Contact unavailable'}</div>
+          </div>
+          <span class="badge ${badgeClass(item.payment_status || item.order_status)}">${item.payment_status || item.order_status || 'unknown'}</span>
+        </div>
+        <div class="detail-grid" style="margin:0;">
+          <div class="detail-box"><div class="k">Amount</div><div class="v">${money(item.amount || 0, item.currency)}</div></div>
+          <div class="detail-box"><div class="k">Method</div><div class="v">${item.payment_method || '—'}</div></div>
+          <div class="detail-box"><div class="k">Gateway</div><div class="v">${item.gateway_provider || '—'}</div></div>
+          <div class="detail-box"><div class="k">Created</div><div class="v">${item.created_at ? new Date(item.created_at).toLocaleString('en-GB') : 'Not available'}</div></div>
+        </div>
+        <div class="actions">
+          <a class="mini-btn" href="${item.detail_url || '#'}"><i class="fa fa-external-link"></i> Open</a>
+        </div>
+      </div>
+    `).join('');
+
+    bindOffcanvasButtons();
+  }
+
+  async function loadOrderDetail(ref) {
+    const cleanRef = String(ref || '').trim();
+    if (!cleanRef) {
+      showToast('Order reference is required.');
+      return;
+    }
+
+    openOffcanvas();
+    if (offcanvasBody) {
+      offcanvasBody.innerHTML = '<div class="empty-state">Loading order details...</div>';
+    }
+
+    try {
+      const url = new URL(`${currentRoute}/${encodeURIComponent(cleanRef)}`, window.location.origin);
+      url.searchParams.set('format', 'json');
+
+      const res = await fetch(url.toString(), {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'CSRF-Token': getCsrf(),
+        }
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.message || 'Unable to load order details.');
+      }
+
+      const detail = data.data || {};
+      const order = detail.order || {};
+      const items = Array.isArray(detail.items) ? detail.items : [];
+
+      if (!offcanvasBody) return;
+
+      offcanvasBody.innerHTML = `
+        <div class="section-head">
+          <div>
+            <h3 class="section-title">${order.order_number || order.tracking_id || 'Order Details'}</h3>
+            <p class="section-subtitle">${order.customer_name || 'Customer'} • ${order.email || order.phone || 'No contact info'}</p>
+          </div>
+          <span class="badge ${badgeClass(order.payment_status || order.order_status)}">${order.payment_status || order.order_status || 'unknown'}</span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-box"><div class="k">Order ID</div><div class="v">${order.id || '—'}</div></div>
+          <div class="detail-box"><div class="k">Amount</div><div class="v">${money(order.grand_total || order.amount || 0, order.currency || 'AED')}</div></div>
+          <div class="detail-box"><div class="k">Tracking ID</div><div class="v">${order.tracking_id || '—'}</div></div>
+          <div class="detail-box"><div class="k">Payment Reference</div><div class="v">${order.payment_reference || '—'}</div></div>
+          <div class="detail-box"><div class="k">Payment Method</div><div class="v">${order.payment_method || '—'}</div></div>
+          <div class="detail-box"><div class="k">Gateway</div><div class="v">${order.gateway_provider || '—'}</div></div>
+          <div class="detail-box"><div class="k">Created</div><div class="v">${order.created_at ? new Date(order.created_at).toLocaleString('en-GB') : 'Not available'}</div></div>
+          <div class="detail-box"><div class="k">Updated</div><div class="v">${order.updated_at ? new Date(order.updated_at).toLocaleString('en-GB') : 'Not available'}</div></div>
+        </div>
+
+        <div class="card" style="margin-top:14px; padding:16px;">
+          <div class="section-head">
+            <div>
+              <h3 class="section-title">Customer</h3>
+              <p class="section-subtitle">Contact and account information.</p>
+            </div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-box"><div class="k">Customer Name</div><div class="v">${order.customer_name || '—'}</div></div>
+            <div class="detail-box"><div class="k">Email</div><div class="v">${order.email || '—'}</div></div>
+            <div class="detail-box"><div class="k">Phone</div><div class="v">${order.phone || '—'}</div></div>
+            <div class="detail-box"><div class="k">User ID</div><div class="v">${order.user_id || '—'}</div></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px; padding:16px;">
+          <div class="section-head">
+            <div>
+              <h3 class="section-title">Addresses</h3>
+              <p class="section-subtitle">Stored address details from the order record.</p>
+            </div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-box"><div class="k">Billing</div><div class="v">${order.billing_address ? JSON.stringify(order.billing_address) : '—'}</div></div>
+            <div class="detail-box"><div class="k">Shipping</div><div class="v">${order.shipping_address ? JSON.stringify(order.shipping_address) : '—'}</div></div>
+            <div class="detail-box"><div class="k">Notes</div><div class="v">${order.notes || '—'}</div></div>
+            <div class="detail-box"><div class="k">Currency</div><div class="v">${order.currency || 'AED'}</div></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px; padding:16px; ">
+          <div class="section-head">
+            <div>
+              <h3 class="section-title">Items</h3>
+              <p class="section-subtitle">Products attached to this order.</p>
+            </div>
+          </div>
+          ${items.length ? `
+            <div class="table-wrap">
+              <table class="order-table" style="min-width:720px;">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>SKU</th>
+                    <th>Qty</th>
+                    <th>Unit</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${items.map((item) => `
+                    <tr>
+                      <td>${item.product_name || item.product_catalog_name || '—'}${item.variant_name ? `<div class="muted">${item.variant_name}</div>` : ''}</td>
+                      <td>${item.sku || '—'}</td>
+                      <td>${item.quantity ?? 0}</td>
+                      <td>${money(item.unit_price || 0, order.currency || 'AED')}</td>
+                      <td class="amount">${money(item.line_total || 0, order.currency || 'AED')}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          ` : '<div class="empty-state">No items found for this order.</div>'}
+        </div>
+
+        <div class="actions" style="margin-top:14px;">
+          <a class="mini-btn primary" href="${order.detail_url || '#'}"><i class="fa fa-external-link"></i> Open full page</a>
+          <button type="button" class="mini-btn" id="copyOrderRefBtn"><i class="fa fa-copy"></i> Copy reference</button>
+        </div>
+      `;
+
+      const copyBtn = document.getElementById('copyOrderRefBtn');
+      copyBtn?.addEventListener('click', async () => {
+        const value = order.order_number || order.tracking_id || order.payment_reference || String(order.id || '');
+        try {
+          await navigator.clipboard.writeText(value);
+          showToast('Order reference copied.');
+        } catch {
+          showToast('Copy failed.');
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      if (offcanvasBody) {
+        offcanvasBody.innerHTML = `<div class="empty-state">${err.message || 'Unable to load details.'}</div>`;
+      }
+      showToast(err.message || 'Unable to load details.');
+    }
+  }
+
+  async function fetchLiveSearch(query) {
+    if (liveRequestController) liveRequestController.abort();
+    liveRequestController = new AbortController();
+
+    const url = new URL(liveSearchApi, window.location.origin);
+    url.searchParams.set('q', query);
+    url.searchParams.set('section', new URL(window.location.href).searchParams.get('section') || initialSection || 'all');
+
+    try {
+      const res = await fetch(url.toString(), {
+        method: 'GET',
+        credentials: 'include',
+        signal: liveRequestController.signal,
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'CSRF-Token': getCsrf(),
+        }
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.message || 'Search failed.');
+      }
+
+      renderSearchResults((data.data && data.data.results) || []);
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      console.error(err);
+      if (liveSearchResults) {
+        liveSearchResults.innerHTML = `<div class="empty-state">${err.message || 'Unable to load live search results.'}</div>`;
+      }
+      if (liveCountPill) {
+        liveCountPill.textContent = '0 results';
+      }
+    }
+  }
+
+  function scheduleLiveSearch() {
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(() => {
+      const query = String(liveSearchInput?.value || '').trim();
+      fetchLiveSearch(query);
+    }, 300);
+  }
+
+  function applyFilters() {
+    const url = new URL(window.location.href);
+    const formData = new FormData(filterForm);
+    for (const [key, value] of formData.entries()) {
+      if (value) url.searchParams.set(key, value);
+      else url.searchParams.delete(key);
+    }
+    window.location.href = url.toString();
+  }
+
+  async function refreshOrdersData() {
+    try {
+      const url = new URL(dataApi, window.location.origin);
+      url.search = window.location.search;
+      const res = await fetch(url.toString(), {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'CSRF-Token': getCsrf(),
+        },
+        credentials: 'include'
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.message || 'Unable to refresh data.');
+      }
+      showToast('Orders data refreshed.');
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Unable to refresh data.');
+    }
+  }
+
+  async function exportOrdersData() {
+    try {
+      const url = new URL(exportApi, window.location.origin);
+      url.search = window.location.search;
+      const res = await fetch(url.toString(), {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          'CSRF-Token': getCsrf(),
+        },
+        credentials: 'include'
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.message || 'Unable to prepare export data.');
+      }
+      showToast('Export data is ready.');
+      console.log('Export data', data.data || {});
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Unable to prepare export data.');
+    }
+  }
+
+  function bindGlobalEvents() {
+    tabs.forEach((btn) => {
+      btn.addEventListener('click', () => setActiveSection(btn.dataset.tab));
+    });
+
+    bindOffcanvasButtons();
+
+    accountToggleBtn?.addEventListener('click', toggleAccountSidebar);
+    accountSidebarClose?.addEventListener('click', () => {
+      if (isMobile()) closeMobileSidebar();
+      else collapseDesktopSidebar();
+    });
+    accountBackdrop?.addEventListener('click', closeMobileSidebar);
+
+    openFilterDrawerBtn?.addEventListener('click', openFilterDrawer);
+    openFilterDrawerBtn2?.addEventListener('click', openFilterDrawer);
+    closeFilterDrawerBtn?.addEventListener('click', closeFilterDrawer);
+    drawerBackdrop?.addEventListener('click', closeFilterDrawer);
+    clearFiltersBtn?.addEventListener('click', () => {
+      window.location.href = currentRoute;
+    });
+
+    filterForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      applyFilters();
+    });
+
+    refreshOrdersBtn?.addEventListener('click', refreshOrdersData);
+    exportOrdersBtn?.addEventListener('click', exportOrdersData);
+
+    liveSearchInput?.addEventListener('input', scheduleLiveSearch);
+    refreshLiveBtn?.addEventListener('click', () => fetchLiveSearch(String(liveSearchInput?.value || '').trim()));
+    clearLiveSearchBtn?.addEventListener('click', () => {
+      if (liveSearchInput) liveSearchInput.value = '';
+      fetchLiveSearch('');
+    });
+
+    openFirstResultBtn?.addEventListener('click', () => {
+      const first = document.querySelector('.js-open-offcanvas');
+      if (first) first.click();
+      else showToast('No result available.');
+    });
+
+    closeOffcanvasBtn?.addEventListener('click', closeOffcanvas);
+    offcanvasBackdrop?.addEventListener('click', closeOffcanvas);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeOffcanvas();
+        closeFilterDrawer();
+        if (isMobile()) closeMobileSidebar();
+        else collapseDesktopSidebar();
+      }
+    });
+
+    window.addEventListener('resize', syncSidebarAfterResize);
+  }
+
+  function init() {
+    const currentSection = new URL(window.location.href).searchParams.get('section') || initialSection || 'all';
+    if (currentSection) setActiveSection(currentSection);
+
+    if (isMobile()) {
+      closeMobileSidebar();
+    } else {
+      collapseDesktopSidebar();
+    }
+
+    bindGlobalEvents();
+    renderSearchResults(searchInitial);
+    if (liveCountPill) {
+      liveCountPill.textContent = `${searchInitial.length} result${searchInitial.length === 1 ? '' : 's'}`;
+    }
+    syncSidebarAfterResize();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

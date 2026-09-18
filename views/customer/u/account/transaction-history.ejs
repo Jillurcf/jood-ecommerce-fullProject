@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Transaction History — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="Review your JOOD transaction history, search orders and products, and export payment reports securely." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Transaction History — JOOD Account Dashboard" />
+  <meta property="og:description" content="Search transaction records, view weekly activity, and export reports securely." />
+  <meta property="og:url" content="https://jood.com/customer/u/account/transaction-history" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Transaction History — JOOD" />
+  <meta name="twitter:description" content="Search and export your transaction history securely." />
+
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</head>
+<body class="billing-page">
+<%
+  const safeDate = (v) => {
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const fmtDateTime = (v) => {
+    const d = safeDate(v);
+    return d
+      ? d.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : 'Not available';
+  };
+
+  const fmtDate = (v) => {
+    const d = safeDate(v);
+    return d
+      ? d.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        })
+      : 'Not available';
+  };
+
+  const statusText = (tx) =>
+    String(tx?.order_status || tx?.payment_status || tx?.status || '').toLowerCase();
+
+  const isCompletedTx = (tx) => {
+    const s = statusText(tx);
+    return ['completed', 'paid', 'confirmed', 'captured', 'success', 'successful', 'delivered', 'fulfilled'].includes(s);
+  };
+
+  const cleanName = (v) =>
+    String(v || 'Customer').trim().replace(/\s+/g, ' ');
+
+  const normalizeAmount = (v) => Number(v || 0);
+
+  const summary = (locals && locals.transactionSummary)
+    ? locals.transactionSummary
+    : (locals && locals.summaryData)
+      ? locals.summaryData
+      : {};
+
+  const transactions = Array.isArray(locals?.transactionRows)
+    ? locals.transactionRows
+    : Array.isArray(locals?.transactionsData)
+      ? locals.transactionsData
+      : [];
+
+  const recentTransactions = Array.isArray(locals?.recentTransactionsData)
+    ? locals.recentTransactionsData
+    : Array.isArray(locals?.recentTransactions)
+      ? locals.recentTransactions
+      : [];
+
+  const completedTransactions = transactions.filter(isCompletedTx);
+
+  const orderSearchResult =
+    (locals && Object.prototype.hasOwnProperty.call(locals, 'orderSearchResult'))
+      ? locals.orderSearchResult
+      : null;
+
+  const productSearchResult =
+    (locals && Object.prototype.hasOwnProperty.call(locals, 'productSearchResult'))
+      ? locals.productSearchResult
+      : null;
+
+  const queryOrderNumber =
+    (locals && locals.queryOrderNumber)
+      ? locals.queryOrderNumber
+      : '';
+
+  const queryProductId =
+    (locals && locals.queryProductId)
+      ? locals.queryProductId
+      : '';
+
+  const filters = (locals && locals.filters) ? locals.filters : {};
+
+  const totalCount = Number(summary.totalCount || transactions.length || 0);
+  const totalAmount = Number(
+    summary.totalAmount ||
+    transactions.reduce((sum, tx) => sum + normalizeAmount(tx.amount || tx.grand_total), 0) ||
+    0
+  );
+  const paidCount = Number(summary.paidCount || completedTransactions.length || 0);
+  const refundedCount = Number(summary.refundedCount || 0);
+  const pendingCount = Number(summary.pendingCount || 0);
+
+  const currency = summary.currency || (locals.user && locals.user.currency) || 'AED';
+  const userName = cleanName((locals.user && (locals.user.full_name || locals.user.name)) || 'Customer');
+  const userEmail = (locals.user && locals.user.email) || 'Not available';
+
+  const mapTxRow = (tx) => ({
+    transaction: tx.order_number || tx.transaction_reference || tx.title || '—',
+    tracking: tx.tracking_id || tx.payment_reference || '—',
+    date: tx.created_at ? fmtDateTime(tx.created_at) : 'Not available',
+    status: tx.order_status || tx.payment_status || tx.status || '—',
+    amount: Number(tx.amount || tx.grand_total || 0).toFixed(2),
+    currency: tx.currency || currency,
+    method: tx.payment_method || '—',
+    gateway: tx.gateway_provider || '—',
+    type: tx.transaction_type || 'transaction',
+    detail_url: tx.detail_url || '',
+    raw: tx
+  });
+
+  const allRows = transactions.map(mapTxRow);
+  const recentRows = recentTransactions.map(mapTxRow);
+  const completedRows = completedTransactions.map(mapTxRow);
+
+  const reportUser = userName;
+%>
+
+<style>
+  :root{
+    --bg:#ffffff;
+    --card:#fff;
+    --border:#e5eaf3;
+    --border-strong:#cfd8e3;
+    --text:#0f172a;
+    --muted:#64748b;
+    --primary:#f59e0b;
+    --primary-hover:#d97706;
+    --primary-soft:rgba(245,158,11,.12);
+    --shadow:0 12px 30px rgba(15,23,42,.08);
+    --shadow-hover:0 18px 38px rgba(15,23,42,.12);
+    --radius:22px;
+    --radius-sm:14px;
+    --sidebar-wide:280px;
+    --sidebar-collapsed:78px;
+    --topbar-height:68px;
+    --success:#16a34a;
+    --danger:#dc2626;
+  }
+
+  *{box-sizing:border-box;min-width:0}
+  html,body{margin:0;padding:0;width:100%;max-width:100%;min-height:100%;overflow-x:hidden;background:var(--bg)}
+  body{font-family:system-ui,Arial,sans-serif;color:var(--text);-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
+  a{text-decoration:none;color:inherit}
+  img,svg,canvas,video{max-width:100%;height:auto}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+
+  .account-layout{width:100%;max-width:100%;min-height:100vh;display:block;position:relative;background:var(--bg);overflow:hidden}
+  .account-sidebar{
+    position:fixed;top:0;left:0;width:var(--sidebar-collapsed);height:100vh;background:#fff;border-right:1px solid var(--border);
+    z-index:1040;overflow:auto;transition:width .25s ease,transform .25s ease
+  }
+  .account-layout.sidebar-expanded .account-sidebar{width:var(--sidebar-wide)}
+  .account-layout.sidebar-collapsed .account-sidebar,
+  .account-sidebar.collapsed{width:var(--sidebar-collapsed)}
+  .account-sidebar::-webkit-scrollbar{width:6px}
+  .account-sidebar::-webkit-scrollbar-thumb{background:transparent;border-radius:999px}
+  .account-sidebar:hover::-webkit-scrollbar-thumb{background:rgba(100,116,139,.45)}
+
+  .account-right{
+    margin-left:var(--sidebar-collapsed);width:calc(100% - var(--sidebar-collapsed));min-height:100vh;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)
+  }
+  .account-layout.sidebar-expanded .account-right{margin-left:var(--sidebar-wide);width:calc(100% - var(--sidebar-wide))}
+
+  .account-topbar{
+    position:fixed;top:0;left:var(--sidebar-collapsed);right:0;height:var(--topbar-height);padding:10px 18px;background:#fff;border-bottom:1px solid var(--border);
+    z-index:1030;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .account-layout.sidebar-expanded .account-topbar{left:var(--sidebar-wide)}
+
+  .topbar-left,.topbar-right{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+  .topbar-title{display:flex;flex-direction:column;gap:2px;min-width:0;overflow:hidden}
+  .topbar-title .title{font-size:1rem;font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar-title .sub{font-size:.8rem;color:var(--muted);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .account-toggle-btn,.btn-export-wide,.btn-secure,.btn-ghost,.btn-filter{
+    height:44px;border:1px solid var(--border);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--text);
+    cursor:pointer;padding:0 14px;font-weight:800;white-space:nowrap;transition:all .2s ease; gap:10px;
+  }
+  .account-toggle-btn{width:44px;padding:0}
+  .btn-filter,.btn-secure{border-color:var(--primary);background:var(--primary);color:#fff}
+  .btn-filter:hover,.btn-secure:hover{background:var(--primary-hover);color:#fff}
+  .btn-export-wide:hover,.btn-ghost:hover,.account-toggle-btn:hover{border-color:var(--border-strong);}
+  .account-toggle-btn i,.btn-export-wide i,.btn-secure i,.btn-ghost i,.btn-filter i{font-size:16px}
+
+  .account-user-mini{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:var(--text);white-space:nowrap;min-width:0}
+  .account-user-mini i{font-size:20px;color:#475569}
+  .account-user-mini span{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+
+  .account-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.22);z-index:1035}
+  .account-backdrop.show{display:block}
+
+  .account-content-wrap{
+    padding:calc(var(--topbar-height) + 18px) 18px 18px;background:var(--bg);width:100%;max-width:100%;-webkit-overflow-scrolling:touch
+  }
+  .account-footer-wrap{padding:0 18px 18px;margin-top:auto;width:100%;max-width:100%}
+
+  .history-page-shell{width:100%;max-width:100%;display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:16px;align-items:start}
+  .history-subsidebar{
+    position: sticky;
+    top: calc(var(--topbar-height) + 18px);
+    align-self: start;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .history-subsidebar-mobilebar{display:none}
+  .history-sidepanel{display:flex;flex-direction:column;gap:12px;min-height:100%;min-width:0;}
+  .history-sidepanel-header{padding:14px;border-radius:16px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;min-width:0}
+  .history-sidepanel-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .history-sidepanel-title{margin:0;font-size:16px; color:var(--text);line-height:1.2}
+  .history-sidepanel-subtitle{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+  .history-sidepanel-body{    
+    flex: 1 1 auto;
+    border-top: 1px solid var(--border);
+    background: #fff;
+    overflow: hidden;
+    text-align: left;
+    min-width: 0;
+  }
+  .history-main{min-width:0;max-width:100%}
+
+  .card-panel,.search-card,.filter-box,.detail-box,.summary-box,.mini-stat,.status-line,.quick-action-item{
+    background:#fff;border:1px solid var(--border);
+  }
+  .card-panel{border-radius:var(--radius);width:100%;max-width:100%;min-width:0}
+  .card-panel.pad{padding:20px}
+  .header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px;width:100%;max-width:100%}
+  .section-title{margin:0;font-size:1.05rem;color:var(--text);letter-spacing:-.01em;word-break:break-word}
+  .section-subtitle{margin:6px 0 0;color:var(--muted);font-size:.88rem;line-height:1.5;word-break:break-word}
+
+  .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;font-size:.68rem;font-weight:700;border:1px solid transparent;white-space:nowrap;line-height:1}
+  .pill-neutral{background:#f8fafc;color:#64748b;border-color:#e2e8f0}
+  .pill-verified{background:#ecfdf5;color:var(--success);border-color:#c7eed6}
+  .pill-unverified{background:#f8fafc;color:#64748b;border-color:#e2e8f0}
+
+  .status-line{display:inline-flex;align-items:center;gap:10px;padding:8px 12px;border-radius:999px;font-size:.82rem;color:#334155;white-space:nowrap}
+  .saving-dot{width:9px;height:9px;border-radius:50%;background:#94a3b8}
+  .saving-dot.is-saved{background:#16a34a}
+  .saving-dot.is-saving{background:#0f172a;animation:pulse 1.2s infinite}
+  .saving-dot.is-error{background:#dc2626}
+
+  .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;width:100%}
+  .summary-box{padding:18px;border-radius:18px;overflow:hidden}
+  .summary-box .label{    
+    font-size: 0.82rem;
+    color: var(--dark);
+    font-weight: 800;
+    word-break: break-word;
+  }
+  .summary-box .value{font-size:20px;font-weight:700;margin-top:6px;color:#111827}
+  .summary-box .hint{    
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin-top: 6px;
+    word-break: break-word;}
+
+  .analytics-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:16px;width:100%;max-width:100%}
+  .chart-card{padding:20px;min-height:360px;border-radius:var(--radius)}
+  .chart-wrap{position:relative;height:280px;width:100%;max-width:100%}
+  .chart-wrap canvas{width:100%!important;height:100%!important}
+  .mini-stat-list{display:flex;flex-direction:column;gap:12px}
+  .mini-stat{border-radius:14px;padding:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .mini-stat .k{font-size:.8rem;color:var(--muted);font-weight:800}
+  .mini-stat .v{font-size:.95rem;font-weight:900;color:var(--text);text-align:right}
+  .mini-stat .s{font-size:.78rem;color:var(--muted);margin-top:4px;text-align:right}
+
+  .search-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .search-card{border-radius:16px;padding:16px}
+  .search-card h4{margin:0 0 6px;font-size:1rem;font-weight:900}
+  .search-card p{margin:0 0 12px;color:var(--muted);font-size:.88rem;line-height:1.5}
+
+  .filters-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%;max-width:100%}
+  .filter-box{border-radius:14px;padding:14px}
+  .form-label{font-weight:800;color:var(--text);margin-bottom:6px;font-size:.86rem;display:block}
+  .form-control,.form-select{
+    width:100%;max-width:100%;min-height:46px;border-radius:14px;border:1px solid #dbe3ec;font-size:.92rem;background:#fff;color:var(--text);
+  }
+  .form-control:focus,.form-select:focus{border-color:#b8c4d1;outline:none}
+  .helper-text{display:block;margin-top:6px;color:var(--muted);font-size:.78rem;line-height:1.4}
+
+  .detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;width:100%}
+  .detail-box{border-radius:14px;padding:14px}
+  .detail-box .k{font-size:.78rem;color:var(--muted);margin-bottom:6px;font-weight:800}
+  .detail-box .v{font-size:.92rem;color:var(--text);font-weight:900;word-break:break-word}
+
+  .orders-table-wrap{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;border:1px solid var(--border);border-radius:16px;background:#fff}
+  .orders-table{width:100%;margin:0;min-width:860px}
+  .orders-table th,.orders-table td{padding:12px 14px;vertical-align:top;border-top:1px solid #eef2f7;font-size:.88rem;word-break:break-word}
+  .orders-table thead th{border-top:0;background:#f8fafc;color:#334155;font-weight:900;white-space:nowrap}
+  .orders-table td{color:#1f2937}
+  .orders-table .muted{color:var(--muted)}
+  .orders-table .amount{font-weight:900;white-space:nowrap}
+  .order-link{font-weight:800;color:#0f172a}
+  .order-link:hover{text-decoration:underline}
+
+  .actions-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%;max-width:100%}
+  .quick-action-item{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;min-height:54px;font-weight:700
+  }
+  .quick-action-item:hover{border-color:var(--border-strong);}
+  .quick-action-item i{width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;background:#f8fafc;color:#0f172a;flex:0 0 auto}
+  .quick-action-item span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .empty-state{border:1px dashed #d8e0ea;border-radius:16px;padding:18px;text-align:center;color:var(--muted);background:#fff;width:100%;max-width:100%}
+  .toast-mini{
+    position:fixed;right:18px;bottom:18px;z-index:1060;min-width:220px;max-width:calc(100vw - 36px);padding:12px 14px;border-radius:13px;background:#0f172a;color:#fff;
+    font-size:.86rem;transform:translateY(18px);opacity:0;pointer-events:none;transition:.25s ease
+  }
+  .toast-mini.show{transform:translateY(0);opacity:1}
+
+  .account-sidebar-close{
+    position:absolute;top:12px;right:12px;background:#fff;border:1px solid var(--border);width:36px;height:36px;border-radius:10px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:10
+  }
+
+  .filter-drawer-overlay{
+    position:fixed;inset:0;background:rgba(15,23,42,.28);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1040
+  }
+  .filter-drawer-overlay.show{opacity:1;pointer-events:auto}
+
+  .filter-drawer{
+    position:fixed;top:0;right:0;width:min(520px,100%);height:100vh;background:#fff;transform:translateX(100%);
+    transition:transform .25s ease;z-index:1050;display:flex;flex-direction:column;border-left:1px solid var(--border)
+  }
+  .filter-drawer.show{transform:translateX(0)}
+  .filter-drawer-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .filter-drawer-title{margin:0;font-size:1.05rem;font-weight:900;color:var(--text)}
+  .filter-drawer-subtitle{margin:4px 0 0;font-size:.92rem;color:var(--muted);line-height:1.45}
+  .filter-drawer-body{padding:18px 20px 22px;overflow:auto;flex:1}
+
+  .export-preview{border:1px solid #e5e7eb;border-radius:16px;background:#f8fafc;padding:14px;margin-top:12px}
+  .export-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .export-preview-title{font-size:.95rem;font-weight:700;color:#0f172a}
+  .export-preview-count{font-size:.85rem;color:#475569}
+  .export-preview-list{display:grid;gap:10px}
+  .export-preview-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px}
+  .export-preview-item .k{font-size:.8rem;color:#64748b;margin-bottom:2px}
+  .export-preview-item .v{font-size:.92rem;color:#0f172a;font-weight:600;word-break:break-word}
+  .export-note{margin-top:12px;font-size:.86rem;color:#64748b;line-height:1.55}
+  .export-disabled{opacity:.55;pointer-events:none}
+
+  .result-actions{
+    display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 0;scrollbar-width:none
+  }
+  .result-actions::-webkit-scrollbar{display:none}
+  .result-actions .btn-ghost,.result-actions .btn-secure,.result-actions .btn-export-wide{
+    flex:0 0 auto;min-width:max-content;white-space:nowrap;font-size:12px;padding:8px 12px;border-radius:10px
+  }
+
+  @keyframes pulse{0%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.6}100%{transform:scale(1);opacity:1}}
+
+  @media (max-width:1199px){
+    .summary-grid,.detail-grid,.filters-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .analytics-grid,.search-grid{grid-template-columns:1fr}
+    .history-page-shell{grid-template-columns:1fr}
+    .history-subsidebar{position:relative;top:auto}
+    .account-user-mini span{max-width:180px}
+  }
+
+  @media (max-width:991px){
+    .account-sidebar{width:290px;transform:translateX(-100%);height:100vh;max-width:100vw}
+    .account-sidebar.open{transform:translateX(0)}
+    .account-right{margin-left:0;width:100%}
+    .account-topbar{left:0!important;width:100%}
+    .account-content-wrap{padding:calc(var(--topbar-height) + 14px) 14px 14px}
+    .summary-grid,.filters-grid,.detail-grid,.actions-grid{grid-template-columns:1fr}
+    .history-subsidebar{
+      position: relative !important;
+      top: auto !important;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .history-subsidebar-mobilebar{
+     display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 14px 12px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-subsidebar-inner{display:block;border:0;border-radius:0}
+
+    .history-sidepanel-header {
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      border-top: 0;
+      flex-wrap: wrap;
+    }
+
+    .history-sidepanel-body {
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      border-radius: 0;
+    }
+
+    .account-sidebar-close{display:flex}
+  }
+
+  @media (max-width:768px){
+    .card-panel.pad{padding:16px}
+    .account-topbar{gap:10px;padding:10px 12px}
+    .topbar-title .title{font-size:.95rem}
+    .topbar-title .sub{font-size:.75rem}
+    .account-user-mini span{max-width:90px}
+    .btn-export-wide{padding:0 12px;font-size:.84rem}
+    .status-line{width:100%;justify-content:center}
+  }
+
+  @media (max-width:575px){
+    .account-content-wrap{padding:calc(var(--topbar-height) + 12px) 12px 12px}
+    .account-topbar{padding:10px 10px}
+    .account-user-mini{gap:8px}
+    .account-user-mini i{font-size:18px}
+    .account-user-mini span{max-width:78px;font-size:.85rem}
+    .summary-box .value{font-size:1.1rem}
+    .section-title{font-size:1rem}
+    .section-subtitle{font-size:.84rem}
+  }
+</style>
+
+<div class="account-layout sidebar-collapsed" id="accountLayout">
+  <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+    <button type="button" class="account-sidebar-close" id="accountSidebarClose" aria-label="Close sidebar">
+      <i class="fa fa-times"></i>
+    </button>
+    <%- include('../../includes/account-sidebar', { user, activePage: 'transaction-history' }) %>
+  </aside>
+
+  <div class="account-right">
+    <header class="account-topbar" aria-label="Account Topbar">
+      <div class="topbar-left" style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <button
+          type="button"
+          class="account-toggle-btn"
+          id="accountToggleBtn"
+          aria-label="Toggle account sidebar"
+          aria-controls="accountSidebar"
+          aria-expanded="false"
+          style="display:flex;align-items:center;justify-content:center;"
+        >
+          <i class="fa fa-bars"></i>
+        </button>
+
+        <div class="topbar-title">
+          <div class="title">Transaction History</div>
+          <div class="sub">Professional transaction detail, live filters, and PDF export</div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <button type="button" class="btn-export-wide" id="openFilterDrawerBtn" aria-label="Open filter drawer">
+          <i class="fa fa-filter"></i> Filter / Export
+        </button>
+
+        <div class="account-user-mini" id="topbarUserWrap">
+          <i class="fa fa-user-circle"></i>
+          <span id="topbarUserName"><%= userName %></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+    <div class="account-content-wrap">
+      <div class="history-page-shell">
+        <aside class="history-subsidebar" id="historySubSidebar" aria-label="Transaction Sidebar">
+          <div class="history-subsidebar-mobilebar">
+            <div>
+              <div class="history-sidepanel-label">Account Pages</div>
+              <h3 class="history-sidepanel-title">Transactions</h3>
+            </div>
+
+          </div>
+
+          <div class="history-subsidebar-inner" id="historySubSidebarInner">
+            <div class="history-sidepanel">
+              <div class="history-sidepanel-header">
+                <div>
+                  <div class="history-sidepanel-label">Account Pages</div>
+                  <h3 class="history-sidepanel-title">Transaction Navigation</h3>
+                  <p class="history-sidepanel-subtitle">Reports, filters, and focused search by order or product.</p>
+                </div>
+              </div>
+
+              <div class="history-sidepanel-body">
+                <%- include('../../includes/account/account-billing-sidebar', { user, activePage: 'transactions' }) %>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="history-main">
+          <section class="card-panel pad">
+            <div class="header-row" style="margin-bottom:0;">
+              <div>
+                <h3 class="section-title" style="font-size:1.25rem;">Hello, <%= userName %></h3>
+                <p class="section-subtitle">Review transaction detail, completed payments, and export only what is visible in the filtered view.</p>
+              </div>
+              <span class="pill pill-neutral"><i class="fa fa-receipt"></i> Transaction Account</span>
+            </div>
+          </section>
+
+          <section class="card-panel pad mt-3">
+            <div class="header-row">
+              <div>
+                <h3 class="section-title">Transaction Summary</h3>
+              </div>
+              <div class="status-line">
+                <span class="saving-dot is-saved" id="savingDot"></span>
+                <span id="savingText">All changes saved</span>
+              </div>
+            </div>
+
+            <div class="summary-grid">
+              <div class="summary-box summary-income">
+                <div class="label">Total Transactions</div>
+                <div class="value" id="totalCountValue"><%= totalCount %></div>
+                <div class="hint">All accessible transaction records.</div>
+              </div>
+
+              <div class="summary-box summary-success">
+                <div class="label">Completed / Paid</div>
+                <div class="value" id="paidCountValue"><%= paidCount %></div>
+                <div class="hint">Successful and completed transactions.</div>
+              </div>
+
+              <div class="summary-box summary-warning">
+                <div class="label">Pending</div>
+                <div class="value" id="pendingCountValue"><%= pendingCount %></div>
+                <div class="hint">Pending or initiated items.</div>
+              </div>
+
+              <div class="summary-box summary-danger">
+                <div class="label">Refunds</div>
+                <div class="value" id="refundedCountValue"><%= refundedCount %></div>
+                <div class="hint">Refunded or partially refunded records.</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card-panel pad mt-3">
+            <div class="header-row">
+              <div>
+                <h3 class="section-title">Search One Order / One Product</h3>
+                <p class="section-subtitle">Separate lookup fields for order history and product-specific transactions.</p>
+              </div>
+            </div>
+
+            <div class="search-grid">
+              <div class="search-card">
+                <h4>Search One Order</h4>
+                <p>Find one exact order and export only that transaction record as PDF.</p>
+                <form method="GET" action="/customer/u/account/transaction-history" autocomplete="off">
+                  <div class="mb-2">
+                    <label class="form-label" for="order_number">Order Number</label>
+                    <input type="text" class="form-control" id="order_number" name="order_number" value="<%= queryOrderNumber || '' %>" placeholder="ORD-20260424-XXXXXXX">
+                  </div>
+                  <div class="action-row result-actions">
+                    <button type="submit" class="btn-secure"><i class="fa fa-search"></i> Search Order</button>
+                    <button type="button" class="btn-ghost js-export-order-pdf" disabled><i class="fa fa-file-pdf-o"></i> Export PDF</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="search-card">
+                <h4>Search One Product</h4>
+                <p>Find a product-linked transaction record by product ID or product name.</p>
+                <form method="GET" action="/customer/u/account/transaction-history" autocomplete="off">
+                  <div class="mb-2">
+                    <label class="form-label" for="product_query">Product Search</label>
+                    <input type="text" class="form-control" id="product_query" name="product_query" value="<%= queryProductId || '' %>" placeholder="Product ID or product keyword">
+                  </div>
+                  <div class="action-row result-actions">
+                    <button type="submit" class="btn-secure"><i class="fa fa-search"></i> Search Product</button>
+                    <button type="button" class="btn-ghost js-export-product-pdf" disabled><i class="fa fa-file-pdf-o"></i> Export PDF</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </section>
+
+         
+
+          
+
+          <section class="card-panel pad mt-3">
+            <div class="header-row">
+              <div>
+                <h3 class="section-title">Quick Actions</h3>
+                <p class="section-subtitle">Fast navigation for the most used account areas.</p>
+              </div>
+            </div>
+
+            <div class="actions-grid">
+              <a href="/customer/u/orders" class="quick-action-item"><i class="fa fa-shopping-bag"></i><span>View Orders</span></a>
+              <a href="/customer/u/account/billing" class="quick-action-item"><i class="fa fa-credit-card"></i><span>Billing Page</span></a>
+            </div>
+          </section>
+
+          <div class="account-footer-wrap">
+            <%- include('../../includes/account-footer') %>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+<div class="filter-drawer-overlay" id="filterDrawerOverlay" aria-hidden="true"></div>
+<aside class="filter-drawer" id="filterDrawer" aria-label="Transaction filter drawer">
+  <div class="filter-drawer-header">
+    <div>
+      <h3 class="filter-drawer-title">Transaction Filters</h3>
+      <p class="filter-drawer-subtitle">Filter by date range, status, method, gateway, keyword, or sort order.</p>
+    </div>
+    <button type="button" class="account-toggle-btn" id="closeFilterDrawerBtn" aria-label="Close filter drawer">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <div class="filter-drawer-body">
+    <form id="filterForm" method="GET" action="/customer/u/account/transaction-history" class="filters-grid" autocomplete="off">
+      <div class="filter-box">
+        <label class="form-label" for="from">From Date</label>
+        <input type="date" class="form-control" id="from" name="from" value="<%= filters?.from || '' %>">
+      </div>
+
+      <div class="filter-box">
+        <label class="form-label" for="to">To Date</label>
+        <input type="date" class="form-control" id="to" name="to" value="<%= filters?.to || '' %>">
+      </div>
+
+      <div class="filter-box">
+        <label class="form-label" for="status">Status</label>
+        <select class="form-select" id="status" name="status">
+          <option value="">All Statuses</option>
+          <option value="pending" <%= filters?.status === 'pending' ? 'selected' : '' %>>Pending</option>
+          <option value="initiated" <%= filters?.status === 'initiated' ? 'selected' : '' %>>Initiated</option>
+          <option value="placed" <%= filters?.status === 'placed' ? 'selected' : '' %>>Placed</option>
+          <option value="confirmed" <%= filters?.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+          <option value="processing" <%= filters?.status === 'processing' ? 'selected' : '' %>>Processing</option>
+          <option value="completed" <%= filters?.status === 'completed' ? 'selected' : '' %>>Completed</option>
+          <option value="cancelled" <%= filters?.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+          <option value="refunded" <%= filters?.status === 'refunded' ? 'selected' : '' %>>Refunded</option>
+        </select>
+      </div>
+
+      <div class="filter-box">
+        <label class="form-label" for="payment_method">Payment Method</label>
+        <select class="form-select" id="payment_method" name="payment_method">
+          <option value="">All Methods</option>
+          <option value="cod" <%= filters?.payment_method === 'cod' ? 'selected' : '' %>>COD</option>
+          <option value="bank_transfer" <%= filters?.payment_method === 'bank_transfer' ? 'selected' : '' %>>Bank Transfer</option>
+          <option value="card" <%= filters?.payment_method === 'card' ? 'selected' : '' %>>Card</option>
+        </select>
+      </div>
+
+      <div class="filter-box">
+        <label class="form-label" for="gateway_provider">Gateway</label>
+        <select class="form-select" id="gateway_provider" name="gateway_provider">
+          <option value="">All Gateways</option>
+          <option value="manual" <%= filters?.gateway_provider === 'manual' ? 'selected' : '' %>>Manual</option>
+          <option value="stripe" <%= filters?.gateway_provider === 'stripe' ? 'selected' : '' %>>Stripe</option>
+          <option value="checkout_com" <%= filters?.gateway_provider === 'checkout_com' ? 'selected' : '' %>>Checkout.com</option>
+          <option value="telr" <%= filters?.gateway_provider === 'telr' ? 'selected' : '' %>>Telr</option>
+          <option value="paypal" <%= filters?.gateway_provider === 'paypal' ? 'selected' : '' %>>PayPal</option>
+          <option value="paytabs" <%= filters?.gateway_provider === 'paytabs' ? 'selected' : '' %>>PayTabs</option>
+        </select>
+      </div>
+
+      <div class="filter-box">
+        <label class="form-label" for="q">Search</label>
+        <input type="text" class="form-control" id="q" name="q" value="<%= filters?.q || '' %>" placeholder="Order number, tracking ID, reference, or name">
+      </div>
+
+      <div class="filter-box">
+        <label class="form-label" for="sort">Sort</label>
+        <select class="form-select" id="sort" name="sort">
+          <option value="desc" <%= filters?.sort !== 'asc' ? 'selected' : '' %>>Newest first</option>
+          <option value="asc" <%= filters?.sort === 'asc' ? 'selected' : '' %>>Oldest first</option>
+        </select>
+      </div>
+    </form>
+
+    <div class="action-row mt-3">
+      <button type="button" class="btn-filter" id="applyFiltersBtn">
+        <i class="fa fa-filter"></i> Apply Filters
+      </button>
+      <a class="btn-ghost" href="/customer/u/account/transaction-history">
+        <i class="fa fa-refresh"></i> Reset
+      </a>
+    </div>
+
+    <div class="export-preview mt-3">
+      <div class="export-preview-head">
+        <div class="export-preview-title">Export Preview</div>
+        <div class="export-preview-count" id="exportPreviewCount">0 result(s)</div>
+      </div>
+      <div class="export-preview-list" id="exportPreviewList">
+        <div class="export-preview-item">
+          <div class="k">Status</div>
+          <div class="v">Choose a filter and apply it to view PDF-ready results.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="export-note">Export is enabled only when matching data exists. The PDF report title includes the applied filter summary.</div>
+  </div>
+</aside>
+
+<script src="/customer/js/account.js"></script>
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/main.js"></script>
+
+<script>
+(function () {
+  const layout = document.getElementById('accountLayout');
+  const sidebar = document.getElementById('accountSidebar');
+  const toggleBtn = document.getElementById('accountToggleBtn');
+  const sidebarClose = document.getElementById('accountSidebarClose');
+  const backdrop = document.getElementById('accountBackdrop');
+  const toast = document.getElementById('toastMini');
+  const topbarUserName = document.getElementById('topbarUserName');
+
+  const filterDrawer = document.getElementById('filterDrawer');
+  const filterDrawerOverlay = document.getElementById('filterDrawerOverlay');
+  const openFilterDrawerBtn = document.getElementById('openFilterDrawerBtn');
+  const closeFilterDrawerBtn = document.getElementById('closeFilterDrawerBtn');
+
+  const filterForm = document.getElementById('filterForm');
+  const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+
+  const resultsBody = document.getElementById('resultsBody');
+  const resultsTable = document.getElementById('resultsTable');
+  const resultsEmpty = document.getElementById('resultsEmpty');
+
+  const exportPreviewCount = document.getElementById('exportPreviewCount');
+  const exportPreviewList = document.getElementById('exportPreviewList');
+
+  const filterSummaryText = document.getElementById('filterSummaryText');
+  const appliedFilterLabel = document.getElementById('appliedFilterLabel');
+  const visibleCountLabel = document.getElementById('visibleCountLabel');
+
+  const totalCountValue = document.getElementById('totalCountValue');
+  const paidCountValue = document.getElementById('paidCountValue');
+  const pendingCountValue = document.getElementById('pendingCountValue');
+  const refundedCountValue = document.getElementById('refundedCountValue');
+
+  const exportFilteredPdfBtn = document.querySelector('.js-export-filtered-pdf');
+  const exportSelectedPdfBtn = document.querySelector('.js-export-selected-pdf');
+  const exportOrderPdfBtn = document.querySelector('.js-export-order-pdf');
+  const exportProductPdfBtn = document.querySelector('.js-export-product-pdf');
+
+  const chartCanvas = document.getElementById('billingTrendChart');
+  const mixCanvas = document.getElementById('paymentMixChart');
+
+  if (!layout || !sidebar || !toggleBtn) return;
+
+  const report = {
+    userName: <%- JSON.stringify(reportUser) %>,
+    currency: <%- JSON.stringify(currency) %>,
+    summary: {
+      totalCount: <%- JSON.stringify(totalCount) %>,
+      totalAmount: <%- JSON.stringify(totalAmount) %>,
+      paidCount: <%- JSON.stringify(paidCount) %>,
+      refundedCount: <%- JSON.stringify(refundedCount) %>,
+      pendingCount: <%- JSON.stringify(pendingCount) %>
+    },
+    allTransactions: <%- JSON.stringify(allRows) %>,
+    recentTransactions: <%- JSON.stringify(recentRows) %>,
+    completedTransactions: <%- JSON.stringify(completedRows) %>,
+    orderSearchResult: <%- JSON.stringify(orderSearchResult || {}) %>,
+    productSearchResult: <%- JSON.stringify(productSearchResult || {}) %>
+  };
+
+  const state = {
+    rows: Array.isArray(report.allTransactions) ? report.allTransactions.slice() : [],
+    filteredRows: [],
+    selectedRowIndex: -1,
+    charts: { trend: null, mix: null }
+  };
+
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  function isMobile() {
+    return window.innerWidth <= 991;
+  }
+
+  function closeMobileSidebar() {
+    sidebar.classList.remove('open');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function applySidebarMode() {
+    if (isMobile()) {
+      closeMobileSidebar();
+      layout.classList.remove('sidebar-expanded');
+      layout.classList.add('sidebar-collapsed');
+      sidebar.classList.add('collapsed');
+      sidebar.classList.remove('expanded');
+      return;
+    }
+
+    layout.classList.remove('sidebar-expanded');
+    layout.classList.add('sidebar-collapsed');
+    sidebar.classList.add('collapsed');
+    sidebar.classList.remove('expanded');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function openFilterDrawer() {
+    filterDrawer?.classList.add('show');
+    filterDrawerOverlay?.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeFilterDrawer() {
+    filterDrawer?.classList.remove('show');
+    filterDrawerOverlay?.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function sanitizeFilename(name) {
+    return String(name || 'report').replace(/[^a-z0-9\-\_]+/gi, '_');
+  }
+
+  function money(value, curr) {
+    return `${Number(value || 0).toFixed(2)} ${curr || report.currency}`;
+  }
+
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function toDateKey(value) {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+  }
+
+  function formatDateTime(value) {
+    if (!value) return 'Not available';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return 'Not available';
+    return d.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function getAllRows() {
+    return Array.isArray(report.allTransactions) ? report.allTransactions.slice() : [];
+  }
+
+  function getOrderProductIds(order) {
+    const ids = [];
+    if (!order) return ids;
+    if (order.raw?.product_id) ids.push(order.raw.product_id);
+    if (order.raw?.product?.id) ids.push(order.raw.product.id);
+    if (order.raw?.product?.product_id) ids.push(order.raw.product.product_id);
+    if (Array.isArray(order.raw?.items)) {
+      order.raw.items.forEach(item => {
+        if (!item) return;
+        if (item.product_id) ids.push(item.product_id);
+        if (item.product?.product_id) ids.push(item.product.product_id);
+        if (item.product?.id) ids.push(item.product.id);
+        if (item.id) ids.push(item.id);
+      });
+    }
+    return [...new Set(ids.map(v => String(v)).filter(Boolean))];
+  }
+
+  function getOrderProductNames(order) {
+    const names = [];
+    if (!order) return names;
+    if (order.raw?.product?.name) names.push(order.raw.product.name);
+    if (order.raw?.product_name) names.push(order.raw.product_name);
+    if (Array.isArray(order.raw?.items)) {
+      order.raw.items.forEach(item => {
+        if (!item) return;
+        if (item.product?.name) names.push(item.product.name);
+        if (item.product_name) names.push(item.product_name);
+        if (item.name) names.push(item.name);
+      });
+    }
+    return [...new Set(names.map(v => String(v)).filter(Boolean))];
+  }
+
+  function buildSearchBlob(row) {
+    return [
+      row.transaction,
+      row.tracking,
+      row.date,
+      row.status,
+      row.amount,
+      row.currency,
+      row.method,
+      row.gateway,
+      row.type,
+      row.raw?.order_number,
+      row.raw?.tracking_id,
+      row.raw?.payment_reference,
+      ...getOrderProductIds(row),
+      ...getOrderProductNames(row)
+    ].filter(Boolean).join(' ').toLowerCase();
+  }
+
+  function filterRows() {
+    const q = String(document.getElementById('q')?.value || '').trim().toLowerCase();
+    const from = String(document.getElementById('from')?.value || '');
+    const to = String(document.getElementById('to')?.value || '');
+    const status = String(document.getElementById('status')?.value || '');
+    const paymentMethod = String(document.getElementById('payment_method')?.value || '');
+    const gateway = String(document.getElementById('gateway_provider')?.value || '');
+    const sort = String(document.getElementById('sort')?.value || 'desc');
+
+    const rows = getAllRows().filter(row => {
+      const blob = row.__blob || (row.__blob = buildSearchBlob(row));
+      const dateKey = toDateKey(row.raw?.created_at);
+
+      const textOk = !q || blob.includes(q);
+      const fromOk = !from || (dateKey && dateKey >= from);
+      const toOk = !to || (dateKey && dateKey <= to);
+      const statusOk = !status || String(row.status || '').toLowerCase().includes(status);
+      const methodOk = !paymentMethod || String(row.method || '').toLowerCase().includes(paymentMethod);
+      const gatewayOk = !gateway || String(row.gateway || '').toLowerCase().includes(gateway);
+
+      return textOk && fromOk && toOk && statusOk && methodOk && gatewayOk;
+    });
+
+    rows.sort((a, b) => {
+      const da = new Date(a.raw?.created_at || 0).getTime();
+      const db = new Date(b.raw?.created_at || 0).getTime();
+      return sort === 'asc' ? (da - db) : (db - da);
+    });
+
+    state.filteredRows = rows;
+    return rows;
+  }
+
+  function renderSummary(filteredRows) {
+    const total = filteredRows.reduce((sum, r) => sum + Number(r.raw?.grand_total || r.raw?.amount || 0), 0);
+    const paid = filteredRows.filter(r => String(r.status || '').toLowerCase().includes('paid') || String(r.status || '').toLowerCase().includes('completed')).length;
+    const pending = filteredRows.filter(r => String(r.status || '').toLowerCase().includes('pending')).length;
+    const refunded = filteredRows.filter(r => String(r.status || '').toLowerCase().includes('refund')).length;
+
+    if (totalCountValue) totalCountValue.textContent = String(filteredRows.length);
+    if (paidCountValue) paidCountValue.textContent = String(paid);
+    if (pendingCountValue) pendingCountValue.textContent = String(pending);
+    if (refundedCountValue) refundedCountValue.textContent = String(refunded);
+
+    if (visibleCountLabel) visibleCountLabel.textContent = String(filteredRows.length);
+    if (filterSummaryText) filterSummaryText.textContent = filteredRows.length ? getFilterSummaryText() : 'No records match the current filter.';
+    if (appliedFilterLabel) appliedFilterLabel.textContent = filteredRows.length ? shortFilterLabel(getFilterSummaryText()) : 'No match';
+
+    return { total, paid, pending, refunded };
+  }
+
+  function getFilterSummaryText() {
+    const q = String(document.getElementById('q')?.value || '').trim();
+    const from = document.getElementById('from')?.value || '';
+    const to = document.getElementById('to')?.value || '';
+    const status = document.getElementById('status')?.value || '';
+    const paymentMethod = document.getElementById('payment_method')?.value || '';
+    const gateway = document.getElementById('gateway_provider')?.value || '';
+    const sort = document.getElementById('sort')?.value || 'desc';
+
+    const parts = [];
+    if (q) parts.push(`Search: ${q}`);
+    if (from || to) parts.push(`Date: ${from || '...'} → ${to || '...'}`);
+    if (status) parts.push(`Status: ${status}`);
+    if (paymentMethod) parts.push(`Method: ${paymentMethod}`);
+    if (gateway) parts.push(`Gateway: ${gateway}`);
+    if (sort) parts.push(`Sort: ${sort === 'asc' ? 'Oldest first' : 'Newest first'}`);
+
+    return parts.length ? parts.join(' • ') : 'Showing all transaction history';
+  }
+
+  function shortFilterLabel(text) {
+    return String(text).length > 42 ? String(text).slice(0, 42) + '…' : String(text);
+  }
+
+  function updateTrendChart(filteredRows) {
+    if (!chartCanvas || typeof Chart === 'undefined') return;
+
+    const buckets = new Map();
+    const now = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+      buckets.set(key, { label, amount: 0 });
+    }
+
+    filteredRows.forEach(row => {
+      const d = new Date(row.raw?.created_at || 0);
+      if (Number.isNaN(d.getTime())) return;
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (buckets.has(key)) buckets.get(key).amount += Number(row.raw?.grand_total || row.raw?.amount || 0);
+    });
+
+    const labels = [];
+    const values = [];
+    for (const entry of buckets.values()) {
+      labels.push(entry.label);
+      values.push(entry.amount);
+    }
+
+    const ctx = chartCanvas.getContext('2d');
+    if (state.charts.trend) state.charts.trend.destroy();
+
+    state.charts.trend = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Transactions',
+          data: values,
+          tension: .35,
+          borderWidth: 3,
+          fill: true,
+          pointRadius: 3,
+          pointHoverRadius: 5
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.y} ${report.currency}` } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(148,163,184,.18)' }, ticks: { color: '#64748b' } },
+          y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,.18)' }, ticks: { color: '#64748b' } }
+        }
+      }
+    });
+  }
+
+  function updateMixChart(filteredRows) {
+    if (!mixCanvas || typeof Chart === 'undefined') return;
+
+    const map = new Map();
+    filteredRows.forEach(row => {
+      const key = row.method || 'Other';
+      map.set(key, (map.get(key) || 0) + Number(row.raw?.grand_total || row.raw?.amount || 0));
+    });
+
+    const labels = Array.from(map.keys());
+    const values = Array.from(map.values());
+
+    const ctx = mixCanvas.getContext('2d');
+    if (state.charts.mix) state.charts.mix.destroy();
+
+    state.charts.mix = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{ data: values, borderWidth: 0, hoverOffset: 4 }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, color: '#334155' } },
+          tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed} ${report.currency}` } }
+        }
+      }
+    });
+  }
+
+  function setExportButtonsState() {
+    const hasRows = Array.isArray(state.filteredRows) && state.filteredRows.length > 0;
+    const hasOrder = !!(report.orderSearchResult && (report.orderSearchResult.order_number || report.orderSearchResult.transaction_reference));
+    const hasProduct = !!(report.productSearchResult && (report.productSearchResult.product_id || report.productSearchResult.product_name));
+
+    if (exportFilteredPdfBtn) {
+      exportFilteredPdfBtn.disabled = !hasRows;
+      exportFilteredPdfBtn.classList.toggle('export-disabled', !hasRows);
+    }
+    if (exportSelectedPdfBtn) {
+      exportSelectedPdfBtn.disabled = !hasRows || state.selectedRowIndex < 0;
+      exportSelectedPdfBtn.classList.toggle('export-disabled', !hasRows || state.selectedRowIndex < 0);
+    }
+    if (exportOrderPdfBtn) {
+      exportOrderPdfBtn.disabled = !hasOrder;
+      exportOrderPdfBtn.classList.toggle('export-disabled', !hasOrder);
+    }
+    if (exportProductPdfBtn) {
+      exportProductPdfBtn.disabled = !hasProduct;
+      exportProductPdfBtn.classList.toggle('export-disabled', !hasProduct);
+    }
+  }
+
+  function updatePreview() {
+    if (!exportPreviewCount || !exportPreviewList) return;
+    const count = Array.isArray(state.filteredRows) ? state.filteredRows.length : 0;
+    exportPreviewCount.textContent = `${count} result(s)`;
+
+    if (!count) {
+      exportPreviewList.innerHTML = '<div class="export-preview-item"><div class="k">No match</div><div class="v">No record found for the selected filter.</div></div>';
+      return;
+    }
+
+    const first = state.filteredRows[0];
+    const items = [
+      ['Export Type', 'Filtered Transactions'],
+      ['Customer ID', '<%= (locals.user && (locals.user.user_id || locals.user.id)) || "—" %>'],
+      ['Customer Name', report.userName],
+      ['Record Example', first.transaction || '—'],
+      ['Generated Date', new Date().toLocaleString('en-GB')],
+      ['Currency', report.currency]
+    ];
+
+    exportPreviewList.innerHTML = items.map(([k, v]) => `
+      <div class="export-preview-item">
+        <div class="k">${k}</div>
+        <div class="v">${escapeHtml(String(v))}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderResults() {
+    const filtered = filterRows();
+    renderSummary(filtered);
+    updateTrendChart(filtered);
+    updateMixChart(filtered);
+    updatePreview();
+    setExportButtonsState();
+
+    if (!resultsBody || !resultsTable || !resultsEmpty) return;
+
+    if (!filtered.length) {
+      resultsTable.classList.add('d-none');
+      resultsEmpty.classList.remove('d-none');
+      resultsEmpty.textContent = 'No records match the current filter.';
+      resultsBody.innerHTML = '';
+      return;
+    }
+
+    resultsEmpty.classList.add('d-none');
+    resultsTable.classList.remove('d-none');
+
+    resultsBody.innerHTML = filtered.map((row, idx) => `
+      <tr data-index="${idx}">
+        <td>
+          <div><a class="order-link" href="${escapeHtml(row.raw?.detail_url || '#')}">${escapeHtml(row.transaction || '—')}</a></div>
+          <div class="muted">Tracking: ${escapeHtml(row.tracking || '—')}</div>
+        </td>
+        <td>${escapeHtml(row.date || 'Not available')}</td>
+        <td><div>${escapeHtml(row.status || '—')}</div><div class="muted">${escapeHtml(row.type || 'transaction')}</div></td>
+        <td class="amount">${escapeHtml(money(row.raw?.grand_total || row.raw?.amount || 0, row.currency || report.currency))}</td>
+        <td>${escapeHtml(row.method || '—')}</td>
+        <td>${escapeHtml(row.gateway || '—')}</td>
+      </tr>
+    `).join('');
+  }
+
+  function exportPdf(title, rows, columns, filename) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      showToast('PDF library is not loaded');
+      return;
+    }
+
+    const doc = new window.jspdf.jsPDF({ orientation: 'l', unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 36;
+    const right = pageWidth - margin;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text(title, margin, 46);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Customer: ${report.userName}`, margin, 64);
+    doc.text(`Generated: ${new Date().toLocaleString('en-GB')}`, margin, 78);
+    doc.text(`Currency: ${report.currency}`, margin, 92);
+
+    doc.setDrawColor(229, 231, 235);
+    doc.line(margin, 106, right, 106);
+
+    doc.autoTable({
+      startY: 120,
+      head: [columns],
+      body: rows.length ? rows : [['No records found']],
+      theme: 'grid',
+      styles: { font: 'helvetica', fontSize: 8.5, cellPadding: 5, textColor: [15, 23, 42] },
+      headStyles: { fillColor: [248, 250, 252], textColor: [15, 23, 42], fontStyle: 'bold' }
+    });
+
+    doc.save(`${sanitizeFilename(filename)}.pdf`);
+  }
+
+  function exportFilteredPdf() {
+    if (!state.filteredRows.length) {
+      showToast('No matching records to export');
+      return;
+    }
+
+    const rows = state.filteredRows.map(r => ([
+      r.transaction,
+      r.tracking,
+      r.date,
+      r.status,
+      r.amount,
+      r.currency,
+      r.method,
+      r.gateway
+    ]));
+
+    exportPdf(
+      'JOOD Transaction Report — Filtered View',
+      rows,
+      ['Transaction', 'Tracking ID', 'Date', 'Status', 'Amount', 'Currency', 'Method', 'Gateway'],
+      `JOOD_Transaction_Filtered_${report.userName}`
+    );
+  }
+
+  function exportSelectedPdf() {
+    if (state.selectedRowIndex < 0 || !state.filteredRows[state.selectedRowIndex]) {
+      showToast('Select one row first');
+      return;
+    }
+
+    const row = state.filteredRows[state.selectedRowIndex];
+    exportPdf(
+      'JOOD Transaction Report — Selected Record',
+      [[
+        row.transaction,
+        row.tracking,
+        row.date,
+        row.status,
+        row.amount,
+        row.currency,
+        row.method,
+        row.gateway
+      ]],
+      ['Transaction', 'Tracking ID', 'Date', 'Status', 'Amount', 'Currency', 'Method', 'Gateway'],
+      `JOOD_Transaction_Selected_${row.transaction || 'record'}`
+    );
+  }
+
+  function exportOrderPdf() {
+    const tx = report.orderSearchResult || {};
+    if (!tx || (!tx.order_number && !tx.transaction_reference)) {
+      showToast('No order result to export');
+      return;
+    }
+
+    exportPdf(
+      'JOOD Transaction Report — Single Order',
+      [[
+        tx.order_number || '—',
+        tx.tracking_id || '—',
+        tx.created_at ? fmtDateTime(tx.created_at) : 'Not available',
+        tx.order_status || tx.payment_status || '—',
+        Number(tx.amount || tx.grand_total || 0).toFixed(2),
+        tx.currency || report.currency,
+        tx.payment_method || '—',
+        tx.gateway_provider || '—'
+      ]],
+      ['Order', 'Tracking ID', 'Date', 'Status', 'Amount', 'Currency', 'Method', 'Gateway'],
+      `JOOD_Transaction_Order_${tx.order_number || 'result'}`
+    );
+  }
+
+  function exportProductPdf() {
+    const tx = report.productSearchResult || {};
+    if (!tx || (!tx.product_id && !tx.product_name)) {
+      showToast('No product result to export');
+      return;
+    }
+
+    exportPdf(
+      'JOOD Transaction Report — Single Product',
+      [[
+        tx.product_id || '—',
+        tx.product_name || '—',
+        String(tx.count || 0),
+        Number(tx.amount || 0).toFixed(2),
+        tx.currency || report.currency
+      ]],
+      ['Product ID', 'Product Name', 'Count', 'Amount', 'Currency'],
+      `JOOD_Transaction_Product_${tx.product_id || 'result'}`
+    );
+  }
+
+  function selectRow(index) {
+    state.selectedRowIndex = Number(index);
+    setExportButtonsState();
+  }
+
+  function wireEvents() {
+    toggleBtn.addEventListener('click', () => {
+      if (isMobile()) {
+        if (sidebar.classList.contains('open')) closeMobileSidebar();
+        else {
+          sidebar.classList.add('open');
+          backdrop?.classList.add('show');
+          document.body.style.overflow = 'hidden';
+          toggleBtn.setAttribute('aria-expanded', 'true');
+        }
+        return;
+      }
+
+      const expanded = layout.classList.toggle('sidebar-expanded');
+      layout.classList.toggle('sidebar-collapsed', !expanded);
+      sidebar.classList.toggle('expanded', expanded);
+      sidebar.classList.toggle('collapsed', !expanded);
+      toggleBtn.setAttribute('aria-expanded', String(expanded));
+    });
+
+    sidebarClose?.addEventListener('click', closeMobileSidebar);
+    backdrop?.addEventListener('click', closeMobileSidebar);
+    window.addEventListener('resize', applySidebarMode);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMobileSidebar();
+        closeFilterDrawer();
+      }
+    });
+
+    openFilterDrawerBtn?.addEventListener('click', openFilterDrawer);
+    closeFilterDrawerBtn?.addEventListener('click', closeFilterDrawer);
+    filterDrawerOverlay?.addEventListener('click', closeFilterDrawer);
+
+    applyFiltersBtn?.addEventListener('click', () => {
+      renderResults();
+      closeFilterDrawer();
+    });
+
+    ['q', 'from', 'to', 'status', 'payment_method', 'gateway_provider', 'sort'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', renderResults);
+      el.addEventListener('change', renderResults);
+    });
+
+    document.querySelectorAll('.js-export-filtered-pdf').forEach(btn => btn.addEventListener('click', exportFilteredPdf));
+    document.querySelectorAll('.js-export-selected-pdf').forEach(btn => btn.addEventListener('click', exportSelectedPdf));
+    document.querySelectorAll('.js-export-order-pdf').forEach(btn => btn.addEventListener('click', exportOrderPdf));
+    document.querySelectorAll('.js-export-product-pdf').forEach(btn => btn.addEventListener('click', exportProductPdf));
+
+    resultsBody?.addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-index]');
+      if (!tr) return;
+      selectRow(tr.dataset.index);
+    });
+  }
+
+  function init() {
+    applySidebarMode();
+    wireEvents();
+    state.filteredRows = filterRows();
+    renderResults();
+    setExportButtonsState();
+
+    if (topbarUserName && report.userName) {
+      topbarUserName.textContent = report.userName;
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+
+</html>

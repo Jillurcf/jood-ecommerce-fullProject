@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Admin — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="Create new admin accounts securely with target email verification and approver OTP flow." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="/customer/css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --border: #e5eaf3;
+      --border-strong: #cfd8e3;
+      --text: #1f2937;
+      --muted: #64748b;
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --primary-soft: rgba(245, 158, 11, 0.10);
+      --success: #16a34a;
+      --danger: #dc2626;
+      --radius: 20px;
+      --sidebar-wide: 280px;
+      --sidebar-collapsed: 78px;
+      --topbar-height: 68px;
+      --shadow: none;
+      --drawer-width: 460px;
+    }
+
+    * { box-sizing: border-box; min-width: 0; }
+    html, body { margin: 0; padding: 0; width: 100%; max-width: 100%; min-height: 100%; overflow-x: hidden; background: var(--bg); }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      -webkit-text-size-adjust: 100%;
+      text-rendering: optimizeLegibility;
+      background: #fff;
+    }
+    a { color: inherit; text-decoration: none; }
+    img, svg { max-width: 100%; height: auto; }
+    button, input, select, textarea { font: inherit; }
+
+    .account-layout {
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+      background: #fff;
+    }
+
+    .account-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-collapsed);
+      height: 100vh;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      z-index: 1040;
+      overflow-x: hidden;
+      overflow-y: auto;
+      transition: width 0.25s ease, transform 0.25s ease;
+    }
+    .account-sidebar.collapsed { width: var(--sidebar-collapsed); }
+    .account-sidebar.expanded { width: var(--sidebar-wide); }
+    .account-sidebar::-webkit-scrollbar { width: 6px; }
+    .account-sidebar::-webkit-scrollbar-thumb { background: transparent; border-radius: 999px; }
+    .account-sidebar:hover::-webkit-scrollbar-thumb { background: rgba(17, 24, 39, 0.22); }
+
+    .account-right {
+      margin-left: var(--sidebar-collapsed);
+      width: calc(100% - var(--sidebar-collapsed));
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: margin-left 0.25s ease, width 0.25s ease;
+      background: #fff;
+    }
+    .account-layout.sidebar-expanded .account-right {
+      margin-left: var(--sidebar-wide);
+      width: calc(100% - var(--sidebar-wide));
+    }
+
+    .account-topbar {
+      position: fixed;
+      top: 0;
+      left: var(--sidebar-collapsed);
+      right: 0;
+      height: var(--topbar-height);
+      padding: 10px 18px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      z-index: 1030;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: left 0.25s ease;
+    }
+    .account-layout.sidebar-expanded .account-topbar { left: var(--sidebar-wide); }
+
+    .account-topbar-left, .account-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .account-toggle-btn,
+    .btn-secure,
+    .btn-ghost,
+    .subnav-toggle-btn {
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0 14px;
+      font-weight: 800;
+      transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      white-space: nowrap;
+    }
+    .account-toggle-btn { width: 44px; padding: 0; flex: 0 0 auto; }
+    .account-toggle-btn:hover, .btn-ghost:hover, .subnav-toggle-btn:hover { border-color: var(--border-strong); }
+    .btn-secure { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .btn-secure:hover { background: var(--primary-hover); color: #fff; }
+    .btn-ghost { background: #fff; }
+
+    .topbar-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .topbar-title .title {
+      font-size: 1rem;
+      font-weight: 900;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .topbar-title .sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .account-user-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .account-user-mini i { font-size: 20px; color: #475569; }
+    .account-user-mini span {
+      max-width: 240px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    .account-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.22);
+      z-index: 1035;
+    }
+    .account-backdrop.show { display: block; }
+
+    .account-content-wrap {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      overflow-x: hidden;
+      padding: calc(var(--topbar-height) + 12px) 0 0;
+      background: #fff;
+      width: 100%;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .page-shell {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(235px, 270px) minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .subsidebar {
+      position: sticky;
+      top: calc(var(--topbar-height) + 12px);
+      align-self: start;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .subsidebar-mobilebar { display: none; }
+    .subsidebar-inner { display: block; }
+
+    .sub-nav-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .sub-nav-head h4 { margin: 0; font-size: .88rem; font-weight: 900; }
+    .sub-nav-head span { font-size: .76rem; color: var(--muted); }
+
+    .sub-nav-list { display: flex; flex-direction: column; }
+    .sub-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      border-bottom: 1px solid #f1f5f9;
+      transition: background .2s ease, transform .2s ease;
+      font-weight: 500;
+    }
+    .sub-nav-link:last-child { border-bottom: 0; }
+    .sub-nav-link:hover { background: rgba(245, 158, 11, 0.08); transform: translateX(2px);border-radius: 10px; font-weight: 700;}
+    .sub-nav-link.active { background: var(--primary-soft);border-radius: 10px;font-weight: 700; }
+    .sub-nav-link i {
+     
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      flex: 0 0 auto;
+    }
+    .sub-nav-link .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .86rem; }
+
+    .main-panel { min-width: 0; }
+    .panel-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .section-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .meta-line {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 18px;
+    }
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      color: #475569;
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    .form-label {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-size: .86rem;
+      display: block;
+    }
+    .form-control, .form-select {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 14px;
+      border: 1px solid #dbe3ec;
+      font-size: .92rem;
+      background: #fff;
+      color: var(--text);
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #b8c4d1;
+      outline: none;
+    }
+    .helper-text {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.4;
+    }
+
+    .role-chip-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .role-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      color: var(--text);
+      font-weight: 700;
+      font-size: .8rem;
+      cursor: pointer;
+      transition: .2s ease;
+    }
+    .role-chip:hover { transform: translateY(-1px); border-color: #cbd5e1; }
+    .role-chip.active { background: var(--primary-soft); border-color: rgba(245, 158, 11, 0.35); }
+
+    .info-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fff;
+      height: 100%;
+    }
+    .info-box .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      width: fit-content;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .info-box strong { font-size: .88rem; }
+    .info-box span { color: var(--muted); font-size: .8rem; line-height: 1.45; }
+
+    .saving-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #475569;
+      font-size: .82rem;
+      white-space: nowrap;
+    }
+    .saving-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #94a3b8;
+      flex: 0 0 auto;
+    }
+    .saving-dot.is-saving { background: #0f172a; animation: pulse 1.2s infinite; }
+    .saving-dot.is-saved { background: #16a34a; }
+    .saving-dot.is-error { background: #dc2626; }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: .6; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .toast-mini {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1060;
+      min-width: 220px;
+      max-width: 90vw;
+      padding: 12px 14px;
+      border-radius: 13px;
+      background: #0f172a;
+      color: #fff;
+      font-size: .86rem;
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s ease;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .toast-mini.show { transform: translateY(0); opacity: 1; }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: var(--drawer-width);
+      max-width: 100vw;
+      background: #fff;
+      border-left: 1px solid var(--border);
+      z-index: 1050;
+      transform: translateX(100%);
+      transition: transform .28s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.show { transform: translateX(0); }
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.42);
+      z-index: 1045;
+      display: none;
+    }
+    .drawer-backdrop.show { display: block; }
+    .drawer-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .drawer-title {
+      font-size: 1rem;
+      font-weight: 900;
+      margin: 0;
+      line-height: 1.2;
+    }
+    .drawer-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: .84rem;
+      line-height: 1.45;
+    }
+    .drawer-body {
+      padding: 18px;
+      overflow: auto;
+      flex: 1 1 auto;
+    }
+    .drawer-footer {
+      padding: 16px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .otp-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #f8fafc;
+    }
+    .otp-box .label {
+      font-size: .78rem;
+      color: var(--muted);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .otp-box .value {
+      font-size: .95rem;
+      font-weight: 900;
+      color: var(--text);
+      word-break: break-word;
+    }
+    .otp-step-note {
+      font-size: .84rem;
+      color: var(--muted);
+      line-height: 1.55;
+      margin: 0;
+    }
+.sub-nav-wrap {  border: 0px; background: #fff; overflow: hidden; }
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .status-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .profile-sidepanel { display: flex; flex-direction: column; gap: 10px; }
+    .status-card .kicker { font-size: .78rem; font-weight: 800; color: #475569; }
+    .status-card .value { font-size: .9rem; font-weight: 800; color: var(--text); }
+    .status-card .note { font-size: .78rem; color: var(--muted); line-height: 1.45; }
+
+    @media (max-width: 1199px) {
+      .page-shell { grid-template-columns: 1fr; }
+      .subsidebar { position: relative; top: auto; }
+      .account-user-mini span { max-width: 180px; }
+    }
+
+    @media (max-width: 991px) {
+      .account-sidebar {
+        width: 290px !important;
+        transform: translateX(-100%);
+        height: 100vh;
+        max-width: 100vw;
+      }
+      .account-sidebar.open { transform: translateX(0); }
+      .account-right { margin-left: 0; width: 100%; }
+      .account-topbar { left: 0 !important; width: 100%; }
+      .account-content-wrap { padding: calc(var(--topbar-height) + 8px) 10px 10px; }
+      .subsidebar { border-radius: 18px; }
+      .subsidebar-mobilebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 14px 12px;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+      }
+      .subsidebar-inner { display: none; }
+      .subsidebar.open .subsidebar-inner { display: block; }
+      .subnav-toggle-btn { display: inline-flex; width: 38px; height: 38px; padding: 0; border-radius: 10px; }
+      .drawer { width: 100vw; }
+    }
+
+    @media (max-width: 768px) {
+      .panel-card { padding: 16px; }
+      .section-title { font-size: .98rem; }
+      .section-subtitle { font-size: .84rem; }
+      .status-strip { grid-template-columns: 1fr; }
+      .role-chip-list { gap: 7px; }
+      .role-chip { width: 100%; justify-content: center; }
+      .account-user-mini span { max-width: 100px; }
+    }
+
+    @media (max-width: 480px) {
+      .panel-card { padding: 14px; }
+      .meta-line { gap: 6px; }
+      .meta-item { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<%
+  const adminData =
+    (typeof admin !== 'undefined' && admin) ||
+    (typeof user !== 'undefined' && user) ||
+    (typeof sessionAdmin !== 'undefined' && sessionAdmin) ||
+    {};
+
+  const currentRole = String(
+    (typeof sessionAdmin !== 'undefined' && sessionAdmin?.role) ||
+    adminData?.role ||
+    ''
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+
+  const canCreateSuper = currentRole === 'super_admin';
+  const canCreateMaster = currentRole === 'super_admin';
+  const canCreateAdmin = currentRole === 'super_admin' || currentRole === 'master_admin';
+
+  const visibleRoles = [];
+
+  if (canCreateSuper) {
+    visibleRoles.push({ value: 'super_admin', label: 'Super Admin' });
+  }
+
+  if (canCreateMaster) {
+    visibleRoles.push({ value: 'master_admin', label: 'Master Admin' });
+  }
+
+  if (canCreateAdmin) {
+    visibleRoles.push({ value: 'admin', label: 'Admin' });
+  }
+
+  const defaultRole = visibleRoles.length ? visibleRoles[0].value : 'admin';
+
+  const fullNameValue = adminData?.full_name || 'Admin';
+
+  function normalizeRole(role) {
+    return String(role || '').trim().toLowerCase().replace(/\s+/g, '_');
+  }
+  const roleValue = String(
+    adminData?.role ||
+    user?.role ||
+    sessionAdmin?.role ||
+    currentAdmin?.role ||
+    locals?.role ||
+    'admin'
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_');
+%>
+<div class="account-layout sidebar-collapsed" id="accountLayout">
+  <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+    <%- include('../../includes/account-sidebar', { user: adminData, admin: adminData, activePage: 'profile' }) %>
+  </aside>
+
+  <div class="account-right">
+    <header class="account-topbar" aria-label="Account Topbar">
+      <div class="account-topbar-left">
+        <button type="button" class="account-toggle-btn" id="accountToggleBtn" aria-label="Toggle sidebar" aria-controls="accountSidebar" aria-expanded="false">
+          <i class="fa fa-bars"></i>
+        </button>
+        <div class="topbar-title d-none d-md-flex">
+          <div class="title">Add Admin</div>
+          <div class="sub">Role-based account creation with OTP approval</div>
+        </div>
+      </div>
+      <div class="account-topbar-right">
+        <div class="account-user-mini"><i class="fa fa-user-circle"></i><span id="topbarUserName"><%= fullNameValue %></span></div>
+      </div>
+    </header>
+
+    <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+    <main class="account-content">
+      <div class="account-content-wrap">
+        <div class="page-shell">
+          <aside class="subsidebar" id="subsidebar" aria-label="Admin Pages Sidebar">
+            <div class="subsidebar-mobilebar">
+              <div>
+                <div style="font-size:.75rem;font-weight:800;color:#64748b;">Admin Pages</div>
+                <h3 style="margin:0;font-size:.95rem;font-weight:900;">Administration</h3>
+              </div>
+              <button type="button" class="subnav-toggle-btn" id="subnavToggleBtn" aria-label="Toggle admin navigation">
+                <i class="fa fa-angle-down"></i>
+              </button>
+            </div>
+
+          <div class="profile-subsidebar-inner" id="profileSubSidebarInner">
+              <div class="profile-sidepanel">
+                <div class="sub-nav-wrap">
+                  <div class="sub-nav-head">
+                    <div>
+                      <h4>Profile Navigation</h4>
+                      <span>Administrative sections</span>
+                    </div>
+                    <button type="button" class="subnav-toggle-btn" id="subnavToggleBtnDesktop" aria-label="Toggle profile navigation"><i class="fa fa-angle-down"></i></button>
+                  </div>
+                    <div class="sub-nav-list" id="subnavList">
+                    <a href="/admin/a/profile/myprofile" class="sub-nav-link"><i class="fa fa-user"></i><span class="txt">My Profile</span></a>
+
+                    <% if (roleValue === 'super_admin') { %>
+                      <a href="/admin/a/profile/add-admin" class="sub-nav-link active"><i class="fa fa-user-plus"></i><span class="txt">Add Admin</span></a>
+                      <a href="/admin/a/profile/super-admins" class="sub-nav-link"><i class="fa fa-shield"></i><span class="txt">Super Admin</span></a>
+                      <a href="/admin/a/profile/master-admins" class="sub-nav-link"><i class="fa fa-sitemap"></i><span class="txt">Master Admin</span></a>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link "><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                    <% } else if (roleValue === 'master_admin' || roleValue === 'master') { %>
+                      <a href="/admin/a/profile/add-admin" class="sub-nav-link"><i class="fa fa-user-plus"></i><span class="txt">Add Admin</span></a>
+                      <a href="/admin/a/profile/master-admins" class="sub-nav-link"><i class="fa fa-sitemap"></i><span class="txt">Master Admin</span></a>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link "><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                    <% } else if (roleValue === 'admin') { %>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link "><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                    <% } else { %>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link "><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <section class="main-panel">
+            <div class="panel-card">
+              <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                <div>
+                  <h3 class="section-title">Create New Admin</h3>
+                  <div class="section-subtitle">A secure password is generated automatically. Elevated roles require OTP confirmation before creation.</div>
+                </div>
+                <div class="saving-state"><span class="saving-dot" id="savingDot"></span><span id="savingText">Ready</span></div>
+              </div>
+
+              <div class="meta-line">
+                <span class="meta-item"><i class="fa fa-user-shield"></i> Current role: <%= roleValue %></span>
+                <span class="meta-item"><i class="fa fa-envelope"></i> Branded email template</span>
+                <span class="meta-item"><i class="fa fa-key"></i> Auto-generated password</span>
+              </div>
+
+              <form action="/admin/a/profile/add-admin/create" method="POST" id="addAdminForm" autocomplete="off">
+                <% if (typeof csrfToken !== 'undefined' && csrfToken) { %>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% } %>
+
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="full_name">Full Name</label>
+                    <input type="text" name="full_name" id="full_name" class="form-control" placeholder="Enter full name" required maxlength="80">
+                    <span class="helper-text">Used in email notifications and account records.</span>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" name="email" id="email" class="form-control" placeholder="Enter email address" required>
+                    <span class="helper-text">The new admin receives verification here first.</span>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input type="text" name="phone" id="phone" class="form-control" placeholder="Enter phone number" inputmode="tel">
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="status">Status</label>
+                    <select name="status" id="status" class="form-select">
+                      <option value="active" selected>Active</option>
+                      <option value="inactive">Inactive</option>
+                      <option value="blocked">Blocked</option>
+                    </select>
+                    <span class="helper-text">New accounts normally start as active.</span>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label">Role</label>
+                    <input type="hidden" name="role" id="role" value="<%= defaultRole %>">
+                    <div class="role-chip-list" id="roleChipList">
+                      <% if (visibleRoles.length) { %>
+                        <% visibleRoles.forEach(function(roleItem, index) { %>
+                          <button type="button" class="role-chip <%= index === 0 ? 'active' : '' %>" data-role="<%= roleItem.value %>">
+                            <i class="fa <%= roleItem.value === 'super_admin' ? 'fa-shield' : roleItem.value === 'master_admin' ? 'fa-sitemap' : 'fa-user-shield' %>"></i>
+                            <span><%= roleItem.label %></span>
+                          </button>
+                        <% }) %>
+                      <% } else { %>
+                        <span class="section-subtitle">No assignable roles are available for your account.</span>
+                      <% } %>
+                    </div>
+                    <div class="helper-text mt-2">Super admin can create super and master roles. Master admin can create admin only.</div>
+                  </div>
+
+                  <div class="col-12 col-lg-6">
+                    <div class="info-box">
+                      <span class="pill"><i class="fa fa-key"></i> Automatic password</span>
+                      <strong>Password delivery</strong>
+                      <span>The system generates a strong password and sends it by email after final creation.</span>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-lg-6">
+                    <div class="info-box">
+                      <span class="pill"><i class="fa fa-check-circle"></i> OTP approval</span>
+                      <strong>Elevated role confirmation</strong>
+                      <span>The approver OTP is sent to the currently logged-in super or master admin email.</span>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="d-flex flex-wrap gap-2 align-items-center mt-1" style="gap: 15px;">
+                      <button type="submit" class="btn-secure" id="createAdminBtn"><i class="fa fa-plus"></i>&nbsp;Create Admin</button>
+                      <button type="button" class="btn-ghost" id="resetFormBtn"><i class="fa fa-refresh"></i>&nbsp;Reset</button>
+                      <a href="/admin/a/admin" class="btn-ghost"><i class="fa fa-list"></i>&nbsp;View Admins</a>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+              <div class="status-strip">
+                <div class="status-card">
+                  <div class="kicker">Step 1</div>
+                  <div class="value">Target email verification</div>
+                  <div class="note">The new admin must confirm ownership of the email address first.</div>
+                </div>
+                <div class="status-card">
+                  <div class="kicker">Step 2</div>
+                  <div class="value">Approval OTP for elevated roles</div>
+                  <div class="note">The OTP is sent only to the logged-in approver’s email address.</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div style="padding-top: 12px;">
+          <%- include('../../includes/account-footer') %>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+<div class="drawer" id="emailOtpDrawer" aria-hidden="true" aria-labelledby="emailOtpDrawerTitle">
+  <div class="drawer-head">
+    <div>
+      <h5 class="drawer-title" id="emailOtpDrawerTitle">Verify New Admin Email</h5>
+      <div class="drawer-subtitle">Enter the OTP sent to the email address you typed.</div>
+    </div>
+    <button type="button" class="btn-ghost" id="closeEmailOtpBtn" aria-label="Close"><i class="fa fa-times"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="otp-box mb-3">
+      <div class="label">Target email</div>
+      <div class="value" id="targetEmailLabel">—</div>
+    </div>
+
+    <p class="otp-step-note mb-3">
+      The first OTP verifies the new admin’s email ownership. After successful verification, a second OTP will be sent to the logged-in super or master admin for approval.
+    </p>
+
+    <form id="emailOtpForm" autocomplete="off">
+      <% if (typeof csrfToken !== 'undefined' && csrfToken) { %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% } %>
+      <input type="hidden" name="otp" id="emailOtpHidden">
+
+      <div class="mb-3">
+        <label class="form-label" for="emailOtpInput">Verification OTP</label>
+        <input type="text" id="emailOtpInput" class="form-control" placeholder="Enter OTP" inputmode="numeric" maxlength="6">
+        <span class="helper-text">The OTP is valid for a short time only.</span>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn-secure" id="verifyEmailOtpBtn"><i class="fa fa-check"></i>&nbsp;Verify OTP</button>
+        <button type="button" class="btn-ghost" id="resendEmailOtpBtn"><i class="fa fa-repeat"></i>&nbsp;Resend OTP</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="drawer" id="approvalOtpDrawer" aria-hidden="true" aria-labelledby="approvalOtpDrawerTitle">
+  <div class="drawer-head">
+    <div>
+      <h5 class="drawer-title" id="approvalOtpDrawerTitle">Approve Admin Creation</h5>
+      <div class="drawer-subtitle">Enter the OTP sent to the logged-in approver email.</div>
+    </div>
+    <button type="button" class="btn-ghost" id="closeApprovalOtpBtn" aria-label="Close"><i class="fa fa-times"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="otp-box mb-3">
+      <div class="label">Approver email</div>
+      <div class="value" id="approvalEmailLabel">—</div>
+    </div>
+
+    <div class="otp-box mb-3">
+      <div class="label">Verified target email</div>
+      <div class="value" id="approvedTargetEmailLabel">—</div>
+    </div>
+
+    <p class="otp-step-note mb-3">
+      The target email has already been verified. This second OTP confirms approval by the currently logged-in super or master admin before the account is created.
+    </p>
+
+    <form id="approvalOtpForm" autocomplete="off">
+      <% if (typeof csrfToken !== 'undefined' && csrfToken) { %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% } %>
+      <input type="hidden" name="otp" id="approvalOtpHidden">
+
+      <div class="mb-3">
+        <label class="form-label" for="approvalOtpInput">Approval OTP</label>
+        <input type="text" id="approvalOtpInput" class="form-control" placeholder="Enter OTP" inputmode="numeric" maxlength="6">
+        <span class="helper-text">This OTP is sent only to the approver email.</span>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn-secure" id="confirmApprovalBtn"><i class="fa fa-check"></i>&nbsp;Confirm & Create</button>
+        <button type="button" class="btn-ghost" id="resendApprovalOtpBtn"><i class="fa fa-repeat"></i>&nbsp;Resend OTP</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/customer/js/vendor/jquery-1.12.4.min.js"></script>
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/main.js"></script>
+
+<script>
+(function () {
+  const layout = document.getElementById('accountLayout');
+  const sidebar = document.getElementById('accountSidebar');
+  const toggleBtn = document.getElementById('accountToggleBtn');
+  const backdrop = document.getElementById('accountBackdrop');
+  const subSidebar = document.getElementById('subsidebar');
+  const subnavToggleBtn = document.getElementById('subnavToggleBtn');
+  const subnavToggleBtnDesktop = document.getElementById('subnavToggleBtnDesktop');
+  const subnavList = document.getElementById('subnavList');
+
+  const form = document.getElementById('addAdminForm');
+  const createBtn = document.getElementById('createAdminBtn');
+  const resetFormBtn = document.getElementById('resetFormBtn');
+  const roleHidden = document.getElementById('role');
+  const roleChipList = document.getElementById('roleChipList');
+
+  const savingDot = document.getElementById('savingDot');
+  const savingText = document.getElementById('savingText');
+  const toast = document.getElementById('toastMini');
+
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+  const emailOtpDrawer = document.getElementById('emailOtpDrawer');
+  const approvalOtpDrawer = document.getElementById('approvalOtpDrawer');
+
+  const emailOtpInput = document.getElementById('emailOtpInput');
+  const emailOtpHidden = document.getElementById('emailOtpHidden');
+  const verifyEmailOtpBtn = document.getElementById('verifyEmailOtpBtn');
+  const resendEmailOtpBtn = document.getElementById('resendEmailOtpBtn');
+  const closeEmailOtpBtn = document.getElementById('closeEmailOtpBtn');
+  const targetEmailLabel = document.getElementById('targetEmailLabel');
+
+  const approvalOtpInput = document.getElementById('approvalOtpInput');
+  const approvalOtpHidden = document.getElementById('approvalOtpHidden');
+  const confirmApprovalBtn = document.getElementById('confirmApprovalBtn');
+  const resendApprovalOtpBtn = document.getElementById('resendApprovalOtpBtn');
+  const closeApprovalOtpBtn = document.getElementById('closeApprovalOtpBtn');
+  const approvalEmailLabel = document.getElementById('approvalEmailLabel');
+  const approvedTargetEmailLabel = document.getElementById('approvedTargetEmailLabel');
+
+  const defaultRole = '<%= defaultRole %>';
+
+  let isSubmitting = false;
+  let pendingPayload = null;
+  let pendingEmail = '';
+  let pendingApproverEmail = '';
+
+  function isMobile() { return window.innerWidth <= 991; }
+
+  function setSavingState(state, message) {
+    if (!savingDot || !savingText) return;
+    savingDot.classList.remove('is-saving', 'is-saved', 'is-error');
+
+    if (state === 'saving') {
+      savingDot.classList.add('is-saving');
+      savingText.textContent = message || 'Working...';
+    } else if (state === 'saved') {
+      savingDot.classList.add('is-saved');
+      savingText.textContent = message || 'Ready';
+    } else if (state === 'error') {
+      savingDot.classList.add('is-error');
+      savingText.textContent = message || 'Failed';
+    } else {
+      savingText.textContent = message || 'Ready';
+    }
+  }
+
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  function showError(message) {
+    const text = String(message || 'Something went wrong.');
+    alert(text);
+    showToast(text);
+  }
+
+  function getFormData() {
+    const fd = new FormData(form);
+    const data = {};
+    for (const [key, value] of fd.entries()) data[key] = String(value).trim();
+    return data;
+  }
+
+  function closeMobileSidebar() {
+    sidebar?.classList.remove('open');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    toggleBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  function applySidebarMode() {
+    if (!layout || !sidebar) return;
+    if (isMobile()) {
+      closeMobileSidebar();
+      layout.classList.remove('sidebar-expanded');
+      layout.classList.add('sidebar-collapsed');
+      sidebar.classList.add('collapsed');
+      sidebar.classList.remove('expanded');
+      if (subSidebar) subSidebar.classList.remove('open');
+      if (subnavList) subnavList.style.display = 'none';
+      return;
+    }
+
+    layout.classList.remove('sidebar-expanded');
+    layout.classList.add('sidebar-collapsed');
+    sidebar.classList.add('collapsed');
+    sidebar.classList.remove('expanded');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    if (subSidebar) subSidebar.classList.add('open');
+    if (subnavList) subnavList.style.display = 'flex';
+  }
+
+  function toggleSubnav() {
+    if (!subSidebar || !subnavList) return;
+    const isOpen = subSidebar.classList.toggle('open');
+    if (isMobile()) subnavList.style.display = isOpen ? 'flex' : 'none';
+    document.querySelectorAll('#subnavToggleBtn i, #subnavToggleBtnDesktop i').forEach(i => {
+      i.className = isOpen ? 'fa fa-angle-up' : 'fa fa-angle-down';
+    });
+  }
+
+  function updateRoleUI(role) {
+    if (!roleHidden) return;
+    roleHidden.value = role;
+    roleChipList?.querySelectorAll('.role-chip').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.role === role);
+    });
+  }
+
+  function openDrawer(drawerEl) {
+    if (!drawerEl) return;
+    drawerBackdrop?.classList.add('show');
+    drawerEl.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer(drawerEl) {
+    if (!drawerEl) return;
+    drawerEl.classList.remove('show');
+    const anyOpen = emailOtpDrawer?.classList.contains('show') || approvalOtpDrawer?.classList.contains('show');
+    if (!anyOpen) {
+      drawerBackdrop?.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function openEmailOtpDrawer(email) {
+    pendingEmail = String(email || '').trim();
+    if (targetEmailLabel) targetEmailLabel.textContent = pendingEmail || '—';
+    if (emailOtpInput) emailOtpInput.value = '';
+    openDrawer(emailOtpDrawer);
+    setTimeout(() => emailOtpInput?.focus(), 250);
+  }
+
+  function openApprovalOtpDrawer(email, targetEmail) {
+    pendingApproverEmail = String(email || '').trim();
+    pendingEmail = String(targetEmail || pendingEmail || '').trim();
+    if (approvalEmailLabel) approvalEmailLabel.textContent = pendingApproverEmail || '—';
+    if (approvedTargetEmailLabel) approvedTargetEmailLabel.textContent = pendingEmail || '—';
+    if (approvalOtpInput) approvalOtpInput.value = '';
+    openDrawer(approvalOtpDrawer);
+    setTimeout(() => approvalOtpInput?.focus(), 250);
+  }
+
+  async function postForm(url, dataObj) {
+    const body = new URLSearchParams();
+    Object.entries(dataObj).forEach(([key, value]) => body.append(key, value));
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: body.toString()
+    });
+
+    const text = await response.text();
+    let data = null;
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (err) {
+      data = null;
+    }
+
+    if (!response.ok) {
+      const msg = data?.message || text || `Request failed (${response.status})`;
+      throw new Error(msg);
+    }
+
+    if (!data || data.ok === false) {
+      throw new Error(data?.message || 'Request failed.');
+    }
+
+    return data;
+  }
+
+  async function createAdminRequest() {
+    if (isSubmitting || !form) return;
+
+    const data = getFormData();
+    const role = String(roleHidden?.value || defaultRole || '').trim();
+    const needsApproval = role === 'super_admin' || role === 'master_admin';
+
+    setSavingState('saving', needsApproval ? 'Sending verification OTP...' : 'Creating admin...');
+    isSubmitting = true;
+    createBtn?.setAttribute('disabled', 'disabled');
+
+    try {
+      const result = await postForm(form.action, data);
+      pendingPayload = data;
+      pendingEmail = result.email || data.email || '';
+
+      if (result.requireEmailOtp) {
+        setSavingState('saved', 'OTP sent');
+        showToast(result.message || 'Verification OTP sent');
+        openEmailOtpDrawer(result.email || data.email || '');
+        return;
+      }
+
+      if (result.requireApprovalOtp || result.showSecondOffcanvas) {
+        setSavingState('saved', 'Approval OTP sent');
+        showToast(result.message || 'Approval OTP sent');
+        openApprovalOtpDrawer(result.approvalEmail || '', result.createdForEmail || pendingEmail);
+        return;
+      }
+
+      setSavingState('saved', 'Created');
+      showToast(result.message || 'Admin created successfully');
+      form.reset();
+      updateRoleUI(defaultRole);
+    } catch (error) {
+      console.error(error);
+      setSavingState('error', 'Failed');
+      showError(error.message || 'Could not create admin');
+    } finally {
+      isSubmitting = false;
+      createBtn?.removeAttribute('disabled');
+    }
+  }
+
+  async function verifyEmailOtp() {
+    const otp = String(emailOtpInput?.value || '').trim();
+    if (!otp) {
+      showError('Please enter the verification OTP.');
+      emailOtpInput?.focus();
+      return;
+    }
+
+    if (!pendingPayload) {
+      showError('No pending request found.');
+      return;
+    }
+
+    try {
+      setSavingState('saving', 'Verifying email OTP...');
+      const payload = { ...pendingPayload, otp, code: otp };
+      const result = await postForm('/admin/a/profile/add-admin/verify-otp', payload);
+      pendingApproverEmail = result.approvalEmail || '';
+      pendingEmail = result.createdForEmail || pendingEmail || pendingPayload.email || '';
+
+      setSavingState('saved', 'Email verified');
+      showToast(result.message || 'Email verified successfully');
+      closeDrawer(emailOtpDrawer);
+      openApprovalOtpDrawer(pendingApproverEmail, pendingEmail);
+    } catch (error) {
+      console.error(error);
+      setSavingState('error', 'Verification failed');
+      showError(error.message || 'Verification OTP failed');
+    }
+  }
+
+  async function verifyApprovalOtp() {
+    const otp = String(approvalOtpInput?.value || '').trim();
+    if (!otp) {
+      showError('Please enter the approval OTP.');
+      approvalOtpInput?.focus();
+      return;
+    }
+
+    if (!pendingPayload) {
+      showError('No pending approval request found.');
+      return;
+    }
+
+    try {
+      setSavingState('saving', 'Creating admin...');
+      const payload = { ...pendingPayload, otp, code: otp };
+      const result = await postForm('/admin/a/profile/add-admin/verify-otp', payload);
+
+      setSavingState('saved', 'Created');
+      showToast(result.message || 'Admin created successfully');
+      closeDrawer(approvalOtpDrawer);
+      form.reset();
+      updateRoleUI(defaultRole);
+      pendingPayload = null;
+      pendingEmail = '';
+      pendingApproverEmail = '';
+    } catch (error) {
+      console.error(error);
+      setSavingState('error', 'Approval failed');
+      showError(error.message || 'Approval OTP failed');
+    }
+  }
+
+  async function resendOtp() {
+    if (!pendingPayload) {
+      showError('No pending request to resend OTP for.');
+      return;
+    }
+
+    try {
+      setSavingState('saving', 'Resending OTP...');
+      const result = await postForm('/admin/a/profile/add-admin/resend-otp', pendingPayload);
+
+      setSavingState('saved', 'OTP resent');
+      showToast(result.message || 'OTP resent');
+
+      if (result.requireEmailOtp) {
+        openEmailOtpDrawer(result.email || pendingPayload.email || '');
+      }
+      if (result.requireApprovalOtp || result.showSecondOffcanvas) {
+        openApprovalOtpDrawer(result.approvalEmail || '', result.createdForEmail || pendingPayload.email || '');
+      }
+    } catch (error) {
+      console.error(error);
+      setSavingState('error', 'Resend failed');
+      showError(error.message || 'Could not resend OTP');
+    }
+  }
+
+  roleChipList?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.role-chip');
+    if (!btn) return;
+    updateRoleUI(btn.dataset.role);
+  });
+
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    createAdminRequest();
+  });
+
+  resetFormBtn?.addEventListener('click', () => {
+    form?.reset();
+    updateRoleUI(defaultRole);
+    pendingPayload = null;
+    pendingEmail = '';
+    pendingApproverEmail = '';
+    showToast('Form reset');
+  });
+
+  toggleBtn?.addEventListener('click', () => {
+    if (isMobile()) {
+      const isOpen = sidebar.classList.contains('open');
+      if (isOpen) closeMobileSidebar();
+      else {
+        sidebar.classList.add('open');
+        backdrop?.classList.add('show');
+        document.body.style.overflow = 'hidden';
+        toggleBtn.setAttribute('aria-expanded', 'true');
+      }
+      return;
+    }
+
+    const expanded = layout.classList.toggle('sidebar-expanded');
+    layout.classList.toggle('sidebar-collapsed', !expanded);
+    sidebar.classList.toggle('collapsed', !expanded);
+    sidebar.classList.toggle('expanded', expanded);
+  });
+
+  [subnavToggleBtn, subnavToggleBtnDesktop].forEach(btn => btn?.addEventListener('click', toggleSubnav));
+  backdrop?.addEventListener('click', closeMobileSidebar);
+  drawerBackdrop?.addEventListener('click', () => {
+    closeDrawer(emailOtpDrawer);
+    closeDrawer(approvalOtpDrawer);
+  });
+  verifyEmailOtpBtn?.addEventListener('click', verifyEmailOtp);
+  confirmApprovalBtn?.addEventListener('click', verifyApprovalOtp);
+  resendEmailOtpBtn?.addEventListener('click', resendOtp);
+  resendApprovalOtpBtn?.addEventListener('click', resendOtp);
+  closeEmailOtpBtn?.addEventListener('click', () => closeDrawer(emailOtpDrawer));
+  closeApprovalOtpBtn?.addEventListener('click', () => closeDrawer(approvalOtpDrawer));
+
+  emailOtpInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      verifyEmailOtp();
+    }
+  });
+
+  approvalOtpInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      verifyApprovalOtp();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMobileSidebar();
+      closeDrawer(emailOtpDrawer);
+      closeDrawer(approvalOtpDrawer);
+    }
+  });
+
+  window.addEventListener('resize', applySidebarMode);
+
+  function init() {
+    updateRoleUI(defaultRole);
+    setSavingState('saved', 'Ready');
+    applySidebarMode();
+    const topbar = document.getElementById('topbarUserName');
+    if (topbar) topbar.textContent = '<%= fullNameValue %>';
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

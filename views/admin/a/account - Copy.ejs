@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Account — Issa GoodLife</title>
+  <meta name="description" content="Customer account dashboard for Issa GoodLife.">
+  <meta name="robots" content="index, follow">
+  <link rel="shortcut icon" type="image/x-icon" href="/customer/images/web-img-vid/logo.png">
+
+  <link rel="stylesheet" href="/customer/css/material-design-iconic-font.min.css">
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/customer/css/fontawesome-stars.css">
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/customer/css/meanmenu.css">
+  <link rel="stylesheet" href="/customer/css/owl.carousel.min.css">
+  <link rel="stylesheet" href="/customer/css/slick.css">
+  <link rel="stylesheet" href="/customer/css/animate.css">
+  <link rel="stylesheet" href="/customer/css/jquery-ui.min.css">
+  <link rel="stylesheet" href="/customer/css/venobox.css">
+  <link rel="stylesheet" href="/customer/css/nice-select.css">
+  <link rel="stylesheet" href="/customer/css/magnific-popup.css">
+  <link rel="stylesheet" href="/customer/css/helper.css">
+  <link rel="stylesheet" href="/customer/css/style.css">
+  <link rel="stylesheet" href="/customer/css/responsive.css">
+  <link rel="stylesheet" href="/customer/css/account.css">
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+</head>
+<body>
+
+  <main class="account-page" id="main-content">
+    <div class="account-layout" id="accountLayout">
+      <%- include('../includes/account-sidebar', {
+        user,
+        activePage: 'dashboard'
+      }) %>
+
+      <div class="account-content-wrap" id="accountContentWrap">
+        <%- include('../includes/account-header', {
+          title: 'My Account',
+          subtitle: 'Manage your profile, orders, wishlist, billing, addresses, and security from one place.',
+          primaryAction: null,
+          secondaryAction: null
+        }) %>
+
+        <main class="account-main" id="accountContent">
+          <div class="account-content-inner">
+
+            <section class="account-hero">
+              <div class="account-hero-text">
+                <h1>Welcome back, <%= (user && user.full_name) ? user.full_name : 'Customer' %></h1>
+                <p>
+                  Edit your profile in place, view your orders, and manage account settings from one dashboard.
+                </p>
+              </div>
+
+              <div class="account-hero-actions">
+                <a href="#profile" class="account-action-btn primary">
+                  <i class="fa fa-pencil"></i>
+                  <span>Edit Profile</span>
+                </a>
+                <a href="/customer/u/orders" class="account-action-btn secondary">
+                  <i class="fa fa-shopping-bag"></i>
+                  <span>View Orders</span>
+                </a>
+              </div>
+            </section>
+
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-label">Total Orders</div>
+                <p class="stat-value"><%= (stats && stats.orders) || 0 %></p>
+                <div class="stat-note">All-time purchases</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-label">Pending Orders</div>
+                <p class="stat-value"><%= (stats && stats.pendingOrders) || 0 %></p>
+                <div class="stat-note">Waiting for processing</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-label">Wishlist Items</div>
+                <p class="stat-value"><%= (stats && stats.wishlist) || 0 %></p>
+                <div class="stat-note">Saved for later</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-label">Wallet / Spent</div>
+                <p class="stat-value">
+                  <%= (stats && stats.spent) ? ('AED ' + stats.spent) : 'AED 0' %>
+                </p>
+                <div class="stat-note">Lifetime spending</div>
+              </div>
+            </div>
+
+            <div class="account-grid">
+              <article class="account-card" id="profile">
+                <div class="card-head">
+                  <div>
+                    <h2>Profile Information</h2>
+                    <div class="hint">Click the pencil button to unlock any field.</div>
+                  </div>
+                  <span class="badge success">
+                    <i class="fa fa-check-circle"></i> Live editable
+                  </span>
+                </div>
+
+                <form id="accountProfileForm" class="profile-form" autocomplete="off">
+                  <div class="field">
+                    <label for="full_name">Full Name</label>
+                    <input
+                      class="field-input js-editable"
+                      id="full_name"
+                      name="full_name"
+                      type="text"
+                      value="<%= (user && user.full_name) || '' %>"
+                      readonly
+                      data-field="full_name"
+                    >
+                    <button type="button" class="edit-icon js-edit-btn" data-target="full_name" aria-label="Edit full name">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                  </div>
+
+                  <div class="field">
+                    <label for="email">Email Address</label>
+                    <input
+                      class="field-input js-editable"
+                      id="email"
+                      name="email"
+                      type="email"
+                      value="<%= (user && user.email) || '' %>"
+                      readonly
+                      data-field="email"
+                    >
+                    <button type="button" class="edit-icon js-edit-btn" data-target="email" aria-label="Edit email">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                  </div>
+
+                  <div class="field">
+                    <label for="phone">Phone Number</label>
+                    <input
+                      class="field-input js-editable"
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value="<%= (user && user.phone) || '' %>"
+                      readonly
+                      data-field="phone"
+                    >
+                    <button type="button" class="edit-icon js-edit-btn" data-target="phone" aria-label="Edit phone">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                  </div>
+
+                  <div class="field">
+                    <label for="country">Country</label>
+                    <input
+                      class="field-input js-editable"
+                      id="country"
+                      name="country"
+                      type="text"
+                      value="<%= (user && user.country) || 'United Arab Emirates' %>"
+                      readonly
+                      data-field="country"
+                    >
+                    <button type="button" class="edit-icon js-edit-btn" data-target="country" aria-label="Edit country">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                  </div>
+
+                  <div class="field full">
+                    <label for="address">Default Address</label>
+                    <textarea
+                      class="field-textarea js-editable"
+                      id="address"
+                      name="address"
+                      readonly
+                      data-field="address"
+                    ><%= (user && user.address) || '' %></textarea>
+                    <button type="button" class="edit-icon js-edit-btn" data-target="address" aria-label="Edit address">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                    <div class="small-help">This field becomes editable after clicking the pencil icon.</div>
+                  </div>
+
+                  <div class="field full">
+                    <label for="bio">About / Notes</label>
+                    <textarea
+                      class="field-textarea js-editable"
+                      id="bio"
+                      name="bio"
+                      readonly
+                      data-field="bio"
+                    ><%= (user && user.bio) || '' %></textarea>
+                    <button type="button" class="edit-icon js-edit-btn" data-target="bio" aria-label="Edit bio">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                  </div>
+
+                  <div class="status-row full">
+                    <span class="status-pill warning">
+                      <i class="fa fa-info-circle"></i> Changes save instantly
+                    </span>
+                    <span class="status-pill success">
+                      <i class="fa fa-shield"></i> Session protected
+                    </span>
+                    <span class="status-pill">
+                      <i class="fa fa-clock-o"></i> Real-time focus enabled
+                    </span>
+                  </div>
+                </form>
+              </article>
+
+              <aside class="account-card">
+                <div class="card-head">
+                  <div>
+                    <h2>Quick Actions</h2>
+                    <div class="hint">Shortcuts for your most important tasks.</div>
+                  </div>
+                </div>
+
+                <div class="mini-list">
+                  <a class="mini-item" href="/customer/u/orders">
+                    <div>
+                      <strong>My Orders</strong>
+                      <span>View tracking, status, and order history.</span>
+                    </div>
+                    <i class="fa fa-shopping-bag"></i>
+                  </a>
+
+                  <a class="mini-item" href="/customer/u/wishlist">
+                    <div>
+                      <strong>Wishlist</strong>
+                      <span>Save products and return to them later.</span>
+                    </div>
+                    <i class="fa fa-heart"></i>
+                  </a>
+
+                  <a class="mini-item" href="/customer/u/billing">
+                    <div>
+                      <strong>Billing &amp; Payments</strong>
+                      <span>Cards, invoices, and payment history.</span>
+                    </div>
+                    <i class="fa fa-credit-card"></i>
+                  </a>
+
+                  <a class="mini-item" href="/customer/u/addresses">
+                    <div>
+                      <strong>Addresses</strong>
+                      <span>Add, edit, or remove saved delivery addresses.</span>
+                    </div>
+                    <i class="fa fa-map-marker"></i>
+                  </a>
+
+                  <a class="mini-item" href="/customer/u/security">
+                    <div>
+                      <strong>Security</strong>
+                      <span>Change password and review account safety.</span>
+                    </div>
+                    <i class="fa fa-lock"></i>
+                  </a>
+                </div>
+              </aside>
+            </div>
+
+          </div>
+        </main>
+      </div>
+    </div>
+  </main>
+
+  <div class="save-toast" id="saveToast">Saved successfully</div>
+
+  <script src="/customer/js/vendor/jquery-1.12.4.min.js"></script>
+  <script src="/customer/js/vendor/popper.min.js"></script>
+  <script src="/customer/js/bootstrap.min.js"></script>
+  <script src="/customer/js/ajax-mail.js"></script>
+  <script src="/customer/js/jquery.meanmenu.min.js"></script>
+  <script src="/customer/js/wow.min.js"></script>
+  <script src="/customer/js/slick.min.js"></script>
+  <script src="/customer/js/owl.carousel.min.js"></script>
+  <script src="/customer/js/jquery.magnific-popup.min.js"></script>
+  <script src="/customer/js/isotope.pkgd.min.js"></script>
+  <script src="/customer/js/imagesloaded.pkgd.min.js"></script>
+  <script src="/customer/js/jquery.mixitup.min.js"></script>
+  <script src="/customer/js/jquery.countdown.min.js"></script>
+  <script src="/customer/js/jquery.counterup.min.js"></script>
+  <script src="/customer/js/waypoints.min.js"></script>
+  <script src="/customer/js/jquery.barrating.min.js"></script>
+  <script src="/customer/js/jquery-ui.min.js"></script>
+  <script src="/customer/js/venobox.min.js"></script>
+  <script src="/customer/js/jquery.nice-select.min.js"></script>
+  <script src="/customer/js/scrollUp.min.js"></script>
+  <script src="/customer/js/main.js"></script>
+  <script src="/customer/js/account.js"></script>
+</body>
+</html>

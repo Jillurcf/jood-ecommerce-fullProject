@@ -1,0 +1,20 @@
+<div id="cate-toggle" class="category-menu-list">
+  <% if (parents && parents.length) { %>
+    <ul>
+      <% parents.forEach(parent => { %>
+        <li class="right-menu">
+          <a href="/shop/<%= parent.slug %>"><%= parent.name %></a>
+          <% if (childrenMap[parent.id] && childrenMap[parent.id].length) { %>
+            <ul class="cat-mega-menu">
+              <% childrenMap[parent.id].forEach(child => { %>
+                <li><a href="/shop/<%= child.slug %>"><%= child.name %></a></li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <p>No categories found.</p>
+  <% } %>
+</div>

@@ -1,0 +1,49 @@
+<section class="account-hero" aria-label="Account Header">
+
+  <!-- =========================
+       LEFT SIDE
+  ========================== -->
+  <div class="account-hero-text">
+
+    <h1 class="account-title">
+      <%= title || 'My Account' %>
+    </h1>
+
+    <% if (subtitle) { %>
+      <p class="account-subtitle">
+        <%= subtitle %>
+      </p>
+    <% } %>
+
+  </div>
+
+  <!-- =========================
+       RIGHT SIDE ACTIONS
+  ========================== -->
+  <% if (primaryAction || secondaryAction) { %>
+    <div class="account-hero-actions">
+
+      <% if (primaryAction) { %>
+        <a
+          href="<%= primaryAction?.href || '#' %>"
+          class="btn-pill light"
+        >
+          <i class="<%= primaryAction?.icon || 'fa fa-circle' %>"></i>
+          <span><%= primaryAction?.label || '' %></span>
+        </a>
+      <% } %>
+
+      <% if (secondaryAction) { %>
+        <a
+          href="<%= secondaryAction?.href || '#' %>"
+          class="btn-pill ghost"
+        >
+          <i class="<%= secondaryAction?.icon || 'fa fa-circle' %>"></i>
+          <span><%= secondaryAction?.label || '' %></span>
+        </a>
+      <% } %>
+
+    </div>
+  <% } %>
+
+</section>

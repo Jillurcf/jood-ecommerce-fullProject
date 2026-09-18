@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Products | Issa GoodLife</title>
+
+  <!-- CSRF token (server should render res.locals.csrfToken) -->
+  <meta name="csrf-token" content="<%= csrfToken %>">
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link href="/admin/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/admin/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <link rel="stylesheet" href="/customer/css/account.css" />
+
+  <!-- Theme -->
+  <link href="/admin/assets/css/soft-ui-dashboard.css?v=1.0.3" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --muted: #6b7280;
+      --accent: #2b6cb0;
+      --success: #059669;
+      --danger: #e04b4b;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: "Open Sans", sans-serif;
+      background: var(--bg);
+      color: #1f2d3d;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-root {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 18px;
+      background: #fff;
+      border-bottom: 1px solid #e6e9ee;
+    }
+
+    .topbar h6 {
+      font-size: 1.05rem;
+      margin: 0;
+      font-weight: 600;
+      color: #101827;
+    }
+
+    .page-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 1300px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .form-control-sm-like {
+      height: 38px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #d0d7df;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .btn-sm-like {
+      padding: 6px 8px;
+      font-size: 13px;
+      border-radius: 6px;
+      border: 0;
+      cursor: pointer;
+    }
+
+    .btn-success-like {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-warning-like {
+      background: #f6a800;
+      color: #fff;
+    }
+
+    .btn-danger-like {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .table-wrapper {
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #e3e7ea;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 320px;
+    }
+
+    .table-container {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      color: #0b2540;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #fbfdff;
+      padding: 12px 10px;
+      font-weight: 600;
+      border-bottom: 1px solid #e7ecef;
+      text-align: left;
+    }
+
+    tbody td {
+      padding: 10px;
+      vertical-align: middle;
+      border-bottom: 1px solid #f0f3f5;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .sr {
+      width: 60px;
+      text-align: left;
+    }
+
+    .product-thumb {
+      max-width: 60px;
+      max-height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+      display: block;
+    }
+
+    .statusBtn {
+      border: 0;
+      background: transparent;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .statusBtn[aria-status="published"] {
+      color: var(--success);
+    }
+
+    .statusBtn[aria-status="draft"] {
+      color: var(--muted);
+    }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #fbfdff;
+      border-top: 1px solid #e6eaee;
+    }
+
+    .page-info {
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 6px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .pagination button {
+      border-radius: 6px;
+      padding: 6px 9px;
+      border: 0;
+      background: #eef2f6;
+      cursor: pointer;
+    }
+
+    .pagination button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    @media (max-width: 860px) {
+      .actions {
+        gap: 8px;
+      }
+
+      .form-control-sm-like {
+        width: 100%;
+        max-width: 260px;
+      }
+    }
+
+    /* simple toast style for feedback */
+    #toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: #111827;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      display: none;
+      z-index: 9999;
+      font-size: 14px;
+    }
+
+    .loc-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #0b2540;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+
+    .timer-yes {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .timer-no {
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body class="bg-white">
+
+ <div class="account-layout" id="accountLayout">
+        <aside class="account-sidebar" id="accountSidebar" aria-label="Account Sidebar">
+          <%- include('includes/account-sidebar', { user, activePage: 'addresses' }) %>
+        </aside>
+
+        <div class="account-right">
+          <%- include('includes/account-topbar') %>
+
+            <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+             <section class="account-page-header">
+    <%- include('includes/account-header', {
+        title: 'Parent Category Management',
+        subtitle: 'Add new Parent categories, edit existing ones, and view all Parent categories in your inventory system. Well-structured Parent categories improve product organization, inventory management, reporting, and customer browsing experience.',
+        primaryAction: null,
+        secondaryAction: null
+    }) %>
+
+    <div class="status-line" aria-live="polite" style="float: inline-end;">
+        <span class="saving-dot" id="savingDot"></span>
+        <span id="savingText">Parent Categories are up to date</span>
+    </div>
+</section>
+
+    <main class="account-content">
+
+  <div class="page-root" id="pageRoot">
+    <div class="topbar">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+          <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Admin</a></li>
+          <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Products</li>
+        </ol>
+        <h6 class="font-weight-bolder mb-0">Products</h6>
+      </nav>
+
+      <div>
+        <a href="/admin/add-product" class="btn btn-sm-like btn-success-like"><i class="fas fa-plus"></i> Add New</a>
+      </div>
+    </div>
+
+    <div class="page-content">
+      <div class="panel">
+        <!-- Actions -->
+        <div class="actions" role="region" aria-label="Search and filters">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input id="searchInput" class="form-control-sm-like" placeholder="Search by name, SKU or slug..." aria-label="Search products" />
+            <select id="statusFilter" class="form-control-sm-like" aria-label="Filter by status">
+              <option value="">All Status</option>
+              <option value="Published">Published</option>
+              <option value="Draft">Draft</option>
+            </select>
+
+            <!-- Display Location filter -->
+            <select id="displayLocationFilter" class="form-control-sm-like" aria-label="Filter by display location">
+              <option value="">All Locations</option>
+              <!-- populated client-side -->
+            </select>
+
+            <!-- Timer filter -->
+            <select id="timerFilter" class="form-control-sm-like" aria-label="Filter by timer">
+              <option value="">All</option>
+              <option value="with">With timer</option>
+              <option value="without">Without timer</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:8px; color: #374151;">
+              Show
+              <select id="rowsPerPage" class="form-control-sm-like" style="width:84px;" aria-label="Rows per page">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="25">25</option>
+                <option value="all">All</option>
+              </select>
+              entries
+            </label>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper" id="tableWrapper" aria-live="polite">
+          <div class="table-container" id="tableContainer">
+            <table role="table" aria-label="Products table">
+              <thead>
+                <tr>
+                  <th class="sr">Sr</th>
+                  <th style="width:80px">Image</th>
+                  <th>Name</th>
+                  <th>Slug</th>
+                  <th>Sku</th>
+                  <th style="width:160px">Display Location(s)</th>
+                  <th style="width:90px">Timer</th>
+                  <th style="width:110px">Status</th>
+                  <th style="width:200px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productTable">
+                <% if (Array.isArray(products) && products.length) { %>
+                  <% products.forEach(function(p, index) {
+                       // Ensure display_locations is an array for server-side rendering
+                       const dlArray = Array.isArray(p.display_locations) ? p.display_locations : (p.display_locations ? (typeof p.display_locations === 'string' ? (p.display_locations ? String(p.display_locations).split(',').map(s=>s.trim()).filter(Boolean) : []) : []) : []);
+                       const hasTimer = !!(p.has_timer || (p.display_timing && typeof p.display_timing === 'object' && Object.keys(p.display_timing).length > 0));
+                       const statusVal = (p.status || 'draft').toLowerCase();
+                       const statusLabel = (statusVal === 'published') ? 'Published' : 'Draft';
+                  %>
+                    <tr
+  data-id="<%= p.id ?? '' %>"
+  data-display-locations="<%= Array.isArray(p.display_locations) ? p.display_locations.join(',') : '' %>"
+  data-has-timer="<%= (p.display_timing && Object.keys(p.display_timing).length > 0) ? 'true' : 'false' %>"
+>
+  <td class="sr"><%= index + 1 %></td>
+
+  <td>
+    <% if (p.main_image) { %>
+      <img src="<%= p.main_image.startsWith('/') ? p.main_image : '/uploads/products/' + p.main_image %>" 
+           alt="<%= p.name %>" class="product-thumb"/>
+    <% } else { %>
+      <span style="color:var(--muted)">No image</span>
+    <% } %>
+  </td>
+
+  <td class="prodName"><%= p.name ?? '' %></td>
+  <td class="prodName"><%= p.slug ?? '' %></td>
+  <td class="prodName"><%= p.mpn ?? '' %></td>
+<td class="prodLocations">
+  <% if (Array.isArray(p.display_locations) && p.display_locations.length) { %>
+    <select name="display_locations" class="form-select">
+      <% p.display_locations.forEach(function(loc){ %>
+        <option value="<%= loc %>"><%= loc %></option>
+      <% }) %>
+    </select>
+  <% } else { %>
+    <span style="color:var(--muted)">None</span>
+  <% } %>
+</td>
+
+
+  <td class="prodTimer">
+    <% if (p.display_timing && Object.keys(p.display_timing).length > 0) { %>
+      <span class="timer-yes">Yes</span>
+    <% } else { %>
+      <span class="timer-no">No</span>
+    <% } %>
+  </td>
+
+  <td class="prodStatus">
+    <button class="statusBtn"
+            data-id="<%= p.id ?? '' %>"
+            data-status="<%= (p.status ?? 'draft').toLowerCase() %>"
+            aria-status="<%= (p.status ?? 'draft').toLowerCase() %>"
+            title="Click to change status">
+      <%= (p.status ?? 'draft').toLowerCase() === 'published' ? 'Published' : 'Draft' %>
+    </button>
+  </td>
+
+  <td>
+    <button class="viewBtn btn-sm-like" data-id="<%= p.id %>"><i class="fas fa-eye"></i> View</button>
+    <button class="editBtn btn-sm-like btn-warning-like" data-id="<%= p.id %>"><i class="fas fa-edit"></i> Edit</button>
+    <button class="deleteBtn btn-sm-like btn-danger-like" data-id="<%= p.id %>"><i class="fas fa-trash"></i> Delete</button>
+  </td>
+</tr>
+
+                  <% }); %>
+                <% } else { %>
+                  <tr class="no-data">
+                    <td colspan="10" style="padding:18px;text-align:center;color:var(--muted)">
+                      No products yet.
+                    </td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer" role="navigation" aria-label="Table pagination">
+            <div class="page-info" id="pageInfo">Showing 0 to 0 of 0 entries</div>
+            <div>
+              <ul class="pagination" id="pagination" aria-label="Pagination"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+            <%- include('includes/account-footer') %>
+        </div>
+      </div>
+
+      <div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="/admin/assets/js/core/popper.min.js"></script>
+  <script src="/admin/assets/js/core/bootstrap.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+ <script src="/customer/js/account.js"></script>
+
+
+  <script>
+    (function () {
+      'use strict';
+
+      // DOM refs + CSRF
+      const metaCsrf = document.querySelector('meta[name="csrf-token"]');
+      const csrfToken = metaCsrf ? metaCsrf.getAttribute('content') : '';
+
+      let socket = null;
+      try { if (typeof io === 'function') socket = io(); } catch (e) { console.warn('Socket.IO not available'); }
+
+      const productTable = document.getElementById('productTable');
+      const searchInput = document.getElementById('searchInput');
+      const statusFilter = document.getElementById('statusFilter');
+      const displayLocationFilter = document.getElementById('displayLocationFilter');
+      const timerFilter = document.getElementById('timerFilter');
+      const paginationEl = document.getElementById('pagination');
+      const pageInfoEl = document.getElementById('pageInfo');
+      const rowsPerPageSelect = document.getElementById('rowsPerPage');
+      const toastEl = document.getElementById('toast');
+
+      // pagination state
+      let currentPage = 1;
+      let rowsPerPage = rowsPerPageSelect.value === 'all' ? Infinity : parseInt(rowsPerPageSelect.value, 10);
+
+      // helpers
+      const showToast = (msg, timeout = 3000) => {
+        if (!toastEl) return;
+        toastEl.textContent = msg;
+        toastEl.style.display = 'block';
+        clearTimeout(toastEl._t);
+        toastEl._t = setTimeout(() => { toastEl.style.display = 'none'; }, timeout);
+      };
+
+      const escapeHtml = (str = '') =>
+        String(str)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+
+      const escapeAttr = (str = '') =>
+        String(str)
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+
+      const getAllProductRows = () => {
+        // return rows that have a numeric data-id (avoid header/footer/no-data)
+        return Array.from(productTable.querySelectorAll('tr[data-id]'));
+      };
+
+      // Normalizers (robust for many shapes)
+      function normalizeDisplayLocationsField(src) {
+        // src may be: array, JSON string, comma string, null
+        if (!src && src !== 0) return [];
+        if (Array.isArray(src)) return src.map(String).map(s => s.trim()).filter(Boolean);
+        try {
+          if (typeof src === 'object') {
+            // might already be an object but not array (safeguard)
+            if (Array.isArray(src)) return src.map(String).map(s => s.trim()).filter(Boolean);
+            return Object.values(src).flat().map(String).map(s => s.trim()).filter(Boolean);
+          }
+        } catch (e) { /* ignore */ }
+        if (typeof src === 'string') {
+          const s = src.trim();
+          if (!s) return [];
+          // try JSON parse
+          try {
+            const parsed = JSON.parse(s);
+            if (Array.isArray(parsed)) return parsed.map(String).map(x => x.trim()).filter(Boolean);
+          } catch (e) { /* not JSON */ }
+          // comma separated fallback
+          return s.split(',').map(x => x.trim()).filter(Boolean);
+        }
+        return [];
+      }
+
+      function normalizeHasTimerField(prod) {
+        // Accept either boolean prod.has_timer OR prod.display_timing object/string
+        if (typeof prod.has_timer === 'boolean') return prod.has_timer;
+        const dt = prod.display_timing;
+        if (!dt && dt !== 0) return false;
+        if (typeof dt === 'object') return Object.keys(dt).length > 0;
+        if (typeof dt === 'string') {
+          try {
+            const parsed = JSON.parse(dt);
+            if (parsed && typeof parsed === 'object') return Object.keys(parsed).length > 0;
+          } catch (e) {
+            return false;
+          }
+        }
+        return false;
+      }
+
+      // populate display-location dropdown from DOM rows
+      function populateDisplayLocationOptions() {
+        const sel = displayLocationFilter;
+        if (!sel) return;
+        const set = new Set();
+        getAllProductRows().forEach(r => {
+          const attr = r.dataset.displayLocations ?? r.getAttribute('data-display-locations') ?? '';
+          if (!attr) return;
+          attr.split(',').map(s => s.trim()).filter(Boolean).forEach(v => set.add(v));
+        });
+        // clear except first option
+        Array.from(sel.options).slice(1).forEach(o => o.remove());
+        Array.from(set).sort().forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v;
+          opt.textContent = v;
+          sel.appendChild(opt);
+        });
+      }
+
+      // filtering & pagination logic (works on DOM rows)
+      function applyFilterAndPagination() {
+        const search = (searchInput.value || '').trim().toLowerCase();
+        const statusVal = statusFilter.value;
+        const displayLoc = (displayLocationFilter && displayLocationFilter.value) ? displayLocationFilter.value : '';
+        const timerVal = (timerFilter && timerFilter.value) ? timerFilter.value : '';
+        const allRows = getAllProductRows();
+
+        const filtered = allRows.filter(row => {
+          const nameNode = row.querySelector('.prodName');
+          if (!nameNode) return false;
+          const name = (nameNode.textContent || '').toLowerCase();
+          const sku = (row.querySelector('.prodSKU')?.textContent || '').toLowerCase();
+          const statusText = (row.querySelector('.prodStatus button')?.textContent || '').trim();
+
+          const okSearch = !search || name.includes(search) || sku.includes(search);
+          const okStatus = !statusVal || statusText === statusVal;
+
+          const dlRaw = row.dataset.displayLocations ?? row.getAttribute('data-display-locations') ?? '';
+          const dlArr = dlRaw ? dlRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+          const okDisplay = !displayLoc || dlArr.includes(displayLoc);
+
+          const hasTimer = (row.dataset.hasTimer === 'true') || (row.getAttribute('data-has-timer') === 'true');
+          let okTimer = true;
+          if (timerVal === 'with') okTimer = !!hasTimer;
+          else if (timerVal === 'without') okTimer = !hasTimer;
+
+          return okSearch && okStatus && okDisplay && okTimer;
+        });
+
+        const total = filtered.length;
+        const per = rowsPerPage === Infinity ? total || 1 : rowsPerPage;
+        const totalPages = Math.max(1, Math.ceil(total / per));
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        // hide all then show visible page subset
+        getAllProductRows().forEach(r => r.style.display = 'none');
+
+        const start = (currentPage - 1) * per;
+        const end = Math.min(start + per, total);
+        const pageRows = filtered.slice(start, end);
+
+        pageRows.forEach((r, idx) => {
+          r.style.display = 'table-row';
+          const sr = r.querySelector('.sr');
+          if (sr) sr.textContent = start + idx + 1;
+        });
+
+        // no-results handling
+        const existingNoData = productTable.querySelector('tr.no-data');
+        if (total === 0) {
+          if (existingNoData) {
+            existingNoData.style.display = '';
+            existingNoData.querySelector('td').textContent = 'No results found.';
+          } else {
+            const tr = document.createElement('tr');
+            tr.className = 'no-data';
+            tr.innerHTML = '<td colspan="10" style="padding:18px;text-align:center;color:var(--muted)">No results found.</td>';
+            productTable.appendChild(tr);
+          }
+        } else if (existingNoData) {
+          existingNoData.style.display = 'none';
+        }
+
+        renderPagination(totalPages, currentPage);
+
+        const showFrom = total === 0 ? 0 : start + 1;
+        const showTo = total === 0 ? 0 : end;
+        pageInfoEl.textContent = `Showing ${showFrom} to ${showTo} of ${total} entries`;
+      }
+
+      function renderPagination(totalPages, current) {
+        paginationEl.innerHTML = '';
+        const createBtn = (txt, disabled = false, active = false) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = txt;
+          if (disabled) btn.disabled = true;
+          if (active) btn.classList.add('active');
+          return btn;
+        };
+
+        const prev = createBtn('Prev', current === 1);
+        prev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; applyFilterAndPagination(); } });
+        paginationEl.appendChild(prev);
+
+        const maxButtons = 7;
+        let start = Math.max(1, current - 3);
+        let end = Math.min(totalPages, start + maxButtons - 1);
+        if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+
+        if (start > 1) {
+          const b1 = createBtn('1');
+          b1.addEventListener('click', () => { currentPage = 1; applyFilterAndPagination(); });
+          paginationEl.appendChild(b1);
+          if (start > 2) {
+            const dots = createBtn('...');
+            dots.disabled = true;
+            paginationEl.appendChild(dots);
+          }
+        }
+
+        for (let p = start; p <= end; p++) {
+          const pb = createBtn(String(p), false, p === current);
+          pb.addEventListener('click', () => { currentPage = p; applyFilterAndPagination(); });
+          paginationEl.appendChild(pb);
+        }
+
+        if (end < totalPages) {
+          if (end < totalPages - 1) {
+            const dots = createBtn('...');
+            dots.disabled = true;
+            paginationEl.appendChild(dots);
+          }
+          const last = createBtn(String(totalPages));
+          last.addEventListener('click', () => { currentPage = totalPages; applyFilterAndPagination(); });
+          paginationEl.appendChild(last);
+        }
+
+        const next = createBtn('Next', current === totalPages);
+        next.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; applyFilterAndPagination(); } });
+        paginationEl.appendChild(next);
+      }
+
+      // Upsert DOM row (used on socket updates)
+      function upsertRow(prod) {
+        if (!prod || !prod.id) return;
+        const idStr = String(prod.id);
+        const existing = productTable.querySelector(`tr[data-id='${idStr}']`);
+
+        // Normalize incoming display locations and timer presence
+        const displayLocations = normalizeDisplayLocationsField(prod.display_locations ?? prod.display_locations);
+        const displayLocationsAttr = displayLocations.join(',');
+        const hasTimer = normalizeHasTimerField(prod);
+
+        const safeName = escapeHtml(prod.name || '');
+        const safeSKU = escapeAttr(prod.mpn || '');
+        const safeSLUG = escapeAttr(prod.slug || '');
+        const statusVal = (prod.status || 'draft').toLowerCase();
+        const statusLabel = statusVal === 'published' ? 'Published' : 'Draft';
+
+        const imageHtml = prod.main_image
+          ? `<img src="${escapeAttr(prod.main_image.startsWith('/') ? prod.main_image : '/uploads/products/' + prod.main_image)}" alt="${escapeAttr(prod.name || '')}" class="product-thumb">`
+          : `<span style="color:var(--muted)">No image</span>`;
+
+        const locHtml = displayLocations.length ? displayLocations.map(l => `<span class="loc-badge">${escapeHtml(l)}</span>`).join(' ') : `<span style="color:var(--muted)">None</span>`;
+        const timerHtml = hasTimer ? `<span class="timer-yes">Yes</span>` : `<span class="timer-no">No</span>`;
+
+        const html = `
+          <td class="sr"></td>
+          <td>${imageHtml}</td>
+          <td class="prodName">${safeName}</td>
+          <td class="prodName">${safeSKU}</td>
+          <td class="prodName">${safeSLUG}</td>
+          <td class="prodLocations">${locHtml}</td>
+          <td class="prodTimer">${timerHtml}</td>
+          <td class="prodStatus">
+            <button class="statusBtn" data-id="${escapeAttr(idStr)}" data-status="${escapeAttr(statusVal)}" aria-status="${escapeAttr(statusVal)}" title="Click to change status">${escapeHtml(statusLabel)}</button>
+          </td>
+          <td>
+            <button class="viewBtn btn-sm-like" data-id="${escapeAttr(idStr)}"><i class="fas fa-eye"></i> View</button>
+            <button class="editBtn btn-sm-like btn-warning-like" data-id="${escapeAttr(idStr)}"><i class="fas fa-edit"></i> Edit</button>
+            <button class="deleteBtn btn-sm-like btn-danger-like" data-id="${escapeAttr(idStr)}"><i class="fas fa-trash"></i> Delete</button>
+          </td>
+        `;
+
+        if (existing) {
+          existing.innerHTML = html;
+          // Use dataset to set cleaned values (dataset auto-serializes to strings)
+          existing.dataset.displayLocations = displayLocationsAttr;
+          existing.dataset.hasTimer = hasTimer ? 'true' : 'false';
+        } else {
+          const tr = document.createElement('tr');
+          tr.setAttribute('data-id', idStr);
+          tr.setAttribute('data-display-locations', displayLocationsAttr);
+          tr.setAttribute('data-has-timer', hasTimer ? 'true' : 'false');
+          tr.innerHTML = html;
+          productTable.prepend(tr);
+        }
+
+        // refresh dropdown & pagination
+        populateDisplayLocationOptions();
+        applyFilterAndPagination();
+      }
+
+      // socket handlers (preserve existing events)
+      if (socket) {
+        socket.on('productAddedOrUpdated', (prod) => { try { upsertRow(prod); } catch (e) { console.warn(e); } });
+        if (socket) {
+  // Listen for productDeleted (backward compatible)
+  socket.on('productDeleted', payload => {
+    const id = payload?.productId ?? payload?.id ?? payload;
+    if (!id) return;
+    const row = productTable.querySelector(`tr[data-id='${id}']`);
+    if (row) row.remove();
+    populateDisplayLocationOptions();
+    applyFilterAndPagination();
+  });
+
+  // Listen for recentProductDeleted (recent-products carousel / events)
+  socket.on('recentProductDeleted', id => {
+    if (!id) return;
+    const row = productTable.querySelector(`tr[data-id='${id}']`);
+    if (row) row.remove();
+    populateDisplayLocationOptions();
+    applyFilterAndPagination();
+  });
+}
+        socket.on('productImageRemoved', ({ id }) => {
+          const row = productTable.querySelector(`tr[data-id='${id}']`);
+          if (row) {
+            const imgCell = row.querySelector('td:nth-child(2)');
+            if (imgCell) imgCell.innerHTML = `<span style="color:var(--muted)">No image</span>`;
+          }
+        });
+        socket.on('productStatusUpdated', ({ id, status }) => {
+          const row = productTable.querySelector(`tr[data-id='${id}']`);
+          if (row) {
+            const btn = row.querySelector('.statusBtn');
+            if (btn) {
+              const s = (status || 'draft').toLowerCase();
+              btn.dataset.status = s;
+              btn.setAttribute('aria-status', s);
+              btn.textContent = s === 'published' ? 'Published' : 'Draft';
+            }
+          }
+        });
+      }
+
+      // safe parse helper
+      async function safeParseResponse(res) {
+        if (!res) return { ok: false };
+        if (res.status === 204) return { ok: true, body: { success: true }, status: 204 };
+        const ct = (res.headers.get('content-type') || '').toLowerCase();
+        try {
+          if (ct.includes('application/json')) {
+            const json = await res.json();
+            return { ok: res.ok, body: json, status: res.status };
+          } else {
+            const text = await res.text();
+            try { return { ok: res.ok, body: JSON.parse(text), status: res.status }; } catch (e) { return { ok: res.ok, body: { message: text }, status: res.status }; }
+          }
+        } catch (err) {
+          return { ok: false, error: err, status: res?.status || 0 };
+        }
+      }
+
+      // status update endpoints (PATCH preferred, POST fallback)
+      const statusEndpoints = [
+        (id) => `/admin/product-list/${encodeURIComponent(id)}/status`,
+        (id) => `/products/${encodeURIComponent(id)}/status`,
+        (id) => `/admin/products/${encodeURIComponent(id)}/status`
+      ];
+
+      async function tryUpdateStatusWithFallbacks(id, status) {
+        // Try PATCH first
+        for (const epFn of statusEndpoints) {
+          const ep = epFn(id);
+          try {
+            const res = await fetch(ep, {
+              method: 'PATCH',
+              credentials: 'include',
+              headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+              },
+              body: JSON.stringify({ status })
+            });
+            if (res.status === 404) { console.info(`PATCH ${ep} 404`); continue; }
+            const parsed = await safeParseResponse(res);
+            if (res.ok || res.status === 204 || parsed.body?.success) return { ok: true, endpoint: ep, parsed };
+            return { ok: false, endpoint: ep, parsed };
+          } catch (err) {
+            console.warn('PATCH attempt failed for', ep, err);
+            continue;
+          }
+        }
+
+        // POST fallback with _method override
+        for (const epFn of statusEndpoints) {
+          const ep = epFn(id);
+          try {
+            const form = `_method=PATCH&status=${encodeURIComponent(status)}`;
+            const res = await fetch(ep, {
+              method: 'POST',
+              credentials: 'include',
+              headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRF-Token': csrfToken
+              },
+              body: form
+            });
+            if (res.status === 404) { console.info(`POST ${ep} 404`); continue; }
+            const parsed = await safeParseResponse(res);
+            if (res.ok || res.status === 204 || parsed.body?.success) return { ok: true, endpoint: ep, parsed };
+            return { ok: false, endpoint: ep, parsed };
+          } catch (err) {
+            console.warn('POST fallback failed for', ep, err);
+            continue;
+          }
+        }
+
+        return { ok: false, message: 'No endpoint responded successfully.' };
+      }
+
+      // delegated click handlers
+      document.addEventListener('click', async (ev) => {
+        const clicked = ev.target;
+
+        // status button
+        const statusBtn = clicked.closest && clicked.closest('.statusBtn');
+        if (statusBtn) {
+          const id = statusBtn.dataset.id;
+          const current = (statusBtn.dataset.status || 'draft').toLowerCase();
+          const opposite = current === 'published' ? 'draft' : 'published';
+          const oppositeLabel = opposite === 'published' ? 'Published' : 'Draft';
+
+          if (!confirm(`Change status to "${oppositeLabel}"?`)) return;
+
+          // immediate feedback
+          showToast('Updating status...');
+
+          const result = await tryUpdateStatusWithFallbacks(id, opposite);
+
+          if (!result || !result.ok) {
+            console.warn('Status update failed:', result);
+            showToast('Update failed; check server logs');
+            return;
+          }
+
+          // If server returned body.status, prefer it else assume opposite
+          const parsedBody = result.parsed && result.parsed.body ? result.parsed.body : null;
+          const serverStatus = parsedBody && parsedBody.status ? String(parsedBody.status) : opposite;
+
+          statusBtn.dataset.status = serverStatus.toLowerCase();
+          statusBtn.setAttribute('aria-status', serverStatus.toLowerCase());
+          statusBtn.textContent = serverStatus.charAt(0).toUpperCase() + serverStatus.slice(1);
+
+          showToast((parsedBody && (parsedBody.message || `Status updated to ${serverStatus}`)) || `Status updated to ${serverStatus}`);
+
+          // emit socket notify if available
+          if (socket && typeof socket.emit === 'function') {
+            try { socket.emit('productStatusUpdated', { id, status: serverStatus.toLowerCase() }); } catch (e) { /* ignore */ }
+          }
+
+          return;
+        }
+
+        // other buttons
+        const btn = clicked.closest && clicked.closest('button');
+        if (!btn) return;
+
+        if (btn.classList.contains('viewBtn')) {
+          const id = btn.dataset.id;
+          if (!id) return;
+          window.location.href = `/admin/product-detail/${encodeURIComponent(id)}`;
+          return;
+        }
+
+        if (btn.classList.contains('editBtn')) {
+          const id = btn.dataset.id;
+          if (!id) return;
+          window.location.href = `/admin/add-product/${encodeURIComponent(id)}/edit`;
+          return;
+        }
+
+        if (btn.classList.contains('deleteBtn')) {
+          const id = btn.dataset.id;
+          if (!id) return;
+          if (!confirm('Are you sure you want to delete this product? This will remove all associated media.')) return;
+          try {
+            const res = await fetch(`/admin/products/${encodeURIComponent(id)}`, {
+              method: 'DELETE',
+              credentials: 'include',
+              headers: { 'X-CSRF-Token': csrfToken }
+            });
+
+            const parsed = await safeParseResponse(res);
+            const json = parsed.body || { success: res.ok };
+            if (!res.ok || !json.success) {
+              showToast(json.message || `Delete failed (HTTP ${res.status})`);
+              return;
+            }
+            showToast(json.message || 'Deleted');
+            const row = productTable.querySelector(`tr[data-id='${id}']`);
+            if (row) row.remove();
+            populateDisplayLocationOptions();
+            applyFilterAndPagination();
+          } catch (err) {
+            showToast('Network error during delete');
+            console.error(err);
+          }
+        }
+      });
+
+      // filters & init
+      searchInput?.addEventListener('input', () => { currentPage = 1; applyFilterAndPagination(); });
+      statusFilter?.addEventListener('change', () => { currentPage = 1; applyFilterAndPagination(); });
+      displayLocationFilter?.addEventListener('change', () => { currentPage = 1; applyFilterAndPagination(); });
+      timerFilter?.addEventListener('change', () => { currentPage = 1; applyFilterAndPagination(); });
+
+      rowsPerPageSelect?.addEventListener('change', () => {
+        const v = rowsPerPageSelect.value;
+        rowsPerPage = (v === 'all') ? Infinity : parseInt(v, 10);
+        currentPage = 1;
+        applyFilterAndPagination();
+      });
+
+      window.addEventListener('load', () => {
+        const v = rowsPerPageSelect.value;
+        rowsPerPage = (v === 'all') ? Infinity : parseInt(v, 10);
+        // populate display location options from existing rows
+        populateDisplayLocationOptions();
+        // ensure data-has-timer is normalized (some server builds could give non-boolean)
+        getAllProductRows().forEach(r => {
+          const raw = r.dataset.hasTimer ?? r.getAttribute('data-has-timer');
+          r.dataset.hasTimer = (String(raw) === 'true') ? 'true' : 'false';
+        });
+        applyFilterAndPagination();
+      });
+
+      window.addEventListener('resize', () => { applyFilterAndPagination(); });
+    })();
+  </script>
+</body>
+
+</html>

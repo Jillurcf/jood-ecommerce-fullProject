@@ -1,0 +1,24 @@
+<header class="account-topbar" aria-label="Account Topbar">
+  <div class="account-topbar-left">
+    <button
+      type="button"
+      class="account-toggle-btn"
+      id="accountToggleBtn"
+      aria-label="Toggle sidebar"
+      aria-controls="accountSidebar"
+      aria-expanded="false"
+    >
+      <i class="fa fa-bars"></i>
+    </button>
+  </div>
+
+  <div class="account-topbar-right">
+    <div class="account-user-mini">
+      <i class="fa fa-user-circle"></i>
+      <span id="topbarUserName">
+        <%= currentUserName %>
+        <!-- <pre><%= JSON.stringify(user, null, 2) %></pre> -->
+      </span>
+    </div>
+  </div>
+</header>

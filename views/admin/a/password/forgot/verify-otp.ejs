@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Verify OTP | JOOD Admin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link href="/customer/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/customer/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link id="pagestyle" href="/customer/assets/css/soft-ui-dashboard.css?v=1.0.3" rel="stylesheet" />
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+
+  <%
+    const supportEmail = typeof SUPPORT_EMAIL !== "undefined" && SUPPORT_EMAIL ? SUPPORT_EMAIL : "info@jood.com";
+    const supportPhone = typeof SUPPORT_PHONE !== "undefined" && SUPPORT_PHONE ? SUPPORT_PHONE : "+971 53 37 2440";
+    const logoUrl = typeof LOGO_URL !== "undefined" && LOGO_URL ? LOGO_URL : "/customer/images/web-img-vid/logo.png";
+    const otpValueEmail =
+      (typeof otpEmail !== "undefined" && otpEmail) ||
+      (typeof otpTarget !== "undefined" && otpTarget) ||
+      "";
+    const maskedValueEmail =
+      (typeof maskedEmail !== "undefined" && maskedEmail) ||
+      (typeof maskedTarget !== "undefined" && maskedTarget) ||
+      otpValueEmail;
+  %>
+
+  <section class="min-vh-100 mb-8">
+    <style>
+         .btn {
+      background-color: #fe9d00;
+      color: #fff;
+      border: 1px solid #fe9d00;
+    }
+    </style>
+    <div
+      class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg"
+      style="background-image: url('/customer/assets/img/curved-images/s.png'); background-size: cover; background-position: center;"
+    >
+      <span class="mask bg-gradient-dark opacity-6"></span>
+
+      <div class="container position-relative">
+        <div class="row justify-content-center">
+          <div class="col-lg-5 text-center mx-auto">
+            <div class="logo mb-4">
+              <a href="/admin/a/sign/in">
+                <img src="<%= logoUrl %>" width="120" alt="logo">
+              </a>
+            </div>
+
+            <h1 class="text-white mb-2">Verify your OTP</h1>
+
+            <p class="text-lead text-white mb-0">
+              We sent a 6-digit code to your email. Enter it below to continue.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row mt-lg-n10 mt-md-n11 mt-n10">
+        <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
+          <div class="card z-index-0">
+            <div class="card-header text-center pt-4">
+              <h5>Admin verification</h5>
+              <% if (otpValueEmail) { %>
+                <p class="mb-0 text-sm text-muted">
+                  Code sent to <strong><%= maskedValueEmail %></strong>
+                </p>
+              <% } %>
+            </div>
+
+            <div class="card-body">
+              <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-danger text-white" role="alert">
+                  <%= error %>
+                </div>
+              <% } %>
+
+              <% if (typeof success !== 'undefined' && success) { %>
+                <div class="alert alert-success text-white" role="alert">
+                  <%= success %>
+                </div>
+              <% } %>
+
+              <form role="form text-left" action="/admin/a/password/forgot/verify-otp" method="POST" autocomplete="off">
+                <% if (csrfToken) { %>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% } %>
+
+                <% if (otpValueEmail) { %>
+                  <input type="hidden" name="email" value="<%= otpValueEmail %>">
+                <% } %>
+
+                <div class="mb-3">
+                  <label class="form-label">Enter 6-digit OTP</label>
+                  <input
+                    type="text"
+                    name="otp"
+                    class="form-control text-center"
+                    placeholder="123456"
+                    inputmode="numeric"
+                    pattern="[0-9]{6}"
+                    minlength="6"
+                    maxlength="6"
+                    autofocus
+                    required
+                  >
+                </div>
+
+                <div class="text-center">
+                  <button type="submit" class="btn  w-100 my-4 mb-2">
+                    Verify OTP
+                  </button>
+                </div>
+              </form>
+
+              <form action="/admin/a/password/forgot/resend-otp" method="POST">
+                <% if (csrfToken) { %>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% } %>
+
+                <% if (otpValueEmail) { %>
+                  <input type="hidden" name="email" value="<%= otpValueEmail %>">
+                <% } %>
+
+                <div class="text-center">
+                  <button type="submit" class="btn btn-outline-dark w-100 mb-2">
+                    Resend OTP
+                  </button>
+                </div>
+              </form>
+
+              <p class="text-sm mt-3 mb-0 text-center">
+                <a href="/admin/a/sign/in" class="text-dark font-weight-bolder">
+                  Back to sign in
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="/customer/assets/js/core/popper.min.js"></script>
+  <script src="/customer/assets/js/core/bootstrap.min.js"></script>
+  <script src="/customer/assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="/customer/assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="/customer/assets/js/soft-ui-dashboard.min.js?v=1.0.3"></script>
+</body>
+</html>

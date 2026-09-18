@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Add Product — Admin (Professional Rewrite)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link href="/admin/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/admin/assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <link href="/admin/assets/css/soft-ui-dashboard.css?v=1.0.3" rel="stylesheet" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+
+ <style>
+      /* thumbnail container */
+      .variant-media-list {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+
+      /* consistent thumb wrapper */
+      .thumb-wrap {
+        width: 140px;
+        /* fixed thumb size (adjust) */
+        height: 140px;
+        border-radius: 6px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+      }
+
+      /* image thumbs (cover the box, keep aspect) */
+      .thumb-wrap img.variant-thumb,
+      .thumb-wrap video.variant-thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* crop to fit box cleanly */
+        display: block;
+        border: 0;
+      }
+
+      /* if you want videos slightly wider than images (optional) */
+      .thumb-wrap.video-thumb {
+        width: 200px;
+        height: 140px;
+      }
+
+      /* main preview (edit mode) */
+      #mainPreview {
+        display: block;
+        max-width: 520px;
+        margin-top: 12px;
+      }
+
+      #mainPreviewMedia img,
+      #mainPreviewMedia video {
+        width: 100%;
+        height: auto;
+        max-height: 420px;
+        object-fit: contain;
+        /* preserve full media without cropping */
+      }
+
+      /* make buttons inside thumb-wrap sit below via layout change if needed */
+      .thumb-wrap>.btn {
+        margin-top: 6px;
+        width: 100%;
+      }
+
+      /* responsive: reduce size on small screens */
+      @media (max-width:600px) {
+        .thumb-wrap {
+          width: 96px;
+          height: 96px;
+        }
+      }
+
+      :root {
+        --accent: #0b71d0;
+        --muted: #6b7280;
+        /* --card-bg: #fff; */
+        --radius: 10px;
+        --gap: 12px;
+      }
+
+      * {
+        box-sizing: border-box
+      }
+
+      body {
+        background: #ffffff;
+        font-family: "Open Sans", sans-serif;
+        color: #0b2540;
+        margin: 0;
+        padding: 18px
+      }
+
+      h1 {
+        font-size: 1.25rem;
+        margin: 0 0 6px
+      }
+
+      .sub {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 18px
+      }
+
+      .wizard {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 18px;
+        border: 1px solid #e9eef4
+      }
+
+      .wizard-top {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-bottom: 14px
+      }
+
+      .steps {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center
+      }
+
+      .step-pill {
+        background: #f1f5f9;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 13px;
+        color: #334155;
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        border: 1px solid transparent;
+        cursor: pointer
+      }
+
+      .step-pill[aria-selected="true"] {
+        background: var(--accent);
+        color: #fff
+      }
+
+      .progress-track {
+        flex: 1;
+        height: 8px;
+        background: #edf2f7;
+        border-radius: 8px;
+        overflow: hidden
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), #2ab0ff);
+        width: 0%;
+        transition: width .28s
+      }
+
+      .step-content {
+        padding: 8px 2px 0
+      }
+
+      .step-section {
+        display: none;
+        padding: 8px 0
+      }
+
+      .step-section.active {
+        display: block
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: var(--gap)
+      }
+
+      @media (max-width:980px) {
+        .grid {
+          grid-template-columns: 1fr
+        }
+      }
+
+      .card {
+        background: #fff;
+        border-radius: var(--radius);
+        border: 1px solid #e9eef4;
+        padding: 14px
+      }
+
+      .form-row {
+        display: flex;
+        gap: var(--gap);
+        flex-wrap: wrap
+      }
+
+      .form-col {
+        flex: 1;
+        min-width: 220px
+      }
+
+      .form-group {
+        margin-bottom: 10px
+      }
+
+      label {
+        display: block;
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 6px
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="datetime-local"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #e6eef7;
+        border-radius: 8px;
+        font-size: 14px
+      }
+
+      textarea {
+        min-height: 80px
+      }
+
+      .image-drop {
+        border: 2px dashed #e2e8f0;
+        border-radius: 8px;
+        padding: 14px;
+        text-align: center;
+        cursor: pointer;
+        background: #f8fafc
+      }
+
+      .thumb {
+        width: 100px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #e6eef7
+      }
+
+      .thumb-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px
+      }
+
+      .variants-table {
+        margin-top: 6px
+      }
+
+      .variants-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px
+      }
+
+      .variant-row {
+        border: 1px solid #eef2f6;
+        border-radius: 8px;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 12px;
+        align-items: start
+      }
+
+      @media (max-width:980px) {
+        .variant-row {
+          grid-template-columns: 1fr
+        }
+      }
+
+      .variant-left {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px
+      }
+
+      .variant-full {
+        grid-column: 1/-1
+      }
+
+      .attributes-list .attr-pill {
+        background: #f1f5f9;
+        padding: 6px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 6px
+      }
+
+      .wizard-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 16px;
+        gap: 10px;
+        flex-wrap: wrap
+      }
+
+      .btn {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 700
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #fff
+      }
+
+      .btn-outline {
+        background: #fff;
+        color: var(--accent);
+        border: 1px solid #cde4ff
+      }
+
+      .btn-muted {
+        background: #f1f5f9;
+        color: var(--muted)
+      }
+
+      .small {
+        font-size: 12px;
+        color: var(--muted)
+      }
+
+      .error {
+        color: #b91c1c;
+        font-size: 13px;
+        margin-top: 6px
+      }
+
+      .success {
+        color: #059669;
+        font-size: 13px;
+        margin-top: 6px
+      }
+
+      #toast-container {
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-end
+      }
+    </style>
+</head>
+
+<body>
+ <div class="account-layout" id="accountLayout">
+        <aside class="account-sidebar" id="accountSidebar" aria-label="Account Sidebar">
+          <%- include('includes/account-sidebar', { user, activePage: 'addresses' }) %>
+        </aside>
+
+        <div class="account-right">
+          <%- include('includes/account-topbar') %>
+
+            <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+    <main class="account-content">
+              <section class="account-page-content">
+                <div class="address-page">
+
+                 <section class="account-page-header">
+    <%- include('includes/account-header', {
+        title: 'Add New Product',
+        subtitle: 'Add a new product to your inventory by providing product information, pricing, stock levels, supplier details, and images. Accurate product records help maintain inventory control, streamline sales operations, and improve reporting accuracy.',
+        primaryAction: null,
+        secondaryAction: null
+    }) %>
+
+    <div class="status-line" aria-live="polite" style="float: inline-end;">
+        <span class="saving-dot" id="savingDot"></span>
+        <span id="savingText">Product information not saved yet</span>
+    </div>
+        </section>
+        <div class="container-fluid">
+          <nav aria-label="breadcrumb" style="border-bottom: 1px solid lightgrey; padding-bottom:8px; margin-bottom:10px;">
+            <ol class="breadcrumb" style="margin:0;padding:0;list-style:none;display:flex;gap:8px;align-items:center">
+              <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Admin</a></li>
+              <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Add Products</li>
+            </ol>
+            <h1 style="margin-top:8px">Add Products</h1>
+          </nav>
+
+          <div class="sub">Create a product listing — use the stepper. You can save drafts and publish when ready.</div>
+
+          <div class="wizard-top">
+            <div class="steps" role="tablist" aria-label="Product creation steps">
+              <button type="button" class="step-pill" role="tab" aria-selected="true" data-step="0">
+                <i class="fa-solid fa-pen-to-square"></i> Basic
+              </button>
+              <button type="button" class="step-pill" role="tab" aria-selected="false" data-step="1">
+                <i class="fa-solid fa-images"></i> Media
+              </button>
+              <button type="button" class="step-pill" role="tab" aria-selected="false" data-step="2">
+                <i class="fa-solid fa-cubes"></i> Variants
+              </button>
+              <button type="button" class="step-pill" role="tab" aria-selected="false" data-step="3">
+                <i class="fa-solid fa-earth"></i> SEO
+              </button>
+            </div>
+
+            <div class="progress-track" aria-hidden="true" style="width:100%;margin-left:8px">
+              <div id="progressBar" class="progress-bar" style="width:25%"></div>
+            </div>
+          </div>
+
+          <div class="wizard" role="application" aria-labelledby="wizardTitle">
+            <form id="productForm" method="POST" action="/admin/add-product" enctype="multipart/form-data" novalidate>
+
+              <!-- controller-compatible hidden fields -->
+              <input type="hidden" name="id" id="productId" value="<%= product?.id || '' %>">
+              <input type="hidden" name="status" id="productStatus" value="<%= product?.status || 'draft' %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+              <!-- preserve server filename so controller can keep it if no new file uploaded -->
+              <input type="hidden" id="main_image" name="main_image" value="<%= product?.main_image ? product.main_image : '' %>">
+
+              <!-- existing product videos / variant media state -->
+              <input type="hidden" id="existing_product_videos" name="existing_product_videos" value="<%= JSON.stringify(product?.product_videos || []) %>">
+              <input type="hidden" id="remove_main_image_flag" name="remove_main_image" value="0">
+
+              <!-- variant existing media JSON -->
+              <input
+                type="hidden"
+                id="variant_media_map"
+                name="variant_media_map"
+                value='<%- JSON.stringify((productVariants || []).map(v => ({
+                  id: v.id || null,
+                  media: (v.media || []).map(m => ({ id: m.id || null, filename: m.filename }))
+                }))) %>'
+              >
+
+              <div class="step-content">
+
+                <!-- BASIC -->
+                <section class="step-section active" data-step="0" aria-hidden="false">
+                  <div class="grid">
+                    <div>
+                      <div class="form-group">
+                        <label for="name">Product Name *</label>
+                        <input id="name" name="name" class="form-control" maxlength="255"
+                          placeholder="Apple iPhone 15 Pro Max" required value="<%= product?.name || '' %>">
+                        <div class="hint">Use clear, searchable names. Max 255 characters.</div>
+                      </div>
+
+                      <div class="form-row">
+                        <div class="form-col">
+                          <div class="form-group">
+                            <label for="slug">Slug (auto)</label>
+                            <input id="slug" name="slug" class="form-control" placeholder="auto-generated"
+                              autocomplete="off" value="<%= product?.slug || '' %>">
+                            <div class="hint">Auto-generated from name; you can edit.</div>
+                          </div>
+                        </div>
+
+                        <div class="form-col">
+                          <div class="form-group">
+                            <label for="productType">Product Type</label>
+                            <select id="productType" name="product_type" class="form-control">
+                              <option value="simple" <%= (product?.product_type === 'simple') ? 'selected' : '' %>>Simple</option>
+                              <option value="variable" <%= (product?.product_type === 'variable') ? 'selected' : '' %>>Variable / With options</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-row">
+                        <div class="form-col">
+                          <div class="form-group">
+                            <label for="brand">Brand</label>
+                            <input id="brand" name="brand" class="form-control" placeholder="Brand name (optional)"
+                              value="<%= product?.brand || '' %>">
+                          </div>
+                        </div>
+
+                        <div class="form-col">
+                          <div class="form-group">
+                            <label for="mpn">Model / MPN</label>
+                            <input id="mpn" name="mpn" class="form-control" placeholder="Manufacturer Part Number"
+                              value="<%= product?.mpn || '' %>">
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="bullets">Key Features / Bullet Points</label>
+                        <textarea id="bullets" name="bullets" class="form-control" rows="3"
+                          placeholder="One feature per line"><%= product?.bullets || '' %></textarea>
+                        <div class="hint">One feature per line. Controller stores as string.</div>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="description">Product Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="6"
+                          placeholder="Full product description (HTML allowed)"><%= product?.description || '' %></textarea>
+                      </div>
+                    </div>
+
+                    <aside>
+                      <div class="card">
+                        <div class="form-group">
+                          <label for="parent_category_id">Parent Category *</label>
+                          <select class="form-control" name="parent_category_id" id="parent_category_id">
+                            <option value="">Select Parent Category</option>
+                            <% parentCategories.forEach(pc => { %>
+                              <option value="<%= pc.id %>" <%= product?.parent_category_id == pc.id ? 'selected' : '' %>><%= pc.name %></option>
+                            <% }) %>
+                          </select>
+                          <div class="hint">Choose the main category; subcategory will appear after selection.</div>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="category_id">Sub Category</label>
+                          <select name="category_id" id="category_id" class="form-control" disabled>
+                            <option value="">Select Category</option>
+                            <% categories.forEach(c => { %>
+                              <option value="<%= c.id %>" data-parent="<%= c.parent_id %>" <%= product?.category_id == c.id ? 'selected' : '' %>><%= c.name %></option>
+                            <% }) %>
+                          </select>
+                        </div>
+
+                        <div id="categorySpecificFields"></div>
+
+                        <div class="form-group">
+                          <label for="shortDescription">Short Description</label>
+                          <input id="shortDescription" name="short_description" class="form-control"
+                            placeholder="One-line summary" value="<%= product?.short_description || '' %>">
+                        </div>
+
+                        <div class="form-group">
+                          <label for="visibility">Visibility</label>
+                          <select id="visibility" name="visibility" class="form-control">
+                            <option value="search" <%= product?.visibility === 'search' ? 'selected' : '' %>>Search + Category</option>
+                            <option value="category" <%= product?.visibility === 'category' ? 'selected' : '' %>>Category only</option>
+                            <option value="hidden" <%= product?.visibility === 'hidden' ? 'selected' : '' %>>Hidden (draft)</option>
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label>Display Locations</label>
+                          <div class="hint" style="margin-bottom:8px">
+                            Time-based displays require start & end fields; these are included below each option when enabled.
+                          </div>
+
+                          <% const displayOptions = [
+                            { value: 'home_featured', label: 'Homepage – Featured', requiresTime: false },
+                            { value: 'home_discount_row', label: 'Discount / Homepage Row', requiresTime: true },
+                            { value: 'flash_sale', label: 'Flash Sale', requiresTime: true },
+                            { value: 'upcoming_promotion', label: 'Upcoming Promotion', requiresTime: true },
+                            { value: 'home_new_arrivals', label: 'Homepage – New Arrivals', requiresTime: true },
+                            { value: 'home_best_sellers', label: 'Homepage – Best Sellers', requiresTime: false },
+                            { value: 'category_page', label: 'Category Pages', requiresTime: false },
+                            { value: 'sub_category_page', label: 'Subcategory Pages', requiresTime: false },
+                            { value: 'promotion_page', label: 'Promotion Page', requiresTime: true },
+                            { value: 'top_selling_row', label: 'Top Selling Row / Section', requiresTime: false },
+                            { value: 'seasonal_offers', label: 'Seasonal Offers Section', requiresTime: true }
+                          ]; 
+                          const selectedLocations = product?.display_locations || []; %>
+
+                          <div style="display:grid;grid-template-columns:1fr;gap:8px">
+                            <% displayOptions.forEach(opt => { 
+                              const checked = selectedLocations.includes(opt.value);
+                              const showTime = opt.requiresTime && checked;
+                            %>
+                              <div style="display:flex;flex-direction:column;gap:6px">
+                                <label style="display:flex;align-items:center;gap:8px">
+                                  <input type="checkbox" name="display_locations[]" value="<%= opt.value %>"
+                                    class="display-location-checkbox" data-requires-time="<%= opt.requiresTime %>"
+                                    <%= checked ? 'checked' : '' %> />
+                                  <span><%= opt.label %></span>
+                                </label>
+
+                                <% if (opt.requiresTime) { %>
+                                  <div style="display:<%= showTime ? 'flex' : 'none' %>;gap:8px;align-items:center">
+                                    <input type="datetime-local" name="start_<%= opt.value %>" class="form-control"
+                                      value="<%= product?.[`start_${opt.value}`] || '' %>" />
+                                    <span style="color:var(--muted)">to</span>
+                                    <input type="datetime-local" name="end_<%= opt.value %>" class="form-control"
+                                      value="<%= product?.[`end_${opt.value}`] || '' %>" />
+                                  </div>
+                                <% } %>
+                              </div>
+                            <% }) %>
+                          </div>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="tags">Search Keywords (comma separated)</label>
+                          <input id="tags" name="meta_keywords" class="form-control" placeholder="phone, apple, iphone"
+                            value="<%= product?.meta_keywords || '' %>">
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
+                </section>
+
+                <!-- MEDIA -->
+                <section class="step-section" data-step="1" aria-hidden="true">
+                  <div class="form-row">
+                    <div class="form-col">
+                      <label>Main image / video *</label>
+                      <div id="mainDrop" class="image-drop" tabindex="0" role="button" aria-label="Upload main image or video">
+                        <input type="file" name="main_image_file" id="mainImage" accept="image/*,video/mp4,video/webm,video/ogg" hidden>
+                        <div style="font-size:22px;color:#5b738f;margin-bottom:8px"><i class="fa-solid fa-camera"></i></div>
+                        <div class="small">Click or drag & drop. Recommended image 1200×1200. Max 50MB for video.</div>
+
+                        <div id="mainPreview"
+                          data-server-src="<% if (product && product.main_image) { %>/uploads/products/<%= product.main_image %><% } else if (product && product.main_media_url) { %><%= product.main_media_url %><% } else { %><%='' %><% } %>"
+                          style="margin-top:12px;display:none">
+                          <div id="mainPreviewMedia"></div>
+                        </div>
+                      </div>
+
+                      <div style="display:flex;gap:8px;margin-top:8px">
+                        <% if (product && product.id) { %>
+                          <button type="button" id="updateMainImageBtn" class="btn btn-primary">Update Main Image</button>
+                          <button type="button" id="removeMainImageBtn" class="btn btn-outline">Remove</button>
+                        <% } %>
+                      </div>
+
+                      <div id="mainError" class="error" style="display:none"></div>
+                      <div class="hint" style="margin-top:8px">If you don't choose a new main image/video, the existing one will be kept.</div>
+                    </div>
+
+                    <div class="form-col">
+                      <label>Product Videos (optional)</label>
+                      <div class="form-group">
+                        <input type="file" name="product_videos[]" id="productVideos" class="form-control"
+                          accept="video/mp4,video/webm,video/ogg" multiple>
+
+                        <% if (product && product.id) { %>
+                          <button type="button" id="updateProductVideosBtn" class="btn btn-primary" style="margin-top:8px">
+                            Update Videos
+                          </button>
+                        <% } %>
+
+                        <div class="small hint">Upload additional product videos (MP4/WebM). Previews will show after selection.</div>
+
+                        <div id="productVideosPreview" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+                          <% (product?.product_videos || []).forEach(function(v){ %>
+                            <div class="thumb-wrap">
+                              <video class="variant-thumb" controls src="/uploads/products/<%= v %>"></video>
+                              <button type="button" class="btn btn-muted btn-remove-video" data-filename="<%= v %>"
+                                style="font-size:12px;margin-top:6px">Remove</button>
+                            </div>
+                          <% }) %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- VARIANTS -->
+                <section class="step-section" data-step="2" aria-hidden="true">
+                  <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                      <strong>Variants</strong>
+                      <div style="display:flex;gap:8px;align-items:center">
+                        <button type="button" class="btn btn-muted" id="addVariantBtn">
+                          <i class="fa-solid fa-plus"></i>&nbsp; Add Variant
+                        </button>
+                        <button type="button" class="btn btn-outline" id="optionBuilderBtn">Option Builder</button>
+                      </div>
+                    </div>
+
+                    <!-- PRODUCT / ATTRIBUTE MAP -->
+                    <div style="margin-bottom:12px; border:1px solid #e6eef7; background:#fff; padding:12px; border-radius:10px;">
+                      <strong style="display:block;margin-bottom:6px">Product Attributes</strong>
+                      <div class="hint" style="margin-bottom:10px">
+                        Add attributes that belong to the product itself. Use comma-separated values and choose whether each row is for product or variant scope.
+                      </div>
+
+                      <div id="globalAttributesContainer">
+                        <% if (Array.isArray(productAttributes) && productAttributes.length) { %>
+                          <% productAttributes.forEach(function(a){ %>
+                            <div class="global-attr-row" style="display:flex;gap:8px;margin-top:8px;align-items:center">
+                              <input type="text" name="attribute_name[]" class="form-control"
+                                placeholder="Attribute name (e.g., Color)" value="<%= a.attribute || a.name || '' %>">
+                              <input type="text" name="attribute_values[]" class="form-control"
+                                placeholder="Values (comma separated)" value="<%= a.value || '' %>">
+                              <select name="scope_type[]" class="form-control" style="max-width:120px">
+                                <option value="product" <%= (a.scope_type === 'product' || !a.scope_type) ? 'selected' : '' %>>Product</option>
+                                <option value="variant" <%= a.scope_type === 'variant' ? 'selected' : '' %>>Variant</option>
+                              </select>
+                              <button type="button" class="btn btn-muted btn-remove-global-attr">Remove</button>
+                            </div>
+                          <% }) %>
+                        <% } %>
+                      </div>
+
+                      <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+                        <button type="button" id="addGlobalAttributeBtn" class="btn btn-muted">Add Attribute</button>
+                        <div class="small hint">These will be stored in attribute_product_map and split by comma server-side.</div>
+                      </div>
+                    </div>
+
+                    <div id="variantsList" style="display:grid;gap:10px">
+                      <% if (productVariants && productVariants.length) { %>
+                        <% productVariants.forEach(function(v, idx){ %>
+                          <div class="variant-row" data-variant-index="<%= idx %>" data-variant-id="<%= v.id %>">
+
+                            <div>
+                              <div style="display:flex;gap:8px;margin-bottom:8px">
+                                <input name="variant_name[]" class="form-control" value="<%= v.name || '' %>" required
+                                  placeholder="Option (e.g., Color / Size)">
+                                <input name="variant_sku[]" class="form-control" value="<%= v.sku || '' %>" required
+                                  placeholder="SKU">
+                                <input type="hidden" name="variant_id[]" value="<%= v.id || '' %>">
+                              </div>
+
+                              <div class="variant-left">
+                                <div>
+                                  <label>Pricing</label>
+                                  <input name="variant_cost_price[]" type="number" step="0.01" class="form-control" required
+                                    value="<%= v.cost_price != null ? v.cost_price : '' %>" placeholder="Cost">
+                                  <input name="variant_price[]" type="number" step="0.01" class="form-control"
+                                    value="<%= v.price != null ? v.price : '' %>" placeholder="Price" style="margin-top:6px">
+                                  <input name="variant_sale_price[]" type="number" step="0.01" class="form-control" readonly
+                                    value="<%= v.sale_price != null ? v.sale_price : '' %>" placeholder="Sale price"
+                                    style="margin-top:6px">
+                                </div>
+
+                                <div>
+                                  <label>Discount / VAT</label>
+                                  <div style="display:flex;gap:8px">
+                                    <select name="variant_discount_type[]" class="form-control">
+                                      <option value="">none</option>
+                                      <option value="fixed" <%= v.discount_type === 'fixed' ? 'selected' : '' %>>fixed</option>
+                                      <option value="percent" <%= v.discount_type === 'percent' ? 'selected' : '' %>>percent</option>
+                                    </select>
+                                    <input name="variant_discount_value[]" type="number" step="0.01" class="form-control"
+                                      value="<%= v.discount_value != null ? v.discount_value : '' %>" placeholder="0.00">
+                                  </div>
+                                  <input name="variant_vat_rate[]" type="number" step="0.01" class="form-control"
+                                    value="<%= v.vat_rate != null ? v.vat_rate : 5 %>" placeholder="VAT %"
+                                    style="margin-top:6px">
+                                  <select name="variant_vat_included[]" class="form-control" style="margin-top:6px">
+                                    <option value="true" <%= (v.vat_included === true || String(v.vat_included) === 'true') ? 'selected' : '' %>>Included</option>
+                                    <option value="false" <%= (v.vat_included === false || String(v.vat_included) === 'false') ? 'selected' : '' %>>Excluded</option>
+                                  </select>
+                                </div>
+
+                                <div>
+                                  <label>Inventory</label>
+                                  <input name="variant_stock[]" type="number" class="form-control"
+                                    value="<%= v.stock != null ? v.stock : 0 %>" placeholder="Stock">
+                                  <input name="variant_low_stock_threshold[]" type="number" class="form-control"
+                                    value="<%= v.low_stock_threshold != null ? v.low_stock_threshold : '' %>"
+                                    placeholder="Low threshold" style="margin-top:6px">
+                                  <div style="display:flex;gap:8px;margin-top:6px">
+                                    <select name="variant_track_inventory[]" class="form-control">
+                                      <option value="true" <%= (v.track_inventory === true || String(v.track_inventory) === 'true') ? 'selected' : '' %>>Track</option>
+                                      <option value="false" <%= (v.track_inventory === false || String(v.track_inventory) === 'false') ? 'selected' : '' %>>Don't track</option>
+                                    </select>
+                                    <select name="variant_allow_backorders[]" class="form-control">
+                                      <option value="false" <%= (v.allow_backorders === false || String(v.allow_backorders) === 'false') ? 'selected' : '' %>>No backorders</option>
+                                      <option value="true" <%= (v.allow_backorders === true || String(v.allow_backorders) === 'true') ? 'selected' : '' %>>Allow backorders</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div style="margin-top:8px">
+                                <label>Barcode & Dimensions</label>
+                                <input name="variant_barcode[]" class="form-control" value="<%= v.barcode || '' %>"
+                                  placeholder="EAN/UPC/ISBN">
+                                <input name="variant_barcode_type[]" class="form-control"
+                                  value="<%= v.barcode_type || '' %>" placeholder="barcode type" style="margin-top:6px">
+
+                                <div style="display:flex;gap:6px;margin-top:6px">
+                                  <input type="number" step="0.01" name="variant_length[]" class="form-control"
+                                    placeholder="L" value="<%= v.length || '' %>">
+                                  <input type="number" step="0.01" name="variant_width[]" class="form-control"
+                                    placeholder="W" value="<%= v.width || '' %>">
+                                  <input type="number" step="0.01" name="variant_height[]" class="form-control"
+                                    placeholder="H" value="<%= v.height || '' %>">
+                                </div>
+
+                                <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
+                                  <select name="variant_dimension_unit[]" class="form-control" style="width:40%">
+                                    <option value="cm" <%= (v.dimension_unit === 'cm' || !v.dimension_unit) ? 'selected' : '' %>>cm</option>
+                                    <option value="mm" <%= v.dimension_unit === 'mm' ? 'selected' : '' %>>mm</option>
+                                    <option value="in" <%= v.dimension_unit === 'in' ? 'selected' : '' %>>in</option>
+                                  </select>
+                                  <input type="number" step="0.001" name="variant_weight[]" class="form-control"
+                                    placeholder="kg" value="<%= v.weight || '' %>">
+                                  <select name="variant_weight_unit[]" class="form-control" style="width:30%">
+                                    <option value="kg" <%= (v.weight_unit === 'kg' || !v.weight_unit) ? 'selected' : '' %>>kg</option>
+                                    <option value="g" <%= v.weight_unit === 'g' ? 'selected' : '' %>>g</option>
+                                    <option value="lb" <%= v.weight_unit === 'lb' ? 'selected' : '' %>>lb</option>
+                                  </select>
+                                </div>
+
+                                <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+                                  <input type="number" name="variant_sort_order[]" class="form-control"
+                                    placeholder="Sort order" value="<%= v.sort_order != null ? v.sort_order : 0 %>"
+                                    style="width:120px">
+                                  <label style="display:flex;align-items:center;gap:6px;margin-left:6px">
+                                    <input type="checkbox" name="variant_is_active_checkbox_<%= idx %>"
+                                      <%= (v.is_active === true || v.is_active === 'true' || !('is_active' in v)) ? 'checked' : '' %> />
+                                    <input type="hidden" name="variant_is_active[]"
+                                      value="<%= (v.is_active === false || String(v.is_active) === 'false') ? 'false' : 'true' %>">
+                                    Active
+                                  </label>
+                                  <label style="display:flex;align-items:center;gap:6px;margin-left:6px">
+                                    <input type="checkbox" name="variant_is_default_checkbox_<%= idx %>"
+                                      <%= (v.is_default === true || String(v.is_default) === 'true') ? 'checked' : '' %> />
+                                    <input type="hidden" name="variant_is_default[]"
+                                      value="<%= (v.is_default === true || String(v.is_default) === 'true') ? 'true' : 'false' %>">
+                                    Default
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <div>
+                                <label>Attributes</label>
+                                <div class="attributes-list" data-attrs>
+                                  <% (v.attributes || []).forEach(function(a){ %>
+                                    <div class="attr-pill"
+                                      data-attr-name="<%= a.attribute %>"
+                                      data-attr-value="<%= a.value %>"
+                                      data-scope-type="<%= a.scope_type || 'variant' %>">
+                                      <strong><%= a.attribute %>:</strong>&nbsp;<%= a.value %>&nbsp;
+                                      <button type="button" class="btn btn-muted btn-remove-attr">x</button>
+                                    </div>
+                                  <% }) %>
+                                </div>
+
+                                <div style="display:flex;gap:6px;margin-top:8px">
+                                  <input type="text" placeholder="Name (e.g., Color)" data-attr-name class="form-control">
+                                  <input type="text" placeholder="Value (e.g., Red)" data-attr-value class="form-control">
+                                  <button type="button" data-add-attr class="btn btn-muted">Add</button>
+                                </div>
+
+                                <textarea name="variant_attributes[]" data-variant-attributes hidden><%= JSON.stringify(v.attributes || []) %></textarea>
+                              </div>
+
+                              <div style="margin-top:12px">
+                                <label>Media</label>
+                                <div class="variant-media-list" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+                                  <% (v.media || []).forEach(function(m){ %>
+                                    <div class="thumb-wrap" data-variant-idx="<%= idx %>" data-variant-file="<%= m.filename %>">
+                                      <% if (m.filename && /\.(mp4|webm|ogg)$/i.test(m.filename)) { %>
+                                        <video class="variant-thumb" controls src="/uploads/products/<%= m.filename %>"></video>
+                                      <% } else { %>
+                                        <img class="variant-thumb" src="/uploads/products/<%= m.filename %>" alt="">
+                                      <% } %>
+                                      <button type="button" class="btn btn-muted btn-remove-variant-media"
+                                        data-media-id="<%= m.id %>" data-filename="<%= m.filename %>">Remove</button>
+                                    </div>
+                                  <% }) %>
+                                </div>
+
+                                <% if (product && product.id) { %>
+                                  <button type="button" class="btn btn-primary btn-update-variant-media" data-variant-index="<%= idx %>">
+                                    Update Media
+                                  </button>
+                                <% } %>
+
+                                <input type="file" name="variant_media[<%= idx %>][]" class="form-control variant-media"
+                                  accept="image/*,video/*" multiple>
+                                <div class="small hint" style="margin-top:6px">Images or MP4/WebM videos — multiple files allowed.</div>
+                              </div>
+
+                              <div style="display:flex;justify-content:flex-end;margin-top:8px">
+                                <button type="button" class="btn btn-danger btn-sm remove-variant">Remove</button>
+                              </div>
+                            </div>
+
+                          </div>
+                        <% }) %>
+                      <% } else { %>
+
+                        <!-- empty template row -->
+                        <div class="variant-row" data-variant-index="0" data-variant-id="">
+                          <div>
+                            <div style="display:flex;gap:8px;margin-bottom:8px">
+                              <input name="variant_name[]" class="form-control" placeholder="Option (e.g., Default)">
+                              <input name="variant_sku[]" class="form-control" placeholder="SKU">
+                              <input type="hidden" name="variant_id[]" value="">
+                            </div>
+
+                            <div class="variant-left">
+                              <div>
+                                <label>Pricing</label>
+                                <input name="variant_cost_price[]" type="number" step="0.01" class="form-control" placeholder="Cost">
+                                <input name="variant_price[]" type="number" step="0.01" class="form-control" placeholder="Price" style="margin-top:6px">
+                                <input name="variant_sale_price[]" type="number" step="0.01" class="form-control" readonly placeholder="Sale price" style="margin-top:6px">
+                              </div>
+
+                              <div>
+                                <label>Discount / VAT</label>
+                                <div style="display:flex;gap:8px">
+                                  <select name="variant_discount_type[]" class="form-control">
+                                    <option value="">none</option>
+                                    <option value="fixed">fixed</option>
+                                    <option value="percent">percent</option>
+                                  </select>
+                                  <input name="variant_discount_value[]" type="number" step="0.01" class="form-control" placeholder="0.00">
+                                </div>
+                                <input name="variant_vat_rate[]" type="number" step="0.01" class="form-control" placeholder="5" style="margin-top:6px">
+                                <select name="variant_vat_included[]" class="form-control" style="margin-top:6px">
+                                  <option value="true" selected>Included</option>
+                                  <option value="false">Excluded</option>
+                                </select>
+                              </div>
+
+                              <div>
+                                <label>Inventory</label>
+                                <input name="variant_stock[]" type="number" class="form-control" placeholder="Stock">
+                                <input name="variant_low_stock_threshold[]" type="number" class="form-control" placeholder="Low threshold" style="margin-top:6px">
+                                <div style="display:flex;gap:8px;margin-top:6px">
+                                  <select name="variant_track_inventory[]" class="form-control">
+                                    <option value="true" selected>Track</option>
+                                    <option value="false">Don't track</option>
+                                  </select>
+                                  <select name="variant_allow_backorders[]" class="form-control">
+                                    <option value="false" selected>No backorders</option>
+                                    <option value="true">Allow backorders</option>
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style="margin-top:8px">
+                              <label>Barcode & Dimensions</label>
+                              <input name="variant_barcode[]" class="form-control" placeholder="EAN/UPC/ISBN">
+                              <input name="variant_barcode_type[]" class="form-control" placeholder="e.g., ean13" style="margin-top:6px">
+
+                              <div style="display:flex;gap:6px;margin-top:6px">
+                                <input type="number" step="0.01" name="variant_length[]" class="form-control" placeholder="L">
+                                <input type="number" step="0.01" name="variant_width[]" class="form-control" placeholder="W">
+                                <input type="number" step="0.01" name="variant_height[]" class="form-control" placeholder="H">
+                              </div>
+
+                              <div style="display:flex;gap:6px;margin-top:6px;align-items:center">
+                                <select name="variant_dimension_unit[]" class="form-control" style="width:40%">
+                                  <option value="cm" selected>cm</option>
+                                  <option value="mm">mm</option>
+                                  <option value="in">in</option>
+                                </select>
+                                <input type="number" step="0.001" name="variant_weight[]" class="form-control" placeholder="kg">
+                                <select name="variant_weight_unit[]" class="form-control" style="width:30%">
+                                  <option value="kg" selected>kg</option>
+                                  <option value="g">g</option>
+                                  <option value="lb">lb</option>
+                                </select>
+                              </div>
+
+                              <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+                                <input type="number" name="variant_sort_order[]" class="form-control"
+                                  placeholder="Sort order" value="0" style="width:120px">
+                                <label style="display:flex;align-items:center;gap:6px;margin-left:6px">
+                                  <input type="checkbox" checked />
+                                  <input type="hidden" name="variant_is_active[]" value="true"> Active
+                                </label>
+                                <label style="display:flex;align-items:center;gap:6px;margin-left:6px">
+                                  <input type="checkbox" />
+                                  <input type="hidden" name="variant_is_default[]" value="false"> Default
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <div>
+                              <label>Attributes</label>
+                              <div class="attributes-list" data-attrs></div>
+                              <div style="display:flex;gap:6px;margin-top:8px">
+                                <input type="text" placeholder="Name (e.g., Color)" data-attr-name class="form-control">
+                                <input type="text" placeholder="Value (e.g., Red)" data-attr-value class="form-control">
+                                <button type="button" data-add-attr class="btn btn-muted">Add</button>
+                              </div>
+                              <textarea name="variant_attributes[]" data-variant-attributes hidden>[]</textarea>
+                            </div>
+
+                            <div style="margin-top:12px">
+                              <label>Media</label>
+                              <div class="variant-media-list" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"></div>
+                              <input type="file" name="variant_media[0][]" class="form-control variant-media"
+                                accept="image/*,video/*" multiple>
+                              <div class="small hint" style="margin-top:6px">Images or MP4/WebM videos — multiple files allowed.</div>
+                            </div>
+
+                            <div style="display:flex;justify-content:flex-end;margin-top:8px">
+                              <button type="button" class="btn btn-danger btn-sm remove-variant">Remove</button>
+                            </div>
+                          </div>
+                        </div>
+                      <% } %>
+                    </div>
+
+                    <div class="hint" style="margin-top:10px">
+                      If product type is "simple", leave variants empty. Variants inherit product-level defaults if fields are empty.
+                    </div>
+                  </div>
+                </section>
+
+                <!-- SEO -->
+                <section class="step-section" data-step="3" aria-hidden="true">
+                  <div class="form-row">
+                    <div class="form-col">
+                      <div class="form-group">
+                        <label for="metaTitle">Meta Title</label>
+                        <input id="metaTitle" name="meta_title" class="form-control" maxlength="70" placeholder="SEO title"
+                          value="<%= product?.meta_title || '' %>">
+                      </div>
+
+                      <div class="form-group">
+                        <label for="metaDesc">Meta Description</label>
+                        <textarea id="metaDesc" name="meta_description" class="form-control" rows="3"
+                          maxlength="320"><%= product?.meta_description || '' %></textarea>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="tags_seo">Search Keywords (comma separated)</label>
+                        <input id="tags_seo" name="meta_keywords" class="form-control" placeholder="phone, apple, iphone"
+                          value="<%= product?.meta_keywords || '' %>">
+                      </div>
+                    </div>
+
+                    <div class="form-col">
+                      <div class="form-group">
+                        <label>Preview (internal)</label>
+                        <div style="background:#fbfdff;border:1px solid #e6eef7;padding:12px;border-radius:8px">
+                          <div style="font-weight:700" id="previewTitle">
+                            <%= product?.meta_title || (product?.name ? product.name : '—') %>
+                          </div>
+                          <div class="small" id="previewMeta">
+                            <%= product?.meta_description || 'No meta description' %>
+                          </div>
+                          <div class="small" style="margin-top:8px;color:var(--muted)">
+                            <strong>Visibility:</strong> <span id="previewVisibility"><%= product?.visibility || 'Search' %></span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style="margin-top:12px">
+                        <div class="form-group">
+                          <label>Publish Options</label>
+                          <div style="display:flex;gap:8px">
+                            <button type="button" class="btn btn-outline" id="saveDraftBtn">Save Draft</button>
+                            <button type="button" class="btn btn-primary" id="publishBtn">Publish</button>
+                          </div>
+                          <div class="hint">Save draft frequently. Publishing makes the product live.</div>
+                          <div id="saveMessage" class="small" style="margin-top:8px"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <div class="wizard-footer">
+                <div>
+                  <button type="button" class="btn btn-outline" id="backBtn">
+                    <i class="fa-solid fa-arrow-left"></i>&nbsp; Back
+                  </button>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button type="button" class="btn btn-muted" id="saveStepBtn">Save</button>
+                  <button type="button" class="btn btn-primary" id="nextBtn">
+                    Next & Continue <i class="fa-solid fa-arrow-right" style="margin-left:8px"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div id="toast-container" aria-live="polite"></div>
+        </div>
+         </section>
+            </main>
+            <%- include('includes/account-footer') %>
+        </div>
+      </div>
+
+      <div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+<script id="product-data" type="application/json">
+<%- JSON.stringify({
+  product: product || null,
+  gallery: (product && product.gallery) ? product.gallery : [],
+  productVariants: productVariants || [],
+  productAttributes: productAttributes || []
+}) %>
+</script>
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- CONFIG ---------- */
+  const CONFIG = {
+    MAX_IMAGE_SIZE: 5 * 1024 * 1024,
+    MAX_VIDEO_SIZE: 50 * 1024 * 1024,
+    AUTOSAVE_MS: 2000
+  };
+
+  /* ---------- DOM HELPERS ---------- */
+  const $ = (sel, ctx = document) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx = document) => Array.from((ctx || document).querySelectorAll(sel));
+
+  /* ---------- ROOT NODES / ELEMENTS ---------- */
+  const form = $('#productForm');
+  if (!form) return console.warn('productForm not found — script aborted');
+
+  const steps = $$('.step-pill');
+  const sections = $$('.step-section');
+  const progressBar = $('#progressBar');
+  const nextBtn = $('#nextBtn');
+  const backBtn = $('#backBtn');
+  const saveStepBtn = $('#saveStepBtn');
+  const saveDraftBtn = $('#saveDraftBtn');
+  const publishBtn = $('#publishBtn');
+  const saveMessage = $('#saveMessage');
+
+  const nameInput = $('#name');
+  const brandInput = $('#brand');
+  const slugInput = $('#slug');
+  const mpnInput = $('#mpn');
+
+  let mainInput = $('#mainImage');
+  const mainDrop = $('#mainDrop');
+  const mainPreview = $('#mainPreview');
+  const mainPreviewMedia = $('#mainPreviewMedia');
+  const removeMainBtn = $('#removeMainImageBtn');
+  const updateMainBtn = $('#updateMainImageBtn');
+  const mainError = $('#mainError');
+
+  const variantsContainer = $('#variantsList') || $('#variantsBody') || document.createElement('div');
+  const addVariantBtn = $('#addVariantBtn');
+  const optionBuilderBtn = $('#optionBuilderBtn');
+  const optionBuilder = $('#optionBuilder');
+  const optionsContainer = $('#optionsContainer');
+  const addOptionBtn = $('#addOptionBtn');
+  const generateVariantsBtn = $('#generateVariantsBtn');
+  const addGlobalAttributeBtn = $('#addGlobalAttributeBtn');
+  const globalAttributesContainer = $('#globalAttributesContainer');
+
+  const parentCategory = $('#parent_category_id');
+  const categorySelect = $('#category_id');
+  const displayLocationCheckboxSelector = '.display-location-checkbox';
+
+  /* ---------- STATE ---------- */
+  let autosaveTimer = null;
+  let submitting = false;
+  let currentMainObjectUrl = null;
+  let mpnManuallyEdited = false;
+  let slugManuallyEdited = false;
+  let isDirty = false;
+
+  /* ---------- UTIL ---------- */
+  function showToast(msg, type = 'info') {
+    const c = document.getElementById('toast-container');
+    if (!c) { console.log(type, msg); return; }
+    const div = document.createElement('div');
+    div.textContent = msg;
+    div.setAttribute('role', 'status');
+    div.style.padding = '10px 14px';
+    div.style.borderRadius = '8px';
+    div.style.minWidth = '160px';
+    div.style.color = '#fff';
+    div.style.background = (type === 'error') ? '#ef4444' : (type === 'success') ? '#059669' : 'linear-gradient(90deg,var(--accent),#2ab0ff)';
+    c.appendChild(div);
+    setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 400); }, 3000);
+  }
+  function markDirty() { isDirty = true; }
+  function clearDirty() { isDirty = false; }
+  function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+  const uniq = (arr) => Array.from(new Set((arr || []).filter(Boolean)));
+  const lower = (v) => String(v ?? '').toLowerCase().trim();
+
+  function toFloat(v) {
+    v = (v == null) ? 0 : String(v).trim();
+    v = v.replace(/[^0-9.\-]+/g, '');
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function parseCommaValues(input) {
+    return uniq(
+      String(input || '')
+        .split(',')
+        .map((s) => String(s).trim())
+        .filter(Boolean)
+    );
+  }
+
+  function normalizeScopeType(value) {
+    const v = String(value || 'variant').trim().toLowerCase();
+    return v === 'product' ? 'product' : 'variant';
+  }
+
+  function safeJsonParse(value, fallback = null) {
+    try { return JSON.parse(value); } catch { return fallback; }
+  }
+
+  /* ---------- PREVIEW / FILE HELPERS ---------- */
+  function resetFileInput(input) {
+    try {
+      const n = input.cloneNode();
+      input.parentNode.replaceChild(n, input);
+      return n;
+    } catch (e) {
+      return input;
+    }
+  }
+  function revokeObjectUrlSafe(url) {
+    try { if (url) URL.revokeObjectURL(url); } catch (e) { /* ignore */ }
+  }
+  function clearMainPreview() {
+    if (currentMainObjectUrl) { revokeObjectUrlSafe(currentMainObjectUrl); currentMainObjectUrl = null; }
+    if (mainPreviewMedia) mainPreviewMedia.innerHTML = '';
+    if (mainPreview) mainPreview.style.display = 'none';
+    if (mainError) { mainError.textContent = ''; mainError.style.display = 'none'; }
+  }
+  function showMainPreviewFromFile(file) {
+    if (!file) return;
+    const isImage = file.type?.startsWith('image/');
+    const isVideo = file.type?.startsWith('video/');
+    if (!isImage && !isVideo) {
+      if (mainError) { mainError.textContent = 'Only images or MP4/WebM allowed'; mainError.style.display = 'block'; }
+      return;
+    }
+    if (isImage && file.size > CONFIG.MAX_IMAGE_SIZE) {
+      if (mainError) { mainError.textContent = 'Image exceeds 5MB'; mainError.style.display = 'block'; }
+      return;
+    }
+    if (isVideo && file.size > CONFIG.MAX_VIDEO_SIZE) {
+      if (mainError) { mainError.textContent = 'Video exceeds 50MB'; mainError.style.display = 'block'; }
+      return;
+    }
+    clearMainPreview();
+    if (isImage) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'thumb';
+        img.alt = 'Main preview';
+        mainPreviewMedia.appendChild(img);
+        mainPreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      const url = URL.createObjectURL(file);
+      currentMainObjectUrl = url;
+      const v = document.createElement('video');
+      v.src = url; v.controls = true; v.className = 'thumb'; v.preload = 'metadata';
+      mainPreviewMedia.appendChild(v);
+      mainPreview.style.display = 'block';
+    }
+  }
+  function showMainPreviewFromServerUrl(url) {
+    if (!url) { clearMainPreview(); return; }
+    clearMainPreview();
+    const lowerUrl = String(url).toLowerCase();
+    const isVideo = /\.(mp4|webm|ogg)(\?.*)?$/.test(lowerUrl);
+    if (isVideo) {
+      const v = document.createElement('video'); v.src = url; v.controls = true; v.className = 'thumb'; mainPreviewMedia.appendChild(v);
+    } else {
+      const img = document.createElement('img'); img.src = url; img.className = 'thumb'; img.alt = 'Main preview'; mainPreviewMedia.appendChild(img);
+    }
+    mainPreview.style.display = 'block';
+  }
+
+  /* ---------- VARIANT MEDIA LIST RENDER ---------- */
+  function renderVariantMediaList(mediaList, mediaArray = []) {
+    if (!mediaList) return;
+    mediaList.innerHTML = '';
+    for (const m of mediaArray) {
+      if (!m) continue;
+      const filename = (typeof m === 'string') ? m : (m.filename || null);
+      if (!filename) continue;
+      const wrap = document.createElement('div');
+      wrap.className = 'thumb-wrap';
+      wrap.setAttribute('data-src', filename);
+      if (/\.(mp4|webm|ogg)$/i.test(filename)) {
+        const vid = document.createElement('video');
+        vid.src = `/uploads/products/${filename}`;
+        vid.controls = true;
+        vid.className = 'variant-thumb';
+        vid.setAttribute('data-src', filename);
+        wrap.appendChild(vid);
+      } else {
+        const im = document.createElement('img');
+        im.src = `/uploads/products/${filename}`;
+        im.className = 'variant-thumb';
+        im.setAttribute('data-src', filename);
+        wrap.appendChild(im);
+      }
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-muted btn-remove-variant-media';
+      btn.textContent = 'Remove';
+      btn.dataset.filename = filename;
+      if (m && m.id) btn.dataset.mediaId = m.id;
+      btn.style.fontSize = '12px';
+      btn.style.marginTop = '6px';
+      wrap.appendChild(btn);
+      mediaList.appendChild(wrap);
+    }
+  }
+
+  /* ---------- VARIANT PRICE CALC ---------- */
+  function readVatIncludedValue(vatIncludedEl) {
+    if (!vatIncludedEl) return false;
+    if (vatIncludedEl.type === 'checkbox') return !!vatIncludedEl.checked;
+    const v = String(vatIncludedEl.value || '').trim().toLowerCase();
+    return (v === 'true' || v === '1' || v === 'yes');
+  }
+
+  function calcVariantSalePrice(row) {
+    if (!row) return;
+    const priceEl = row.querySelector('[name="variant_price[]"]');
+    const discountEl = row.querySelector('[name="variant_discount_value[]"]');
+    const discountTypeEl = row.querySelector('[name="variant_discount_type[]"]');
+    const vatRateEl = row.querySelector('[name="variant_vat_rate[]"]');
+    const vatIncludedEl = row.querySelector('[name="variant_vat_included[]"]');
+
+    const price = toFloat(priceEl ? priceEl.value : 0);
+    const discountValue = toFloat(discountEl ? discountEl.value : 0);
+    const discountType = discountTypeEl ? String(discountTypeEl.value || '').toLowerCase() : '';
+    const vatRate = toFloat(vatRateEl ? vatRateEl.value : 0);
+    const vatIncluded = readVatIncludedValue(vatIncludedEl);
+
+    let discount = 0;
+    if (discountType === 'percent') discount = price * (discountValue / 100);
+    else discount = discountValue;
+
+    const afterDiscount = Math.max(0, price - discount);
+    let finalPrice = afterDiscount;
+    if (vatIncluded) finalPrice = afterDiscount + (afterDiscount * (vatRate / 100));
+
+    const saleInput = row.querySelector('[name="variant_sale_price[]"]');
+    if (saleInput) saleInput.value = Number(finalPrice).toFixed(2);
+
+    const visible = row.querySelector('.variant-sale-display');
+    if (visible) visible.textContent = Number(finalPrice).toFixed(2);
+  }
+
+  function bindVariantAutoCalc(row) {
+    if (!row || row.__calcBound) return;
+    row.__calcBound = true;
+    const selectors = [
+      '[name="variant_price[]"]',
+      '[name="variant_discount_value[]"]',
+      '[name="variant_discount_type[]"]',
+      '[name="variant_vat_rate[]"]',
+      '[name="variant_vat_included[]"]'
+    ];
+    selectors.forEach(sel => {
+      const el = row.querySelector(sel);
+      if (!el) return;
+      const ev = (el.type === 'checkbox' || el.tagName === 'SELECT') ? 'change' : 'input';
+      el.addEventListener(ev, () => {
+        calcVariantSalePrice(row);
+        markDirty();
+      });
+    });
+    calcVariantSalePrice(row);
+  }
+
+  function bindAllVariantAutoCalc() {
+    getVariantRows().forEach(r => bindVariantAutoCalc(r));
+  }
+
+  /* ---------- ATTRIBUTES HELPERS ---------- */
+  function createAttrPill(name, value, scopeType = 'variant') {
+    const pill = document.createElement('div');
+    pill.className = 'attr-pill';
+    pill.setAttribute('data-attr-name', name);
+    pill.setAttribute('data-attr-value', value);
+    pill.setAttribute('data-scope-type', normalizeScopeType(scopeType));
+    pill.style.display = 'flex';
+    pill.style.gap = '8px';
+    pill.style.alignItems = 'center';
+
+    const strong = document.createElement('strong');
+    strong.textContent = `${name}:`;
+    const span = document.createElement('span');
+    span.textContent = ` ${value}`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-muted btn-remove-attr';
+    btn.textContent = 'x';
+    btn.style.marginLeft = '6px';
+
+    pill.appendChild(strong);
+    pill.appendChild(span);
+    pill.appendChild(btn);
+    return pill;
+  }
+
+  function updateVariantAttributesTextarea(row) {
+    if (!row) return;
+    const list = row.querySelector('.attributes-list');
+    const dataTextarea = row.querySelector('textarea[name="variant_attributes[]"], textarea[data-variant-attributes]');
+    const attrs = [];
+    if (list) {
+      list.querySelectorAll('.attr-pill').forEach(p => {
+        const name = p.getAttribute('data-attr-name') || p.dataset.attrName || '';
+        const value = p.getAttribute('data-attr-value') || p.dataset.attrValue || '';
+        const scopeType = normalizeScopeType(p.getAttribute('data-scope-type') || p.dataset.scopeType || 'variant');
+        if (name && value) attrs.push({ attribute: name, value, scope_type: scopeType });
+      });
+    }
+    if (dataTextarea) dataTextarea.value = JSON.stringify(attrs);
+  }
+
+  function buildProductAttributeRow(name = '', values = '', scopeType = 'product') {
+    const row = document.createElement('div');
+    row.className = 'global-attr-row';
+    row.style.display = 'flex';
+    row.style.gap = '8px';
+    row.style.marginTop = '8px';
+    row.style.alignItems = 'center';
+
+    const an = document.createElement('input');
+    an.type = 'text';
+    an.name = 'attribute_name[]';
+    an.className = 'form-control';
+    an.placeholder = 'Attribute name (e.g., Color)';
+    an.value = name;
+
+    const av = document.createElement('input');
+    av.type = 'text';
+    av.name = 'attribute_values[]';
+    av.className = 'form-control';
+    av.placeholder = 'Values (comma separated)';
+    av.value = values;
+
+    const scope = document.createElement('select');
+    scope.name = 'scope_type[]';
+    scope.className = 'form-control';
+    scope.style.maxWidth = '120px';
+    scope.innerHTML = `
+      <option value="product">Product</option>
+      <option value="variant">Variant</option>
+    `;
+    scope.value = normalizeScopeType(scopeType);
+
+    const rm = document.createElement('button');
+    rm.type = 'button';
+    rm.className = 'btn btn-muted btn-remove-global-attr';
+    rm.textContent = 'Remove';
+    rm.addEventListener('click', () => row.remove());
+
+    row.appendChild(an);
+    row.appendChild(av);
+    row.appendChild(scope);
+    row.appendChild(rm);
+    return row;
+  }
+
+  function initExistingGlobalAttributeRows() {
+    if (!globalAttributesContainer) return;
+    const rows = Array.from(globalAttributesContainer.querySelectorAll('.global-attr-row'));
+    rows.forEach((row) => {
+      if (!row.querySelector('select[name="scope_type[]"]')) {
+        const scope = document.createElement('select');
+        scope.name = 'scope_type[]';
+        scope.className = 'form-control';
+        scope.style.maxWidth = '120px';
+        scope.innerHTML = `
+          <option value="product">Product</option>
+          <option value="variant">Variant</option>
+        `;
+        scope.value = 'product';
+        const removeBtn = row.querySelector('.btn-remove-global-attr');
+        if (removeBtn) row.insertBefore(scope, removeBtn);
+        else row.appendChild(scope);
+      }
+    });
+  }
+
+  function updateVariantAttributesFromTextarea(row) {
+    if (!row) return;
+    const list = row.querySelector('.attributes-list');
+    const textArea = row.querySelector('textarea[name="variant_attributes[]"], textarea[data-variant-attributes]');
+    if (!list || !textArea) return;
+    if (list.querySelector('.attr-pill')) return;
+
+    let raw = (textArea.value || '').trim();
+    if (!raw) return;
+    let parsed = [];
+    try {
+      parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) parsed = [parsed];
+    } catch (e) {
+      parsed = raw.split(/\s*,\s*/).map(item => {
+        const parts = item.split(/[:|=]/).map(p => p && p.trim());
+        return (parts[0] && parts[1]) ? { attribute: parts[0], value: parts[1], scope_type: 'variant' } : null;
+      }).filter(Boolean);
+    }
+
+    parsed.forEach(a => {
+      const name = a && (a.attribute || a.name) ? String(a.attribute || a.name).trim() : '';
+      const val = a && (a.value || a.v) ? String(a.value || a.v).trim() : '';
+      const scopeType = normalizeScopeType(a && a.scope_type ? a.scope_type : 'variant');
+      if (name && val) list.appendChild(createAttrPill(name, val, scopeType));
+    });
+    updateVariantAttributesTextarea(row);
+  }
+
+  function initVariantAttributesFromTextarea() {
+    getVariantRows().forEach(row => updateVariantAttributesFromTextarea(row));
+  }
+
+  /* ---------- VARIANT ROW MANAGEMENT ---------- */
+  function findVariantTemplate() {
+    const tpl = variantsContainer.querySelector('[data-variant-template]');
+    if (tpl) return tpl;
+    const rows = variantsContainer.querySelectorAll('.variant-row, tr[data-variant-index]');
+    for (const r of rows) {
+      const id = r.getAttribute('data-variant-id') || '';
+      if (!id) return r;
+    }
+    return rows[0] || null;
+  }
+  const variantTemplate = findVariantTemplate();
+
+  function getVariantRows() {
+    return Array.from(variantsContainer.querySelectorAll('[data-variant-index]'));
+  }
+
+  function reorderVariantFields() {
+    const rows = getVariantRows();
+    rows.forEach((row, i) => {
+      row.setAttribute('data-variant-index', String(i));
+      const fileInputs = row.querySelectorAll('input.variant-media');
+      fileInputs.forEach(fi => {
+        try { fi.name = `variant_media[${i}][]`; } catch (e) { /* ignore */ }
+      });
+      const focus = row.querySelector('[name="images_variant_focus"]');
+      if (focus) focus.value = String(i);
+    });
+  }
+
+  function addVariantRow(data = {}) {
+    if (variantTemplate) {
+      const clone = variantTemplate.cloneNode(true);
+      clone.__calcBound = false;
+      const newIndex = getVariantRows().length;
+      clone.setAttribute('data-variant-index', String(newIndex));
+      if (data.id) clone.setAttribute('data-variant-id', String(data.id));
+      else clone.removeAttribute('data-variant-id');
+
+      const nameField = clone.querySelector('[name="variant_name[]"]');
+      if (nameField) nameField.value = data.name || '';
+      const skuField = clone.querySelector('[name="variant_sku[]"]');
+      if (skuField) skuField.value = data.sku || '';
+      const idField = clone.querySelector('[name="variant_id[]"]');
+      if (idField) idField.value = data.id || '';
+
+      const scalarKeys = [
+        'variant_cost_price[]','variant_price[]','variant_sale_price[]','variant_discount_value[]',
+        'variant_vat_rate[]','variant_stock[]','variant_low_stock_threshold[]','variant_weight[]',
+        'variant_length[]','variant_width[]','variant_height[]','variant_sort_order[]',
+        'variant_barcode[]','variant_barcode_type[]'
+      ];
+      scalarKeys.forEach(n => {
+        const f = clone.querySelector(`[name="${n}"]`);
+        const key = n.replace(/\[\]$/, '');
+        if (f) {
+          if (typeof data[key] !== 'undefined') f.value = data[key];
+          else if (typeof data[n] !== 'undefined') f.value = data[n];
+        }
+      });
+
+      const mapSelect = {
+        'variant_discount_type[]': data.discount_type,
+        'variant_vat_included[]': (typeof data.vat_included !== 'undefined') ? (String(data.vat_included) === 'false' ? 'false' : 'true') : undefined,
+        'variant_track_inventory[]': (typeof data.track_inventory !== 'undefined') ? (String(data.track_inventory) === 'false' ? 'false' : 'true') : undefined,
+        'variant_allow_backorders[]': (typeof data.allow_backorders !== 'undefined') ? (String(data.allow_backorders) === 'true' ? 'true' : 'false') : undefined,
+        'variant_shipping_class[]': data.shipping_class,
+        'variant_dimension_unit[]': data.dimension_unit,
+        'variant_weight_unit[]': data.weight_unit
+      };
+      Object.keys(mapSelect).forEach(k => {
+        const s = clone.querySelector(`[name="${k}"]`);
+        if (s && typeof mapSelect[k] !== 'undefined') s.value = mapSelect[k];
+      });
+
+      const attrsList = clone.querySelector('.attributes-list');
+      if (attrsList) {
+        attrsList.innerHTML = '';
+        if (Array.isArray(data.attributes)) {
+          data.attributes.forEach(a => {
+            if (a && a.attribute && a.value) {
+              attrsList.appendChild(createAttrPill(a.attribute, a.value, a.scope_type || 'variant'));
+            }
+          });
+        }
+      }
+      const attrsTextarea = clone.querySelector('textarea[name="variant_attributes[]"], textarea[data-variant-attributes]');
+      if (attrsTextarea) attrsTextarea.value = JSON.stringify(Array.isArray(data.attributes) ? data.attributes : []);
+
+      const mediaList = clone.querySelector('.variant-media-list');
+      if (mediaList) {
+        mediaList.innerHTML = '';
+        if (Array.isArray(data.media)) {
+          const mediaArray = data.media.map(m => (typeof m === 'string' ? { filename: m } : m));
+          renderVariantMediaList(mediaList, mediaArray);
+        }
+      }
+
+      clone.querySelectorAll('input.variant-media').forEach((fi) => {
+        try { fi.name = `variant_media[${getVariantRows().length}][]`; fi.value = ''; } catch (e) { /* ignore */ }
+      });
+
+      variantsContainer.appendChild(clone);
+      reorderVariantFields();
+      updateVariantAttributesTextarea(clone);
+      autosaveDraft();
+      bindVariantAutoCalc(clone);
+      return clone;
+    }
+
+    const fallback = document.createElement('div');
+    fallback.className = 'variant-row';
+    const idx = getVariantRows().length;
+    fallback.setAttribute('data-variant-index', String(idx));
+    fallback.innerHTML = `
+      <div style="display:flex;gap:8px;margin-bottom:8px">
+        <input name="variant_name[]" class="form-control" placeholder="Option (e.g., Default)" value="${(data.name || '').replace(/"/g, '&quot;')}">
+        <input name="variant_sku[]" class="form-control" placeholder="SKU" value="${(data.sku || '').replace(/"/g, '&quot;')}">
+        <input type="hidden" name="variant_id[]" value="${data.id || ''}">
+      </div>
+      <div style="margin-top:8px">
+        <div class="attributes-list" data-attrs></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input type="text" placeholder="Name (e.g., Color)" data-attr-name class="form-control">
+          <input type="text" placeholder="Value (e.g., Red)" data-attr-value class="form-control">
+          <button type="button" data-add-attr class="btn btn-muted">Add</button>
+        </div>
+        <textarea name="variant_attributes[]" data-variant-attributes hidden>[]</textarea>
+      </div>
+      <div style="margin-top:12px">
+        <div class="variant-media-list" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"></div>
+        <input type="file" name="variant_media[${idx}][]" class="form-control variant-media" accept="image/*,video/*" multiple>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button type="button" class="btn btn-danger btn-sm remove-variant">Remove</button>
+      </div>
+    `;
+    variantsContainer.appendChild(fallback);
+    reorderVariantFields();
+    bindVariantAutoCalc(fallback);
+    autosaveDraft();
+    return fallback;
+  }
+
+  /* ---------- PAYLOAD SERIALIZATION ---------- */
+  function collectDisplayLocations(fd) {
+    const boxes = Array.from(document.querySelectorAll(displayLocationCheckboxSelector));
+    boxes.forEach(cb => {
+      const container = cb.closest('.location-item');
+      if (!container) return;
+      const data = { id: cb.value, enabled: cb.checked };
+      const timeFields = container.querySelectorAll('input[type="datetime-local"], input[type="time"]');
+      if (timeFields.length) data.times = Array.from(timeFields).map(inp => inp.value || null);
+      fd.append('display_locations[]', JSON.stringify(data));
+    });
+  }
+
+  function buildVariantAttributesPayload() {
+    const byIndex = {};
+    getVariantRows().forEach((row, idx) => {
+      const list = row.querySelector('.attributes-list');
+      const attrs = [];
+      if (list) {
+        list.querySelectorAll('.attr-pill').forEach((p) => {
+          const name = String(p.getAttribute('data-attr-name') || '').trim();
+          const value = String(p.getAttribute('data-attr-value') || '').trim();
+          const scopeType = normalizeScopeType(p.getAttribute('data-scope-type') || 'variant');
+          if (name && value) attrs.push({ attribute: name, value, scope_type: scopeType });
+        });
+      }
+      byIndex[idx] = attrs;
+    });
+    return byIndex;
+  }
+
+  function buildAttributeProductMapPayload() {
+    const rows = Array.from(globalAttributesContainer ? globalAttributesContainer.querySelectorAll('.global-attr-row') : []);
+    const payload = [];
+    const scopeTypes = [];
+
+    rows.forEach((row) => {
+      const name = String(row.querySelector('[name="attribute_name[]"]')?.value || '').trim();
+      const values = parseCommaValues(row.querySelector('[name="attribute_values[]"]')?.value || '');
+      const scopeType = normalizeScopeType(row.querySelector('[name="scope_type[]"]')?.value || 'product');
+      scopeTypes.push(scopeType);
+      if (!name || !values.length) return;
+      values.forEach((value) => {
+        payload.push({ attribute: name, value, scope_type: scopeType });
+      });
+    });
+
+    return { payload, scopeTypes };
+  }
+
+  function syncAttributeFieldsToFormData(fd) {
+    getVariantRows().forEach((row) => updateVariantAttributesTextarea(row));
+
+    const variantPayload = buildVariantAttributesPayload();
+    const productPayload = buildAttributeProductMapPayload();
+
+    fd.set('variant_attributes', JSON.stringify(variantPayload));
+    fd.set('attribute_product_map', JSON.stringify(productPayload.payload));
+    fd.set('scope_type', JSON.stringify(productPayload.scopeTypes));
+
+    return { variantPayload, productPayload };
+  }
+
+  function buildVariantMediaMapForSubmit() {
+    const baselineEl = document.getElementById('variant_media_map');
+    let baseline = [];
+    try { baseline = baselineEl ? JSON.parse(baselineEl.value || '[]') : []; } catch (e) { baseline = []; }
+    const baselineById = {};
+    baseline.forEach(entry => {
+      if (!entry) return;
+      const vid = entry.id || null;
+      if (vid != null) baselineById[String(vid)] = Array.isArray(entry.media) ? entry.media.slice() : [];
+    });
+    const map = {};
+    const rows = getVariantRows();
+    rows.forEach((row, idx) => {
+      const vid = row.getAttribute('data-variant-id');
+      if (vid && baselineById[String(vid)]) map[idx] = baselineById[String(vid)].slice();
+      else map[idx] = map[idx] || [];
+    });
+    const vmEl = document.getElementById('variant_media_map');
+    if (vmEl) vmEl.value = JSON.stringify(map);
+  }
+
+  /* ---------- AUTOSAVE ---------- */
+  function autosaveDraft() {
+    if (autosaveTimer) clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(async () => {
+      try {
+        const fd = new FormData(form);
+        fd.set('status', 'draft');
+        fd.set('autosave', '1');
+        collectDisplayLocations(fd);
+        syncAttributeFieldsToFormData(fd);
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const token = csrfMeta?.getAttribute('content') || '';
+        const res = await fetch('/admin/autosave-product', { method: 'POST', body: fd, credentials: 'include', headers: token ? { 'X-CSRF-Token': token } : {} });
+        const json = await res.json().catch(() => null);
+        if (json && json.success) { showToast('Autosaved', 'success'); clearDirty(); }
+      } catch (e) { console.warn('autosave failed', e); }
+    }, CONFIG.AUTOSAVE_MS);
+  }
+
+  /* ---------- FORM VALIDATION ---------- */
+  async function validateForm() {
+    if (!nameInput?.value.trim()) { showToast('Name required', 'error'); setStep(0); nameInput?.focus(); return false; }
+    const checked = Array.from(document.querySelectorAll(displayLocationCheckboxSelector)).filter(cb => cb.checked && cb.dataset.requiresTime === 'true');
+    for (const cb of checked) {
+      const tr = cb.closest('.location-item');
+      if (!tr) continue;
+      const start = tr.querySelector('input[name^="start_"]');
+      const end = tr.querySelector('input[name^="end_"]');
+      if (!start || !end || !start.value || !end.value) { showToast('Start and end date required for selected time-based placement', 'error'); return false; }
+      if (new Date(start.value) >= new Date(end.value)) { showToast('Start must be before End for time-based placement', 'error'); return false; }
+    }
+    getVariantRows().forEach(row => updateVariantAttributesTextarea(row));
+    return true;
+  }
+
+  /* ---------- JSON-LD + PREVIEW ---------- */
+  function generateJsonLd() {
+    const title = (nameInput?.value) || '';
+    const description = ($('#shortDescription')?.value) || '';
+    const img = document.querySelector('#mainPreviewMedia img')?.src || '';
+    const ld = { "@context": "https://schema.org/", "@type": "Product", name: title, image: img ? [img] : [], description };
+    const el = document.getElementById('jsonldPreview');
+    if (el) el.textContent = JSON.stringify(ld, null, 2);
+  }
+  function updatePreviewUI() {
+    const previewTitle = $('#previewTitle');
+    const previewMeta = $('#previewMeta');
+    const previewVisibility = $('#previewVisibility');
+    if (previewTitle) previewTitle.textContent = nameInput?.value || '—';
+    if (previewMeta) previewMeta.textContent = $('#metaDesc')?.value || 'No meta description';
+    if (previewVisibility) previewVisibility.textContent = $('#visibility')?.value || 'Search';
+    generateJsonLd();
+  }
+
+  /* ---------- SUBMIT HELPERS ---------- */
+  async function postImagesOnlyFormData(fd) {
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const token = csrfMeta?.getAttribute('content') || '';
+    if (token) fd.set('_csrf', token);
+    if ($('#productId')?.value) fd.set('id', $('#productId').value);
+    fd.set('images_only', '1');
+    if ($('#productId')?.value) fd.set('editMode', 'merge');
+
+    try {
+      submitting = true;
+      [saveDraftBtn, publishBtn].forEach(b => b && (b.disabled = true));
+      saveMessage && (saveMessage.textContent = 'Updating images...');
+      const res = await fetch('/admin/add-product', { method: 'POST', body: fd, credentials: 'include', headers: token ? { 'X-CSRF-Token': token, 'Accept': 'application/json' } : { 'Accept': 'application/json' } });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) { showToast(`Image update failed: ${res.status}`, 'error'); return data; }
+      if (data && data.success) {
+        showToast('Images updated', 'success');
+        if (data.main_image_url) showMainPreviewFromServerUrl(data.main_image_url);
+        if (data.variant_media_map) {
+          const vmEl = document.getElementById('variant_media_map');
+          if (vmEl) vmEl.value = JSON.stringify(data.variant_media_map);
+        }
+        if (data.product && data.product.main_image) {
+          const el1 = document.getElementById('existing_main_image');
+          const el2 = document.getElementById('main_image');
+          if (el1) el1.value = data.product.main_image;
+          if (el2) el2.value = data.product.main_image;
+          showMainPreviewFromServerUrl(`/uploads/products/${data.product.main_image}`);
+        }
+        if (data.variant_media_map || (data.product && Array.isArray(data.product.variants))) {
+          const vm = data.variant_media_map || {};
+          getVariantRows().forEach((row, idx) => {
+            const mediaList = row.querySelector('.variant-media-list');
+            if (!mediaList) return;
+            const mediaItems = (vm[idx] || ((data.product && data.product.variants && data.product.variants[idx] && data.product.variants[idx].media) || []));
+            renderVariantMediaList(mediaList, mediaItems);
+          });
+        }
+      } else {
+        const m = data && data.message ? data.message : 'Image server response error';
+        showToast(m, 'error');
+      }
+      return data;
+    } catch (err) {
+      console.error(err); showToast('Network error while updating images', 'error'); return null;
+    } finally {
+      submitting = false;
+      [saveDraftBtn, publishBtn].forEach(b => b && (b.disabled = false));
+      saveMessage && (saveMessage.textContent = '');
+      Array.from(form.querySelectorAll('input.variant-media')).forEach(fi => { try { fi.value = ''; } catch (e) { } });
+      autosaveDraft();
+    }
+  }
+
+  async function submitProductVideosOnly() {
+    const productVideosInput = $('#productVideos');
+    if (!productVideosInput) return showToast('No product videos input found', 'error');
+    if (!productVideosInput.files || !productVideosInput.files.length) { productVideosInput.click(); return; }
+    const fd = new FormData();
+    if ($('#productId')?.value) fd.set('id', $('#productId').value);
+    fd.set('images_only', '1'); fd.set('editMode', 'merge');
+    Array.from(productVideosInput.files).forEach(f => fd.append('product_videos[]', f));
+    collectDisplayLocations(fd);
+    const vmEl = document.getElementById('variant_media_map');
+    if (vmEl) fd.set('variant_media_map', vmEl.value);
+    await postImagesOnlyFormData(fd);
+  }
+
+  async function submitVariantMediaOnly(variantIndex) {
+    const idx = Number(variantIndex);
+    if (!Number.isFinite(idx)) return showToast('Invalid variant index', 'error');
+    const row = variantsContainer.querySelector(`[data-variant-index="${idx}"]`);
+    if (!row) return showToast('Variant row not found', 'error');
+    const input = row.querySelector('input.variant-media');
+    if (!input) return showToast('Variant file input not found', 'error');
+    if (!input.files || !input.files.length) { input.click(); return; }
+    const fd = new FormData();
+    if ($('#productId')?.value) fd.set('id', $('#productId').value);
+    fd.set('images_only', '1'); fd.set('editMode', 'merge');
+    fd.append('replace_variant_media_indices[]', String(idx));
+    Array.from(input.files).forEach(f => fd.append(`variant_media[${idx}][]`, f));
+    const vmEl = document.getElementById('variant_media_map');
+    if (vmEl) fd.set('variant_media_map', vmEl.value);
+    const removedInputs = row.querySelectorAll('input[name="removed_variant_media_ids[]"], input[name="remove_variant_media[]"]');
+    removedInputs.forEach(inp => fd.append(inp.name, inp.value));
+    collectDisplayLocations(fd);
+    await postImagesOnlyFormData(fd);
+  }
+
+  async function submitForm(publish = false) {
+    if (submitting) return;
+    if (!await validateForm()) return;
+
+    if (mainInput?.files?.[0]) {
+      const f = mainInput.files[0];
+      const isImage = f.type?.startsWith('image/');
+      const isVideo = f.type?.startsWith('video/');
+      if (!isImage && !isVideo) { showToast('Main media invalid', 'error'); return; }
+      if (isImage && f.size > CONFIG.MAX_IMAGE_SIZE) { showToast('Main image too large', 'error'); return; }
+      if (isVideo && f.size > CONFIG.MAX_VIDEO_SIZE) { showToast('Main video too large', 'error'); return; }
+    }
+
+    const variantFiles = Array.from(form.querySelectorAll('input.variant-media'));
+    for (const vf of variantFiles) {
+      if (vf.files && vf.files[0]) {
+        for (const file of Array.from(vf.files)) {
+          const isImg = file.type?.startsWith('image/');
+          const isVid = file.type?.startsWith('video/');
+          if (!(isImg || isVid)) { showToast('One of variant files is invalid', 'error'); return; }
+          if (isImg && file.size > CONFIG.MAX_IMAGE_SIZE) { showToast('Variant image too large', 'error'); return; }
+          if (isVid && file.size > CONFIG.MAX_VIDEO_SIZE) { showToast('Variant video too large', 'error'); return; }
+        }
+      }
+    }
+
+    $('#productStatus').value = publish ? 'published' : 'draft';
+    buildVariantMediaMapForSubmit();
+
+    const fd = new FormData(form);
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const token = csrfMeta?.getAttribute('content') || '';
+    if (token) fd.set('_csrf', token);
+    if ($('#productId')?.value) fd.set('editMode', 'merge');
+    collectDisplayLocations(fd);
+    syncAttributeFieldsToFormData(fd);
+
+    submitting = true;
+    [saveDraftBtn, publishBtn, saveStepBtn].forEach(b => b && (b.disabled = true));
+    saveMessage && (saveMessage.textContent = publish ? 'Publishing...' : 'Saving draft...');
+
+    const url = form.getAttribute('action') || '/admin/add-product';
+    try {
+      const res = await fetch(url, { method: 'POST', body: fd, credentials: 'include', headers: token ? { 'X-CSRF-Token': token, 'Accept': 'application/json' } : { 'Accept': 'application/json' } });
+      let data = null;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) data = await res.json().catch(() => null);
+      else {
+        const text = await res.text().catch(() => null);
+        try { data = text ? JSON.parse(text) : null; } catch (e) { data = { success: res.ok, message: text || `HTTP ${res.status}` }; }
+      }
+      if (!res.ok) { const msg = (data && data.message) ? data.message : `HTTP ${res.status}`; showToast(msg, 'error'); saveMessage && (saveMessage.textContent = msg); return; }
+      if (!data) { showToast('Empty server response', 'error'); saveMessage && (saveMessage.textContent = 'Empty server response'); return; }
+
+      if (data.success) {
+        showToast(publish ? 'Product published' : 'Draft saved', 'success');
+        saveMessage && (saveMessage.textContent = publish ? 'Published successfully' : 'Saved as draft');
+        clearDirty();
+        if (data.redirect) setTimeout(() => window.location.href = data.redirect, 600);
+        else if (publish) setTimeout(() => window.location.href = '/admin/add-product', 700);
+      } else {
+        const msg = data.message || 'Save failed';
+        showToast(msg, 'error'); saveMessage && (saveMessage.textContent = msg);
+      }
+    } catch (err) {
+      console.error(err); showToast('Network error while saving — check console', 'error'); saveMessage && (saveMessage.textContent = 'Network error — see console');
+    } finally {
+      submitting = false;
+      [saveDraftBtn, publishBtn, saveStepBtn].forEach(b => b && (b.disabled = false));
+    }
+  }
+
+  /* ---------- EVENTS ---------- */
+  variantsContainer.addEventListener('click', async (e) => {
+    const target = e.target;
+    if (!target) return;
+
+    if (target.classList.contains('btn-remove-variant-media')) {
+      e.preventDefault();
+      const btn = target;
+      const thumbWrap = btn.closest('.thumb-wrap');
+      const variantRow = btn.closest('[data-variant-index]');
+      if (!variantRow) return;
+      const mediaId = btn.dataset.mediaId ? Number(btn.dataset.mediaId) : null;
+      const fname = btn.dataset.filename || btn.getAttribute('data-filename') || null;
+      if (mediaId) {
+        const inp = document.createElement('input'); inp.type = 'hidden'; inp.name = 'removed_variant_media_ids[]'; inp.value = String(mediaId); form.appendChild(inp);
+      } else if (fname) {
+        const fallback = document.createElement('input'); fallback.type = 'hidden'; fallback.name = 'removed_variant_media_ids[]'; fallback.value = `${variantRow.getAttribute('data-variant-index') || '0'}:${fname}`; form.appendChild(fallback);
+      }
+      if (thumbWrap) thumbWrap.remove();
+      autosaveDraft();
+      try {
+        await submitImagesOnly();
+        showToast('Variant image removed and updated', 'success');
+      } catch (err) {
+        console.warn('Variant image auto-update failed', err);
+        showToast('Variant image removal update failed', 'error');
+      }
+      return;
+    }
+
+    if (target.classList.contains('remove-variant')) {
+      e.preventDefault();
+      const row = target.closest('[data-variant-index]');
+      if (!row) return;
+      const vid = row.getAttribute('data-variant-id');
+      if (vid) {
+        const inp = document.createElement('input'); inp.type = 'hidden'; inp.name = 'deleted_variant_ids[]'; inp.value = vid; form.appendChild(inp);
+      }
+      row.remove();
+      reorderVariantFields();
+      autosaveDraft();
+      return;
+    }
+
+    if (target.classList.contains('btn-remove-attr')) {
+      e.preventDefault();
+      const pill = target.closest('.attr-pill');
+      const row = target.closest('[data-variant-index]');
+      if (pill) pill.remove();
+      if (row) updateVariantAttributesTextarea(row);
+      autosaveDraft();
+      return;
+    }
+
+    if (target.hasAttribute('data-add-attr')) {
+      e.preventDefault();
+      const row = target.closest('[data-variant-index]');
+      if (!row) return;
+      const nameInput = row.querySelector('[data-attr-name]');
+      const valueInput = row.querySelector('[data-attr-value]');
+      const n = (nameInput?.value || '').trim();
+      const v = (valueInput?.value || '').trim();
+      if (!n || !v) { showToast('Attribute name and value required', 'error'); return; }
+      const list = row.querySelector('.attributes-list');
+      if (list) list.appendChild(createAttrPill(n, v, 'variant'));
+      if (nameInput) nameInput.value = '';
+      if (valueInput) valueInput.value = '';
+      updateVariantAttributesTextarea(row);
+      autosaveDraft();
+      return;
+    }
+  });
+
+  variantsContainer.addEventListener('change', (ev) => {
+    const input = ev.target;
+    if (!input || !input.classList || !input.classList.contains('variant-media')) return;
+    let container = input.closest('[data-variant-index]')?.querySelector('.variant-media-list');
+    if (!container) container = input.previousElementSibling || input.parentNode.querySelector('.variant-media-list') || null;
+    if (!container) return;
+    container.innerHTML = '';
+    const files = Array.from(input.files || []);
+    files.forEach(file => {
+      const wrap = document.createElement('div');
+      wrap.className = 'thumb-wrap';
+      if (file.type && file.type.startsWith('video/')) {
+        const vid = document.createElement('video');
+        vid.src = URL.createObjectURL(file);
+        vid.controls = true;
+        vid.className = 'variant-thumb';
+        wrap.appendChild(vid);
+      } else {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.className = 'variant-thumb';
+        wrap.appendChild(img);
+      }
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn btn-muted btn-remove-variant-media';
+      btn.style.fontSize = '12px';
+      btn.style.marginTop = '6px';
+      btn.textContent = 'Remove';
+      btn.addEventListener('click', () => wrap.remove());
+      wrap.appendChild(btn);
+      container.appendChild(wrap);
+    });
+    markDirty();
+  });
+
+  optionBuilderBtn?.addEventListener('click', () => { if (optionBuilder) optionBuilder.style.display = (optionBuilder.style.display === 'none' ? 'block' : 'none'); });
+  addOptionBtn?.addEventListener('click', () => {
+    if (!optionsContainer) return;
+    const row = document.createElement('div'); row.className = 'option-row';
+    const nm = document.createElement('input'); nm.type = 'text'; nm.className = 'form-control'; nm.placeholder = 'Option name (Color, Size)';
+    const vals = document.createElement('input'); vals.type = 'text'; vals.className = 'form-control'; vals.placeholder = 'Comma separated values (Red,Blue)';
+    const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'btn btn-outline-danger'; rm.textContent = 'Remove'; rm.addEventListener('click', () => row.remove());
+    row.appendChild(nm); row.appendChild(vals); row.appendChild(rm);
+    optionsContainer.appendChild(row);
+  });
+
+  function getOptionsFromBuilder() {
+    if (!optionsContainer) return [];
+    const rows = optionsContainer.querySelectorAll('.option-row');
+    const opts = [];
+    rows.forEach(r => {
+      const [a, b] = r.querySelectorAll('input');
+      const name = (a?.value || '').trim();
+      const values = (b?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+      if (name && values.length) opts.push({ name, values });
+    });
+    return opts;
+  }
+
+  function cartesianProduct(options) {
+    if (!options.length) return [[]];
+    return options.reduce((acc, opt) => acc.flatMap(prev => opt.values.map(v => prev.concat([{ name: opt.name, value: v }]))), [[]]);
+  }
+
+  generateVariantsBtn?.addEventListener('click', () => {
+    const opts = getOptionsFromBuilder();
+    if (!opts.length) { showToast('Add at least one option', 'error'); return; }
+    const combos = cartesianProduct(opts);
+    getVariantRows().forEach(r => r.remove());
+    combos.forEach(combo => {
+      const label = combo.map(c => `${c.name}:${c.value}`).join(' / ');
+      const sku = `${(nameInput?.value || '').slice(0, 8).replace(/\s+/g, '-').toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+      addVariantRow({ name: label, sku, attributes: combo.map(c => ({ attribute: c.name, value: c.value, scope_type: 'variant' })) });
+    });
+    showToast('Variants generated', 'success');
+    autosaveDraft();
+  });
+
+  addGlobalAttributeBtn?.addEventListener('click', () => {
+    if (!globalAttributesContainer) return;
+    const row = buildProductAttributeRow('', '', 'product');
+    globalAttributesContainer.appendChild(row);
+    markDirty();
+  });
+
+  /* ---------- DISPLAY LOCATIONS ---------- */
+  function bindDisplayLocationCheckboxes() {
+    const boxes = Array.from(document.querySelectorAll(displayLocationCheckboxSelector));
+    boxes.forEach(cb => {
+      toggleTimeFieldsForCheckbox(cb);
+      cb.addEventListener('change', () => { toggleTimeFieldsForCheckbox(cb); autosaveDraft(); markDirty(); });
+    });
+
+    function toggleTimeFieldsForCheckbox(cb) {
+      const requiresTime = cb.dataset.requiresTime === 'true' || cb.getAttribute('data-requires-time') === 'true';
+      const container = cb.closest('.location-item');
+      if (!container) return;
+      const timeFields = container.querySelector('.time-fields');
+      if (!timeFields) return;
+      if (cb.checked && requiresTime) {
+        timeFields.style.display = 'flex';
+        timeFields.querySelectorAll('input').forEach(inp => inp.disabled = false);
+      } else {
+        timeFields.style.display = 'none';
+        timeFields.querySelectorAll('input').forEach(inp => inp.disabled = true);
+      }
+    }
+  }
+
+  /* ---------- CATEGORIES ---------- */
+  let originalCategoryOptions = [];
+  if (categorySelect) {
+    originalCategoryOptions = Array.from(categorySelect.querySelectorAll('option')).map(o => ({ value: o.value, text: o.textContent, parent: o.getAttribute('data-parent') || '' }));
+  }
+  function filterSubcategories(parentId) {
+    if (!categorySelect) return;
+    categorySelect.innerHTML = '';
+    const placeholderOpt = document.createElement('option'); placeholderOpt.value = ''; placeholderOpt.textContent = 'Select Category';
+    categorySelect.appendChild(placeholderOpt);
+    if (!parentId) {
+      categorySelect.disabled = true;
+      const container = document.getElementById('categorySpecificFields');
+      if (container) container.innerHTML = '';
+      return;
+    }
+    originalCategoryOptions.forEach(o => {
+      if (!o.value) return;
+      if (String(o.parent) === String(parentId)) {
+        const opt = document.createElement('option');
+        opt.value = o.value; opt.textContent = o.text; opt.setAttribute('data-parent', o.parent || '');
+        categorySelect.appendChild(opt);
+      }
+    });
+    categorySelect.disabled = false;
+    const container = document.getElementById('categorySpecificFields');
+    if (container) container.innerHTML = '';
+  }
+  parentCategory?.addEventListener('change', e => { filterSubcategories(e.target.value); autosaveDraft(); markDirty(); });
+  categorySelect?.addEventListener('change', () => { autosaveDraft(); markDirty(); });
+
+  /* ---------- SLUG / MPN ---------- */
+  function generateMPN() {
+    if (!mpnInput || mpnManuallyEdited) return;
+    const brand = (brandInput?.value || 'BRAND').toUpperCase().replace(/\s+/g, '').replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    const name = (nameInput?.value || 'PRODUCT').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    mpnInput.value = `${brand}-${name}-${rand}`;
+  }
+  mpnInput?.addEventListener('input', () => mpnManuallyEdited = true);
+  [brandInput, nameInput].forEach(el => el?.addEventListener('input', generateMPN));
+  generateMPN();
+
+  function generateSlug(text) {
+    if (!text) return '';
+    const s = String(text).trim().toLowerCase();
+    return s.normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s\-_.]/g, '')
+      .replace(/[\s_]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^[\-_.]+|[\-_.]+$/g, '')
+      .slice(0, 200);
+  }
+  slugInput?.addEventListener('input', () => slugManuallyEdited = true);
+  nameInput?.addEventListener('input', () => {
+    if (!$('#productId')?.value && !slugManuallyEdited && slugInput) slugInput.value = generateSlug(nameInput.value || '');
+    autosaveDraft();
+    updatePreviewUI();
+    generateMPN();
+    markDirty();
+  });
+
+  /* ---------- WIZARD / UI ---------- */
+  let currentStep = 0;
+  const totalSteps = sections.length || 1;
+  function setStep(i) {
+    currentStep = Math.max(0, Math.min(i, totalSteps - 1));
+    sections.forEach((s, idx) => {
+      const a = idx === currentStep;
+      s.classList.toggle('active', a);
+      s.setAttribute('aria-hidden', a ? 'false' : 'true');
+    });
+    steps.forEach((p, idx) => p.setAttribute('aria-selected', idx === currentStep ? 'true' : 'false'));
+    if (progressBar) progressBar.style.width = ((currentStep + 1) / totalSteps) * 100 + '%';
+    updatePreviewUI();
+  }
+  steps.forEach((p, idx) => { p.addEventListener('click', () => setStep(idx)); p.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setStep(idx); } }); });
+  nextBtn?.addEventListener('click', () => setStep(currentStep + 1));
+  backBtn?.addEventListener('click', () => setStep(currentStep - 1));
+
+  /* ---------- BUTTON BINDINGS ---------- */
+  saveDraftBtn?.addEventListener('click', () => submitForm(false));
+  publishBtn?.addEventListener('click', () => submitForm(true));
+  saveStepBtn?.addEventListener('click', () => submitForm(false));
+  addVariantBtn?.addEventListener('click', () => { addVariantRow(); autosaveDraft(); markDirty(); });
+
+  /* ---------- MAIN IMAGE drop/click ---------- */
+  mainDrop?.addEventListener('click', () => mainInput?.click());
+  mainDrop?.addEventListener('dragover', e => { e.preventDefault(); mainDrop.style.borderColor = '#2b6cb0'; });
+  mainDrop?.addEventListener('dragleave', e => { mainDrop.style.borderColor = '#e2e8f0'; });
+  mainDrop?.addEventListener('drop', e => {
+    e.preventDefault();
+    mainDrop.style.borderColor = '#e2e8f0';
+    const f = e.dataTransfer?.files?.[0];
+    if (f && mainInput) {
+      const dt = new DataTransfer(); dt.items.add(f); mainInput.files = dt.files;
+      mainInput.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+
+  mainInput?.addEventListener('change', e => {
+    const f = e.target.files?.[0];
+    if (f) {
+      mainInput = resetFileInput(mainInput);
+      showMainPreviewFromFile(f);
+      autosaveDraft(); markDirty();
+    } else { clearMainPreview(); markDirty(); }
+  });
+
+  removeMainBtn?.addEventListener('click', () => {
+    try { if (mainInput) mainInput = resetFileInput(mainInput); } catch (e) { /* ignore */ }
+    clearMainPreview();
+    let flag = $('#remove_main_image_flag');
+    if (!flag) { flag = document.createElement('input'); flag.type = 'hidden'; flag.name = 'remove_main_image'; flag.id = 'remove_main_image_flag'; form.appendChild(flag); }
+    flag.value = '1';
+    autosaveDraft(); markDirty();
+  });
+
+  updateMainBtn?.addEventListener('click', async () => { await submitImagesOnly(); });
+
+  const productVideosInput = $('#productVideos');
+  const productVideosPreview = $('#productVideosPreview');
+  if (productVideosInput) {
+    productVideosInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files || []);
+      if (!productVideosPreview) return;
+      productVideosPreview.innerHTML = '';
+      files.forEach(file => {
+        const wrap = document.createElement('div'); wrap.className = 'thumb-wrap';
+        const isVideo = file.type?.startsWith('video/');
+        if (isVideo) {
+          const vid = document.createElement('video'); vid.src = URL.createObjectURL(file); vid.controls = true; vid.className = 'variant-thumb'; wrap.appendChild(vid);
+        } else {
+          const img = document.createElement('img'); img.src = URL.createObjectURL(file); img.className = 'variant-thumb'; wrap.appendChild(img);
+        }
+        const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn btn-muted btn-remove-video'; btn.style.fontSize = '12px'; btn.style.marginTop = '6px'; btn.textContent = 'Remove'; btn.addEventListener('click', () => wrap.remove());
+        wrap.appendChild(btn); productVideosPreview.appendChild(wrap);
+      });
+      markDirty();
+    });
+  }
+
+  /* ---------- SAFETY ---------- */
+  form.addEventListener('input', markDirty);
+  form.addEventListener('change', markDirty);
+  window.addEventListener('beforeunload', (e) => {
+    if (!isDirty) return undefined;
+    const message = 'You have unsaved changes — refreshing will discard them.';
+    e.returnValue = message;
+    return message;
+  });
+  window.addEventListener('pageshow', (ev) => {
+    if (ev.persisted) {
+      try {
+        form.reset();
+        clearMainPreview();
+        getVariantRows().forEach(r => {
+          const mediaList = r.querySelector('.variant-media-list');
+          if (mediaList) mediaList.innerHTML = '';
+        });
+        clearDirty();
+      } catch (e) { /* ignore */ }
+    }
+  });
+  form.addEventListener('submit', () => { clearDirty(); });
+
+  /* ---------- INITIALIZE ---------- */
+  function computeInitialState() { generateJsonLd(); }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    try {
+      bindDisplayLocationCheckboxes();
+      initExistingGlobalAttributeRows();
+
+      const selectedParent = parentCategory?.value || '';
+      const selectedCategory = '<%= (product && product.category_id) ? product.category_id : "" %>';
+      if (selectedParent) { filterSubcategories(selectedParent); if (selectedCategory && categorySelect) categorySelect.value = selectedCategory; }
+      else if (categorySelect) categorySelect.disabled = true;
+
+      initVariantAttributesFromTextarea();
+      getVariantRows().forEach(r => updateVariantAttributesTextarea(r));
+      bindAllVariantAutoCalc();
+
+      computeInitialState();
+      setStep(0);
+
+      console.info('Product form script initialized — variants container:', variantsContainer ? variantsContainer.id || variantsContainer.className : 'none');
+    } catch (e) { console.warn(e); }
+  });
+
+  window.__ProductForm = { submitForm, submitImagesOnly, addVariantRow, setStep, autosaveDraft, reorderVariantFields };
+})();
+</script>
+ <script src="/customer/js/account.js"></script>
+</body>
+
+</html>

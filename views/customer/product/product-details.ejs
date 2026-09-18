@@ -1,0 +1,5426 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+<!-- index-331:38-->
+
+<head>
+  <!-- Basic SEO -->
+  <title>JOOD | Quality Goods & Products | Trusted Online E-Commerce Store</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description"
+    content="JOOD is a trusted online e-commerce store offering quality lifestyle and digital products with secure payments, fast delivery, and excellent customer service.">
+  <meta name="keywords"
+    content="JOOD, online shopping, ecommerce store, digital products, lifestyle products, buy online, secure shopping">
+  <meta name="author" content="JOOD">
+  <meta name="robots" content="index, follow">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://jood.com/">
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="JOOD | Trusted Online E-Commerce Store">
+  <meta property="og:description"
+    content="Shop online at JOOD for quality lifestyle and digital products with a smooth, secure, and reliable shopping experience.">
+  <meta property="og:url" content="https://jood.com/">
+  <meta property="og:site_name" content="JOOD">
+  <meta property="og:image" content="https://jood.com/assets/images/og-image.jpg">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="JOOD | Trusted Online E-Commerce Store">
+  <meta name="twitter:description"
+    content="Discover quality lifestyle and digital products at JOOD with secure payments and fast delivery.">
+  <meta name="twitter:image" content="https://jood.com/assets/images/og-image.jpg">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#0d6efd">
+
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <!-- Material Design Iconic Font-V2.2.0 -->
+  <link rel="stylesheet" href="/customer/css/material-design-iconic-font.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css">
+  <!-- Font Awesome Stars-->
+  <link rel="stylesheet" href="/customer/css/fontawesome-stars.css">
+  <!-- Meanmenu CSS -->
+  <link rel="stylesheet" href="/customer/css/meanmenu.css">
+  <!-- owl carousel CSS -->
+  <link rel="stylesheet" href="/customer/css/owl.carousel.min.css">
+  <!-- Slick Carousel CSS -->
+  <link rel="stylesheet" href="/customer/css/slick.css">
+  <!-- Animate CSS -->
+  <link rel="stylesheet" href="/customer/css/animate.css">
+  <!-- Jquery-ui CSS -->
+  <link rel="stylesheet" href="/customer/css/jquery-ui.min.css">
+  <!-- Venobox CSS -->
+  <link rel="stylesheet" href="/customer/css/venobox.css">
+  <!-- Nice Select CSS -->
+  <link rel="stylesheet" href="/customer/css/nice-select.css">
+  <!-- Magnific Popup CSS -->
+  <link rel="stylesheet" href="/customer/css/magnific-popup.css">
+  <!-- Bootstrap V4.1.3 Fremwork CSS -->
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css">
+  <!-- Helper CSS -->
+  <link rel="stylesheet" href="/customer/css/helper.css">
+  <!-- Main Style CSS -->
+  <link rel="stylesheet" href="/customer/css/style.css">
+  <!-- Responsive CSS -->
+  <link rel="stylesheet" href="/customer/css/responsive.css">
+  <!-- Modernizr js -->
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+</head>
+
+<body data-product-id="<%= product.id %>">
+  <!-- Begin Body Wrapper -->
+  <div class="body-wrapper">
+    <%- include('../includes/header') %>
+       
+<%
+  "use strict";
+
+  var pdProduct = (typeof product !== "undefined" && product) ? product : {};
+  var pdSelectedVariant = (typeof selectedVariant !== "undefined" && selectedVariant) ? selectedVariant : ((typeof variant !== "undefined" && variant) ? variant : null);
+  var pdVariantsSource = Array.isArray(typeof variantsForState !== "undefined" ? variantsForState : null) ? variantsForState : (Array.isArray(typeof variants !== "undefined" ? variants : null) ? variants : []);
+
+  var pdAttributeList = Array.isArray(typeof attributeList !== "undefined" ? attributeList : null) ? attributeList : [];
+  var pdRecommendationSections = Array.isArray(typeof recommendationSections !== "undefined" ? recommendationSections : null) ? recommendationSections : [];
+
+  var pdProductFields = Array.isArray(typeof currentProductFields !== "undefined" ? currentProductFields : null) ? currentProductFields : [];
+  var pdVariantFields = Array.isArray(typeof currentVariantFields !== "undefined" ? currentVariantFields : null) ? currentVariantFields : [];
+
+  var pdRelatedProducts = Array.isArray(typeof relatedProducts !== "undefined" ? relatedProducts : null) ? relatedProducts : [];
+  var pdFrequentlyBoughtTogether = Array.isArray(typeof frequentlyBoughtTogether !== "undefined" ? frequentlyBoughtTogether : null) ? frequentlyBoughtTogether : [];
+  var pdCustomersAlsoViewed = Array.isArray(typeof customersAlsoViewed !== "undefined" ? customersAlsoViewed : null) ? customersAlsoViewed : [];
+  var pdSameModelVariants = Array.isArray(typeof sameModelVariants !== "undefined" ? sameModelVariants : null) ? sameModelVariants : [];
+  var pdCompareItems = Array.isArray(typeof compareItems !== "undefined" ? compareItems : null) ? compareItems : [];
+
+  function __pdSafeText(v) {
+    return v === null || v === undefined || v === "" ? "—" : String(v);
+  }
+
+  function __pdSafeJson(v) {
+    return JSON.stringify(v == null ? null : v).replace(/</g, "\\u003c");
+  }
+
+  function __pdNum(v, fallback) {
+    var n = Number(v);
+    return Number.isFinite(n) ? n : (fallback || 0);
+  }
+
+  function __pdTrim(v) {
+    return String(v == null ? "" : v).trim();
+  }
+
+  function __pdNormalizeUrl(value) {
+    if (!value) return "/assets/img/default-product.jpg";
+    var str = __pdTrim(value);
+    if (!str) return "/assets/img/default-product.jpg";
+    if (/^javascript:/i.test(str)) return "";
+    if (/^https?:\/\//i.test(str) || str.startsWith("/") || str.startsWith("data:")) return str;
+    return "/uploads/products/" + str;
+  }
+
+  function __pdExtractMediaUrl(m) {
+    if (!m) return "";
+    if (typeof m === "string") return __pdNormalizeUrl(m);
+    if (m.url) return __pdNormalizeUrl(m.url);
+    if (m.path) return __pdNormalizeUrl(m.path);
+    if (m.src) return __pdNormalizeUrl(m.src);
+    if (m.filename) return __pdNormalizeUrl(m.filename);
+    if (m.originalname) return __pdNormalizeUrl(m.originalname);
+    return "";
+  }
+
+  function __pdNormalizeVariantMedia(v) {
+    var unique = [];
+    var seen = new Set();
+    [
+      ...(Array.isArray(v && v.images) ? v.images : []),
+      ...(Array.isArray(v && v.variant_media) ? v.variant_media : []),
+      v && v.image,
+      v && v.main_image,
+      v && v.product_main_image,
+      v && v.product && v.product.main_image
+    ].forEach(function (item) {
+      var url = __pdExtractMediaUrl(item);
+      if (!url || seen.has(url)) return;
+      seen.add(url);
+      unique.push(url);
+    });
+    return unique;
+  }
+
+  function __pdFirstNonEmpty() {
+    for (var i = 0; i < arguments.length; i++) {
+      var value = arguments[i];
+      if (value !== undefined && value !== null && __pdTrim(value) !== "") return value;
+    }
+    return "";
+  }
+
+  function __pdDiscountType(v) {
+    var t = __pdTrim(v).toLowerCase();
+    if (t === "percentage") t = "percent";
+    if (t === "amount") t = "fixed";
+    if (t === "percent" || t === "fixed") return t;
+    return "none";
+  }
+
+  function __pdDiscountMeta(item) {
+    var basePrice = __pdNum(item && (item.price ?? item.original_price), 0);
+    var finalPrice = __pdNum(item && item.final_price, basePrice);
+    var discountType = __pdDiscountType(item && item.discount_type);
+    var discountValue = __pdNum(item && item.discount_value, 0);
+    var discountPercent = __pdNum(item && item.discount_percent, 0);
+
+    if (discountType === "percent") {
+      if (!discountValue && basePrice > 0 && finalPrice < basePrice) {
+        discountValue = Math.max(0, Math.round(((basePrice - finalPrice) / basePrice) * 100));
+      }
+      return { type: "percent", value: discountValue, label: discountValue > 0 ? ("Save " + discountValue.toFixed(0) + "%") : "" };
+    }
+
+    if (discountType === "fixed") {
+      if (!discountValue && basePrice > 0 && finalPrice < basePrice) {
+        discountValue = Math.max(0, basePrice - finalPrice);
+      }
+      return { type: "fixed", value: discountValue, label: discountValue > 0 ? ("Save AED " + discountValue.toFixed(2)) : "" };
+    }
+
+    if (discountPercent > 0) {
+      return { type: "percent", value: discountPercent, label: "Save " + discountPercent.toFixed(0) + "%" };
+    }
+
+    return { type: "none", value: 0, label: "" };
+  }
+
+  function __pdFormatDim(value, unit) {
+    var n = __pdNum(value, 0);
+    if (!n) return "";
+    var s = n.toFixed(2).replace(/\.00$/, "");
+    return unit ? (s + " " + unit) : s;
+  }
+
+  function __pdVariantDimensionRows(v) {
+    var dimensionUnit = __pdTrim(v && v.dimension_unit) || __pdTrim(v && v.product && v.product.dimension_unit);
+    var weightUnit = __pdTrim(v && v.weight_unit) || __pdTrim(v && v.product && v.product.weight_unit);
+    var rows = [
+      { key: "length", label: "Length", value: __pdFormatDim(v && v.length, dimensionUnit) },
+      { key: "width", label: "Width", value: __pdFormatDim(v && v.width, dimensionUnit) },
+      { key: "height", label: "Height", value: __pdFormatDim(v && v.height, dimensionUnit) },
+      { key: "weight", label: "Weight", value: __pdFormatDim(v && v.weight, weightUnit) }
+    ];
+    return rows.filter(function (r) { return r.value; });
+  }
+
+  function __pdIsDimensionAttribute(attr) {
+    var s = __pdTrim(attr && (attr.attribute_slug || attr.attribute || attr.attribute_name)).toLowerCase();
+    return /length|width|height|weight|dimension|size/.test(s);
+  }
+
+  function __pdPickVariant(list, wantedId) {
+    var wid = __pdTrim(wantedId);
+    if (!Array.isArray(list) || !list.length) return null;
+    return list.find(function (v) { return __pdTrim(v && v.id) === wid; }) ||
+      list.find(function (v) { return Boolean(v && v.is_default); }) ||
+      list[0] ||
+      null;
+  }
+
+  var currentVariant = __pdPickVariant(pdVariantsSource, (typeof pageVariantId !== "undefined" ? pageVariantId : null)) || pdSelectedVariant || pdVariantsSource[0] || {};
+  var currentProduct = Object.assign({}, pdProduct, (currentVariant && currentVariant.product) ? currentVariant.product : {}, {
+    id: pdProduct.id || currentVariant.product_id || currentVariant.master_id || currentVariant.product_id_master || "",
+    name: __pdFirstNonEmpty(pdProduct.name, currentVariant.product_name, currentVariant.name, ""),
+    brand: __pdFirstNonEmpty(pdProduct.brand, currentVariant.brand, ""),
+    short_description: __pdFirstNonEmpty(pdProduct.short_description, currentVariant.short_description, currentVariant.product?.short_description, ""),
+    description: __pdFirstNonEmpty(pdProduct.description, currentVariant.product_description, currentVariant.product?.description, ""),
+    key_features: __pdFirstNonEmpty(pdProduct.key_features, pdProduct.bullets, currentVariant.key_features, currentVariant.bullets, ""),
+    main_image: __pdFirstNonEmpty(pdProduct.main_image, currentVariant.product_main_image, currentVariant.image, "")
+  });
+
+  var pageProductId = currentProduct.id || currentVariant.product_id || currentVariant.master_id || currentVariant.product_id_master || "";
+  var pageVariantId = currentVariant.id || currentVariant.variant_id || "";
+
+  var currentTitle = __pdFirstNonEmpty(currentVariant.variant_name, currentVariant.name, currentVariant.display_name, currentProduct.name, "Product Details");
+  var currentBrand = __pdFirstNonEmpty(currentProduct.brand, currentVariant.brand, "");
+  var currentDescription = __pdFirstNonEmpty(currentProduct.short_description, currentProduct.description, currentVariant.short_description, currentVariant.product_description, "");
+function __pdNormalizeKeyFeatures(v) {
+  var f = __pdFirstNonEmpty(
+    v && v.key_features,
+    v && v.bullets,
+    v && v.product && v.product.key_features,
+    v && v.product && v.product.bullets,
+    ""
+  );
+
+  if (!f) return "";
+
+  if (Array.isArray(f)) {
+    return f.filter(Boolean).join(" • ");
+  }
+
+  if (typeof f === "string") {
+    return f.trim();
+  }
+
+  return String(f || "");
+}
+
+var currentKeyFeatures = __pdNormalizeKeyFeatures(currentVariant);
+
+  var currentMedia = __pdNormalizeVariantMedia(currentVariant);
+  var currentPrimaryImage = (currentMedia.length ? currentMedia[0] : "") || __pdNormalizeUrl(currentVariant.image || currentProduct.main_image || "") || "/assets/img/default-product.jpg";
+
+  var currentDiscountMeta = __pdDiscountMeta(currentVariant);
+  var currentFinalPrice = __pdNum(currentVariant.final_price != null ? currentVariant.final_price : (currentVariant.price != null ? currentVariant.price : 0), 0);
+  var currentOriginalPrice = __pdNum(currentVariant.original_price != null ? currentVariant.original_price : (currentVariant.price != null ? currentVariant.price : 0), 0);
+  var currentStock = __pdNum(currentVariant.stock, 0);
+
+  var currentProductFields = [
+    ["name", "Name", currentProduct.name],
+    ["brand", "Brand", currentProduct.brand],
+    ["short_description", "Short Description", currentProduct.short_description],
+    ["description", "Description", currentProduct.description],
+   ["key_features", "Key Features", __pdTrim(currentKeyFeatures) || "—"]
+  ];
+
+  var currentVariantFields = __pdVariantDimensionRows(currentVariant);
+  var dimensionAttrs = (Array.isArray(pdAttributeList) ? pdAttributeList : []).filter(__pdIsDimensionAttribute);
+
+  function cardTitle(item, idx) {
+    return __pdFirstNonEmpty(item && item.name, item && item.variant_name, item && item.display_name, item && item.product && item.product.name, "Product " + (idx + 1));
+  }
+
+  function cardBrand(item) {
+    return __pdFirstNonEmpty(item && item.brand, item && item.product && item.product.brand, "");
+  }
+
+  function cardHref(item) {
+    var slug = __pdFirstNonEmpty(item && item.slug, item && item.product && item.product.slug, "");
+    if (slug) return "/product/" + slug;
+    var pid = item && (item.product_id || item.master_id || item.product_id_master);
+    var vid = item && (item.id || item.variant_id);
+    if (pid && vid) return "/customer/product/product-details/" + pid + "/" + vid;
+    if (pid) return "/customer/product/product-details/" + pid;
+    return "#";
+  }
+
+  function cardPriceMeta(item) {
+    return __pdDiscountMeta(item || {});
+  }
+
+  function cardImage(item) {
+    var media = __pdNormalizeVariantMedia(item || {});
+    return (media.length ? media[0] : "") || __pdNormalizeUrl(item && (item.image || item.product?.main_image) || "/assets/img/default-product.jpg");
+  }
+
+  function cardStock(item) {
+    return __pdNum(item && item.stock, 0);
+  }
+
+  function cardVariantId(item) {
+    return String(item && (item.id || item.variant_id || ""));
+  }
+%>
+
+<style>
+  :root {
+    --ap-bg: #ffffff;
+    --ap-card: #ffffff;
+    --ap-text: #0f1111;
+    --ap-muted: #565959;
+    --ap-border: #d5d9d9;
+    --ap-blue: #007185;
+    --ap-yellow: #ffd814;
+    --ap-yellow-dark: #f7ca00;
+    --ap-green: #067d62;
+    --ap-red: #b12704;
+    --ap-radius: 12px;
+    --ap-btn-h: 38px;
+    --ap-btn-radius: 8px;
+  }
+
+  .amazon-pdp {
+    background: var(--ap-bg);
+    color: var(--ap-text);
+    padding: 0 0 32px;
+  }
+
+  .amazon-pdp * {
+    box-sizing: border-box;
+  }
+
+  .ap-wrap {
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .ap-breadcrumbs {
+    font-size: 12px;
+    color: var(--ap-muted);
+    margin: 0 0 12px;
+  }
+
+  .ap-breadcrumbs a {
+    color: var(--ap-blue);
+    text-decoration: none;
+  }
+
+  .ap-breadcrumbs span {
+    margin: 0 4px;
+  }
+
+  .ap-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .ap-main,
+  .ap-buybox,
+  .ap-section {
+    background: var(--ap-card);
+    border-radius: var(--ap-radius);
+    border: 1px solid rgba(213, 217, 217, 0.6);
+  }
+
+  .ap-main {
+    padding: 16px;
+    width: 100%;
+  }
+
+  .ap-buybox {
+    padding: 16px;
+    position: sticky;
+    top: 12px;
+  }
+
+  .ap-grid {
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .ap-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 680px;
+    overflow: auto;
+    padding-right: 2px;
+  }
+
+  .ap-thumb {
+    border: 1px solid var(--ap-border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    padding: 0;
+    cursor: pointer;
+    aspect-ratio: 1 / 1;
+    transition: 0.18s ease;
+  }
+
+  .ap-thumb.is-active {
+    outline: 2px solid var(--ap-yellow);
+    border-color: var(--ap-yellow);
+  }
+
+  .ap-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ap-main-image {
+    border: 1px solid var(--ap-border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ap-main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-height: 620px;
+    display: block;
+  }
+
+  .ap-image-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--ap-border);
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--ap-text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(15, 17, 17, 0.08);
+  }
+
+  .ap-image-prev {
+    left: 10px;
+  }
+
+  .ap-image-next {
+    right: 10px;
+  }
+
+  .ap-title {
+    font-size: 28px;
+    line-height: 1.25;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .ap-brand {
+    margin-top: 8px;
+    color: var(--ap-blue);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .ap-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0 12px;
+    font-size: 14px;
+    color: var(--ap-muted);
+  }
+
+  .ap-stars {
+    color: #ffa41c;
+    letter-spacing: 1px;
+  }
+
+  .ap-price {
+    margin: 14px 0 10px;
+  }
+
+  .ap-price-now {
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .ap-price-old {
+    font-size: 14px;
+    color: var(--ap-muted);
+    text-decoration: line-through;
+    margin-top: 4px;
+  }
+
+  .ap-save {
+    font-size: 13px;
+    color: var(--ap-green);
+    margin-top: 4px;
+    font-weight: 700;
+  }
+
+  .ap-note {
+    font-size: 13px;
+    color: var(--ap-muted);
+    margin-top: 6px;
+  }
+
+  .ap-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+
+  .ap-badge {
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--ap-border);
+    background: #f7fafa;
+  }
+
+  .ap-badge.success {
+    background: #f0f8f7;
+    color: var(--ap-green);
+    border-color: rgba(6, 125, 98, 0.2);
+  }
+
+  .ap-badge.danger {
+    background: #fff4f0;
+    color: var(--ap-red);
+    border-color: rgba(177, 39, 4, 0.2);
+  }
+
+  .ap-badge.primary {
+    background: #f0f8ff;
+    color: var(--ap-blue);
+    border-color: rgba(0, 113, 133, 0.2);
+  }
+
+  .ap-box {
+    border: 1px solid var(--ap-border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 14px;
+    background: #fff;
+  }
+
+  .ap-box h3 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  .ap-about {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ap-text);
+    white-space: pre-wrap;
+  }
+
+  .ap-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .ap-row {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--ap-border);
+  }
+
+  .ap-row:first-child {
+    border-top: 0;
+  }
+
+  .ap-row .k {
+    font-size: 13px;
+    color: var(--ap-muted);
+  }
+
+  .ap-row .v {
+    font-size: 13px;
+    color: var(--ap-text);
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+
+  .ap-attr-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .ap-attr {
+    border: 1px solid var(--ap-border);
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+  }
+
+  .ap-attr .k {
+    font-size: 12px;
+    color: var(--ap-muted);
+    margin-bottom: 4px;
+  }
+
+  .ap-attr .v {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .ap-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .ap-buy-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .ap-btn,
+  .btn-cart,
+  .btn-fav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: var(--ap-btn-h);
+    border-radius: var(--ap-btn-radius);
+    cursor: pointer;
+    border: 0;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .ap-btn-primary,
+  .btn-cart {
+    background: var(--ap-yellow);
+    color: #111;
+  }
+
+  .ap-btn-primary:hover,
+  .btn-cart:hover {
+    background: var(--ap-yellow-dark);
+  }
+
+  .ap-btn-secondary,
+  .btn-fav {
+    background: #fff;
+    color: var(--ap-text);
+    border: 1px solid var(--ap-border);
+  }
+
+  .ap-btn-secondary:hover,
+  .btn-fav:hover {
+    background: #f7fafa;
+  }
+
+  .ap-btn,
+  .btn-cart {
+    padding: 0 14px;
+  }
+
+  .btn-cart {
+    min-width: 110px;
+  }
+
+  .btn-fav {
+    width: var(--ap-btn-h);
+    min-width: var(--ap-btn-h);
+    padding: 0;
+  }
+
+  .btn-fav.is-fav {
+    background: var(--ap-red);
+    color: #fff;
+    border-color: var(--ap-red);
+  }
+
+  .btn-fav.is-fav:hover {
+    background: #bb2d3b;
+  }
+
+  .ap-btn[disabled],
+  .btn-cart[disabled],
+  .btn-fav[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .ap-inline-error {
+    margin-top: 10px;
+    color: var(--ap-red);
+    font-size: 13px;
+    min-height: 18px;
+  }
+
+  .ap-empty {
+    border: 1px dashed var(--ap-border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    color: var(--ap-muted);
+    background: #fff;
+  }
+
+  .ap-hidden {
+    display: none !important;
+  }
+
+  .ap-carousel-shell {
+    position: relative;
+    margin-top: 16px;
+  }
+
+  .ap-carousel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .ap-carousel-head h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .ap-carousel-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .ap-carousel-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--ap-border);
+    background: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--ap-text);
+  }
+
+  .ap-carousel-btn:hover {
+    background: #f7fafa;
+  }
+
+  .ap-carousel-track {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  .ap-carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ap-card {
+    flex: 0 0 calc((100% - 36px) / 4);
+    min-width: 220px;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #111;
+    will-change: transform;
+    text-decoration: none;
+  }
+
+  .ap-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(13, 110, 253, 0.2);
+  }
+
+  .ap-card:active {
+    transform: scale(0.98);
+  }
+
+  .compact-image {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .compact-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .ap-card:hover .compact-image img {
+    transform: scale(1.08);
+  }
+
+  .badges {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: flex;
+    gap: 6px;
+    z-index: 3;
+    flex-wrap: wrap;
+  }
+
+  .badge-green,
+  .badge-red {
+    color: #fff;
+    padding: 4px 7px;
+    font-size: 11px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .badge-green {
+    background: var(--ap-green);
+  }
+
+  .badge-red {
+    background: var(--ap-red);
+  }
+
+  .prod-title {
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+    max-height: 2.6em;
+    overflow: hidden;
+  }
+
+  .price-line {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin: 6px 0;
+  }
+
+  .price-current {
+    font-weight: 800;
+    font-size: 13px;
+  }
+
+  .price-old {
+    font-size: 11px;
+    color: var(--ap-muted);
+    text-decoration: line-through;
+  }
+
+  .saved-small {
+    font-size: 10px;
+    color: var(--ap-muted);
+  }
+
+  .stock-line {
+    font-size: 11px;
+    margin-top: 6px;
+  }
+
+  .stock-available {
+    color: var(--ap-green);
+    font-weight: 700;
+  }
+
+  .stock-limited {
+    color: var(--ap-red);
+    font-weight: 700;
+  }
+
+  .stock-out {
+    color: var(--ap-muted);
+    font-weight: 700;
+  }
+
+  .product-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+    justify-content: space-between;
+  }
+
+  .ap-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: var(--ap-btn-h);
+    border: 1px solid #e8e8e8;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #fff;
+    white-space: nowrap;
+  }
+
+  .ap-qty button {
+    border: 0;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .ap-qty span {
+    min-width: 22px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .ap-sticky-mobile {
+    display: none;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+  }
+
+  .ap-mobile-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ap-mobile-bar .ap-btn {
+    flex: 1;
+    margin: 0;
+  }
+
+  .ap-cart-slot {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ap-swipe-hint {
+    display: none;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ap-muted);
+    align-items: center;
+    user-select: none;
+    margin-top: 8px;
+  }
+
+  .ap-section {
+    padding: 16px;
+    margin-top: 16px;
+  }
+
+  .ap-section-title {
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 1200px) {
+    .ap-buybox {
+      display: none;
+    }
+
+    .ap-sticky-mobile {
+      display: block;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .ap-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .ap-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ap-thumbs {
+      flex-direction: row;
+      max-height: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 2px;
+    }
+
+    .ap-thumb {
+      width: 74px;
+      min-width: 74px;
+    }
+
+    .ap-main-image {
+      min-height: 300px;
+    }
+
+    .ap-attr-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ap-row {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+    .ap-carousel-btn {
+      display: none;
+    }
+
+    .ap-swipe-hint {
+      display: flex;
+    }
+
+    .ap-card {
+      flex: 0 0 78%;
+      min-width: 78%;
+      scroll-snap-align: start;
+    }
+
+    .ap-carousel-track {
+      scroll-snap-type: x mandatory;
+    }
+
+    .ap-sticky-mobile {
+      display: block;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .ap-title {
+      font-size: 22px;
+    }
+
+    .ap-price-now {
+      font-size: 24px;
+    }
+
+    .ap-section-title {
+      font-size: 18px;
+    }
+
+    .ap-card {
+      flex-basis: 86%;
+      min-width: 86%;
+    }
+
+    .ap-mobile-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .ap-actions {
+      align-items: stretch;
+    }
+
+    .ap-buy-inline {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .btn-cart,
+    .btn-fav {
+      width: auto;
+    }
+  }
+</style>
+
+<section class="amazon-pdp" data-product-id="<%= pageProductId %>" data-variant-id="<%= pageVariantId %>">
+  <div class="ap-wrap">
+    <div class="ap-breadcrumbs">
+      <a href="/">Home</a> <span>›</span> <span><%= currentBrand || 'Product' %></span>
+    </div>
+
+    <% if (!pageProductId && !pageVariantId) { %>
+      <div class="ap-empty">Product not found.</div>
+    <% } else { %>
+      <div class="ap-layout">
+        <main class="ap-main">
+          <div class="ap-grid">
+            <div>
+              <div class="ap-thumbs" id="pd-thumbs">
+                <% currentMedia.forEach(function (url, idx) { %>
+                  <button type="button" class="ap-thumb <%= idx === 0 ? 'is-active' : '' %>" data-image="<%= url %>">
+                    <img src="<%= url %>" alt="<%= currentTitle %> thumbnail <%= idx + 1 %>" loading="lazy">
+                  </button>
+                <% }) %>
+              </div>
+            </div>
+
+            <div>
+              <div class="ap-main-image">
+                <button type="button" class="ap-image-nav ap-image-prev" id="pd-image-prev" aria-label="Previous image">
+                  <i class="fa fa-chevron-left"></i>
+                </button>
+                <img id="pd-main-image" src="<%= currentPrimaryImage %>" alt="<%= currentTitle %>" loading="eager">
+                <button type="button" class="ap-image-nav ap-image-next" id="pd-image-next" aria-label="Next image">
+                  <i class="fa fa-chevron-right"></i>
+                </button>
+              </div>
+
+              <div class="ap-badges">
+                <% if (currentBrand) { %>
+                  <span class="ap-badge primary" id="pd-brand"><%= currentBrand %></span>
+                <% } %>
+                <span class="ap-badge <%= currentStock > 0 ? 'success' : 'danger' %>" id="pd-stock-badge">
+                  <%= currentStock > 0 ? 'In Stock' : 'Out of Stock' %>
+                </span>
+                <% if (currentDiscountMeta.label) { %>
+                  <span class="ap-badge danger" id="pd-discount-badge"><%= currentDiscountMeta.label %></span>
+                <% } else { %>
+                  <span class="ap-badge danger ap-hidden" id="pd-discount-badge"></span>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:18px;">
+            <h1 class="ap-title" id="pd-title"><%= currentTitle %></h1>
+            <div class="ap-brand">Visit the <span id="pd-brand-text"><%= currentBrand || 'brand' %></span> store</div>
+
+            <div class="ap-rating-row">
+              <span class="ap-stars">★★★★★</span>
+              <a href="#ap-review-summary" style="color:var(--ap-blue);text-decoration:none;">See reviews</a>
+              <span>|</span>
+              <span id="pd-stock-text"><%= currentStock %> in stock</span>
+            </div>
+
+            <div class="ap-price">
+              <div class="ap-price-now" id="pd-final-price">AED <%= currentFinalPrice.toFixed(2) %></div>
+              <% if (currentOriginalPrice > currentFinalPrice) { %>
+                <div class="ap-price-old" id="pd-original-price">AED <%= currentOriginalPrice.toFixed(2) %></div>
+                <div class="ap-save" id="pd-save-amount"><%= currentDiscountMeta.label ? currentDiscountMeta.label : ('Save AED ' + (currentOriginalPrice - currentFinalPrice).toFixed(2)) %></div>
+              <% } else { %>
+                <div class="ap-price-old ap-hidden" id="pd-original-price"></div>
+                <div class="ap-save ap-hidden" id="pd-save-amount"></div>
+              <% } %>
+              <div class="ap-note" id="pd-price-note"><%= currentVariant.vat_included ? 'Includes VAT' : 'Excludes VAT' %></div>
+            </div>
+
+            <div class="ap-actions" style="display:none">
+              <div class="ap-buy-inline">
+                <button class="ap-btn ap-btn-primary btn-cart pd-add-cart" id="pd-add-cart-btn" type="button" data-variant-id="<%= pageVariantId %>">
+                  <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                  Add
+                </button>
+
+                <div class="ap-qty ap-hidden" id="pd-qty-controls" data-variant-id="<%= pageVariantId %>">
+                  <button type="button" id="pd-qty-minus" aria-label="Decrease quantity">−</button>
+                  <span id="pd-qty-count">0</span>
+                  <button type="button" id="pd-qty-plus" aria-label="Increase quantity">+</button>
+                </div>
+              </div>
+
+              <button class="ap-btn ap-btn-secondary btn-fav pd-fav <%= currentVariant.is_fav ? 'is-fav' : '' %>" id="pd-wishlist-btn" type="button" data-variant-id="<%= pageVariantId %>">
+                <i class="fa fa-heart" aria-hidden="true"></i>
+                
+              </button>
+            </div>
+
+            <div class="ap-inline-error ap-hidden" id="pd-inline-error"></div>
+   <style>
+  :root {
+    --ap-bg: #ffffff;
+    --ap-card: #ffffff;
+    --ap-text: #0f1111;
+    --ap-muted: #565959;
+    --ap-border: #d5d9d9;
+    --ap-blue: #007185;
+    --ap-yellow: #ffd814;
+    --ap-yellow-dark: #f7ca00;
+    --ap-green: #067d62;
+    --ap-red: #b12704;
+    --ap-radius: 12px;
+    --ap-btn-h: 38px;
+    --ap-btn-radius: 8px;
+  }
+
+  .amazon-pdp {
+    background: var(--ap-bg);
+    color: var(--ap-text);
+    padding: 0 0 32px;
+  }
+
+  .amazon-pdp * {
+    box-sizing: border-box;
+  }
+
+  .ap-wrap {
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  .ap-breadcrumbs {
+    font-size: 12px;
+    color: var(--ap-muted);
+    margin: 0 0 12px;
+  }
+
+  .ap-breadcrumbs a {
+    color: var(--ap-blue);
+    text-decoration: none;
+  }
+
+  .ap-breadcrumbs span {
+    margin: 0 4px;
+  }
+
+  .ap-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .ap-main,
+  .ap-buybox,
+  .ap-section {
+    background: var(--ap-card);
+    border-radius: var(--ap-radius);
+    border: 1px solid rgba(213, 217, 217, 0.6);
+  }
+
+  .ap-main {
+    padding: 16px;
+    width: 100%;
+  }
+
+  .ap-buybox {
+    padding: 16px;
+    position: sticky;
+    top: 12px;
+  }
+
+  .ap-grid {
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .ap-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 680px;
+    overflow: auto;
+    padding-right: 2px;
+  }
+
+  .ap-thumb {
+    border: 1px solid var(--ap-border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    padding: 0;
+    cursor: pointer;
+    aspect-ratio: 1 / 1;
+    transition: 0.18s ease;
+  }
+
+  .ap-thumb.is-active {
+    outline: 2px solid var(--ap-yellow);
+    border-color: var(--ap-yellow);
+  }
+
+  .ap-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .ap-main-image {
+    border: 1px solid var(--ap-border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    min-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ap-main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-height: 620px;
+    display: block;
+  }
+
+  .ap-image-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--ap-border);
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--ap-text);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(15, 17, 17, 0.08);
+  }
+
+  .ap-image-prev {
+    left: 10px;
+  }
+
+  .ap-image-next {
+    right: 10px;
+  }
+
+  .ap-title {
+    font-size: 28px;
+    line-height: 1.25;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .ap-brand {
+    margin-top: 8px;
+    color: var(--ap-blue);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .ap-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 10px 0 12px;
+    font-size: 14px;
+    color: var(--ap-muted);
+  }
+
+  .ap-stars {
+    color: #ffa41c;
+    letter-spacing: 1px;
+  }
+
+  .ap-price {
+    margin: 14px 0 10px;
+  }
+
+  .ap-price-now {
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.1;
+  }
+
+  .ap-price-old {
+    font-size: 14px;
+    color: var(--ap-muted);
+    text-decoration: line-through;
+    margin-top: 4px;
+  }
+
+  .ap-save {
+    font-size: 13px;
+    color: var(--ap-green);
+    margin-top: 4px;
+    font-weight: 700;
+  }
+
+  .ap-note {
+    font-size: 13px;
+    color: var(--ap-muted);
+    margin-top: 6px;
+  }
+
+  .ap-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+  }
+
+  .ap-badge {
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--ap-border);
+    background: #f7fafa;
+  }
+
+  .ap-badge.success {
+    background: #f0f8f7;
+    color: var(--ap-green);
+    border-color: rgba(6, 125, 98, 0.2);
+  }
+
+  .ap-badge.danger {
+    background: #fff4f0;
+    color: var(--ap-red);
+    border-color: rgba(177, 39, 4, 0.2);
+  }
+
+  .ap-badge.primary {
+    background: #f0f8ff;
+    color: var(--ap-blue);
+    border-color: rgba(0, 113, 133, 0.2);
+  }
+
+  .ap-box {
+    position: relative;
+    border: 1px solid var(--ap-border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: 14px;
+    background: #fff;
+  }
+
+  .ap-box h3 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  .ap-about {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ap-text);
+    white-space: pre-wrap;
+  }
+
+  .ap-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .ap-row {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--ap-border);
+  }
+
+  .ap-row:first-child {
+    border-top: 0;
+  }
+
+  .ap-row .k {
+    font-size: 13px;
+    color: var(--ap-muted);
+  }
+
+  .ap-row .v {
+    font-size: 13px;
+    color: var(--ap-text);
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+
+  .ap-attr-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .ap-attr {
+    border: 1px solid var(--ap-border);
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+  }
+
+  .ap-attr .k {
+    font-size: 12px;
+    color: var(--ap-muted);
+    margin-bottom: 4px;
+  }
+
+  .ap-attr .v {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  /* Keep buttons inline, compact, and professionally balanced */
+  .ap-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    align-items: center;
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+
+  .ap-buy-inline {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .ap-btn,
+  .btn-cart,
+  .btn-fav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: var(--ap-btn-h);
+    border-radius: var(--ap-btn-radius);
+    cursor: pointer;
+    border: 0;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1;
+    flex: 0 0 auto;
+  }
+
+  .ap-btn-primary,
+  .btn-cart {
+    background: var(--ap-yellow);
+    color: #111;
+  }
+
+  .ap-btn-primary:hover,
+  .btn-cart:hover {
+    background: var(--ap-yellow-dark);
+  }
+
+  .ap-btn-secondary,
+  .btn-fav {
+    background: #fff;
+    color: var(--ap-text);
+    border: 1px solid var(--ap-border);
+  }
+
+  .ap-btn-secondary:hover,
+  .btn-fav:hover {
+    background: #f7fafa;
+  }
+
+  .ap-btn,
+  .btn-cart {
+    padding: 0 12px;
+  }
+
+  .btn-cart {
+    min-width: 96px;
+  }
+
+  .btn-fav {
+    width: var(--ap-btn-h);
+    min-width: var(--ap-btn-h);
+    padding: 0;
+    flex: 0 0 var(--ap-btn-h);
+  }
+
+  .btn-fav.is-fav {
+    background: var(--ap-red);
+    color: #fff;
+    border-color: var(--ap-red);
+  }
+
+  .btn-fav.is-fav:hover {
+    background: #bb2d3b;
+  }
+
+  .ap-btn[disabled],
+  .btn-cart[disabled],
+  .btn-fav[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  /* Quantity controller: same height, compact, inline */
+  .ap-qty {
+    display: inline-flex;
+    align-items: center;
+    height: var(--ap-btn-h);
+    border: 1px solid var(--ap-border);
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #fff;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .ap-qty button {
+    border: 0;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    flex: 0 0 auto;
+  }
+
+  .ap-qty span {
+    min-width: 22px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ap-inline-error {
+    margin-top: 10px;
+    color: var(--ap-red);
+    font-size: 13px;
+    min-height: 18px;
+  }
+
+  .ap-empty {
+    border: 1px dashed var(--ap-border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    color: var(--ap-muted);
+    background: #fff;
+  }
+
+  .ap-hidden {
+    display: none !important;
+  }
+
+  .ap-carousel-shell {
+    position: relative;
+    margin-top: 16px;
+  }
+
+  .ap-carousel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .ap-carousel-head h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .ap-carousel-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .ap-carousel-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--ap-border);
+    background: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--ap-text);
+  }
+
+  .ap-carousel-btn:hover {
+    background: #f7fafa;
+  }
+
+  .ap-carousel-track {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+  }
+
+  .ap-carousel-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ap-card {
+    flex: 0 0 calc((100% - 36px) / 4);
+    min-width: 220px;
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #111;
+    will-change: transform;
+    text-decoration: none;
+  }
+
+  .ap-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(13, 110, 253, 0.2);
+  }
+
+  .ap-card:active {
+    transform: scale(0.98);
+  }
+
+  .compact-image {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .compact-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  .ap-card:hover .compact-image img {
+    transform: scale(1.08);
+  }
+
+  .badges {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    display: flex;
+    gap: 6px;
+    z-index: 3;
+    flex-wrap: wrap;
+  }
+
+  .badge-green,
+  .badge-red {
+    color: #fff;
+    padding: 4px 7px;
+    font-size: 11px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .badge-green {
+    background: var(--ap-green);
+  }
+
+  .badge-red {
+    background: var(--ap-red);
+  }
+
+  .prod-title {
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+    max-height: 2.6em;
+    overflow: hidden;
+  }
+
+  .price-line {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin: 6px 0;
+  }
+
+  .price-current {
+    font-weight: 800;
+    font-size: 13px;
+  }
+
+  .price-old {
+    font-size: 11px;
+    color: var(--ap-muted);
+    text-decoration: line-through;
+  }
+
+  .saved-small {
+    font-size: 10px;
+    color: var(--ap-muted);
+  }
+
+  .stock-line {
+    font-size: 11px;
+    margin-top: 6px;
+  }
+
+  .stock-available {
+    color: var(--ap-green);
+    font-weight: 700;
+  }
+
+  .stock-limited {
+    color: var(--ap-red);
+    font-weight: 700;
+  }
+
+  .stock-out {
+    color: var(--ap-muted);
+    font-weight: 700;
+  }
+
+  .product-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+    justify-content: space-between;
+  }
+
+  .ap-sticky-mobile {
+    display: none;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    padding: 10px 16px;
+    background: rgba(234, 237, 237, 0.95);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(213, 217, 217, 0.8);
+  }
+
+  .ap-mobile-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .ap-mobile-bar .ap-btn {
+    flex: 1 1 auto;
+    margin: 0;
+    min-width: 0;
+  }
+
+  .ap-cart-slot {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .ap-swipe-hint {
+    display: none;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ap-muted);
+    align-items: center;
+    user-select: none;
+    margin-top: 8px;
+  }
+
+  .ap-section {
+    padding: 16px;
+    margin-top: 16px;
+  }
+
+  .ap-section-title {
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  @media (max-width: 1200px) {
+    .ap-buybox {
+      display: none;
+    }
+
+    .ap-sticky-mobile {
+      display: block;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .ap-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .ap-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ap-thumbs {
+      flex-direction: row;
+      max-height: none;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 2px;
+    }
+
+    .ap-thumb {
+      width: 74px;
+      min-width: 74px;
+    }
+
+    .ap-main-image {
+      min-height: 300px;
+    }
+
+    .ap-attr-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .ap-row {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+
+    .ap-carousel-btn {
+      display: none;
+    }
+
+    .ap-swipe-hint {
+      display: flex;
+    }
+
+    .ap-card {
+      flex: 0 0 78%;
+      min-width: 78%;
+      scroll-snap-align: start;
+    }
+
+    .ap-carousel-track {
+      scroll-snap-type: x mandatory;
+    }
+
+    .ap-sticky-mobile {
+      display: block;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .ap-wrap {
+      padding: 12px;
+    }
+
+    .ap-title {
+      font-size: 22px;
+    }
+
+    .ap-price-now {
+      font-size: 24px;
+    }
+
+    .ap-section-title {
+      font-size: 18px;
+    }
+
+    .ap-card {
+      flex-basis: 86%;
+      min-width: 86%;
+    }
+
+    /* Keep Add + Qty + Fav inline on mobile */
+    .ap-actions {
+      flex-wrap: nowrap;
+      gap: 6px;
+      align-items: center;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .ap-actions::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ap-buy-inline {
+      min-width: 0;
+      flex: 1 1 auto;
+      gap: 6px;
+    }
+
+    .btn-cart {
+      min-width: 92px;
+      padding: 0 12px;
+      font-size: 13px;
+      flex: 0 0 auto;
+    }
+
+    .ap-qty {
+      height: var(--ap-btn-h);
+      padding: 0 3px;
+      flex: 0 0 auto;
+    }
+
+    .ap-qty button {
+      width: 28px;
+      height: 28px;
+      font-size: 17px;
+    }
+
+    .ap-qty span {
+      min-width: 20px;
+      font-size: 13px;
+    }
+
+    .btn-fav {
+      width: 38px;
+      min-width: 38px;
+      flex: 0 0 38px;
+    }
+
+    .ap-mobile-bar {
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .ap-mobile-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .ap-mobile-bar .ap-btn {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+</style>
+
+<style>
+  .ap-box {
+    position: relative;
+  }
+
+  .ap-variant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .ap-variant-wrap {
+    position: relative;
+  }
+
+  .ap-variants {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    width: 100%;
+    padding: 6px;
+  }
+
+  .ap-variant {
+    border: 1px solid var(--ap-border);
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+    cursor: pointer;
+    min-width: 160px;
+  }
+
+  .ap-variant-thumb {
+    margin-top: 10px;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .ap-variant-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ap-nav-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .ap-nav {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--ap-border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ap-swipe-hint {
+    display: none;
+    font-size: 12px;
+    color: var(--ap-muted);
+    margin-top: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .ap-variants {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+    }
+
+    .ap-variant {
+      min-width: 70%;
+      scroll-snap-align: start;
+    }
+
+    .ap-swipe-hint {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+  }
+</style>
+        <div class="ap-box">
+  <div class="ap-variant-header">
+    <h3>Variant options</h3>
+
+    <% if (pdVariantsSource.length > 1) { %>
+      <div class="ap-nav-group">
+        <button type="button" class="ap-nav" id="pd-variant-prev">‹</button>
+        <button type="button" class="ap-nav" id="pd-variant-next">›</button>
+      </div>
+    <% } %>
+  </div>
+
+  <% if (pdVariantsSource.length > 1) { %>
+
+    <div class="ap-variant-wrap">
+
+      <div class="ap-variants" id="pd-variants">
+        <% pdVariantsSource.forEach(function (v, idx) {
+            var media = __pdNormalizeVariantMedia(v);
+            var thumb = media[0] || __pdNormalizeUrl(v.image || v.product_main_image || v.product?.main_image || currentProduct.main_image || "");
+            var stock = __pdNum(v.stock, 0);
+            var label = "Option " + (idx + 1);
+        %>
+
+          <button
+            type="button"
+            class="ap-variant <%= String(v.id) === String(pageVariantId) ? 'is-active' : '' %>"
+            data-variant-id="<%= String(v.id) %>"
+            data-variant-json="<%- __pdSafeJson(v) %>"
+          >
+            <div class="ap-variant-name"><%= label %></div>
+
+            <div class="ap-variant-meta">
+              <%= stock > 0 ? (stock <= 5 ? stock + ' left' : 'In stock') : 'Out of stock' %>
+            </div>
+
+            <% if (thumb) { %>
+              <div class="ap-variant-thumb">
+                <img src="<%= thumb %>" alt="">
+              </div>
+            <% } %>
+          </button>
+
+        <% }) %>
+      </div>
+
+    </div>
+
+    <div class="ap-swipe-hint">
+      Swipe to see more
+    </div>
+
+  <% } else { %>
+    <div class="ap-empty">Only one variant is available.</div>
+  <% } %>
+</div>
+<script>
+(function () {
+  const container = document.getElementById("pd-variants");
+  const prev = document.getElementById("pd-variant-prev");
+  const next = document.getElementById("pd-variant-next");
+
+  if (!container) return;
+
+  const scrollAmount = 260;
+
+  prev?.addEventListener("click", () => {
+    container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+  });
+
+  next?.addEventListener("click", () => {
+    container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+  });
+})();
+</script>
+            <div class="ap-box" id="ap-review-summary">
+              <h3>Product details</h3>
+              <div class="ap-list" id="pd-product-fields">
+                <% currentProductFields.forEach(function (row) { %>
+                  <div class="ap-row">
+                    <div class="k"><%= row[1] %></div>
+                    <div class="v" data-product-field="<%= row[0] %>"><%= __pdSafeText(row[2]) %></div>
+                  </div>
+                <% }) %>
+              </div>
+            </div>
+
+            <div class="ap-box">
+              <h3>Variant details</h3>
+              <div class="ap-list" id="pd-variant-fields">
+                <% if (currentVariantFields.length) { %>
+                  <% currentVariantFields.forEach(function (row) { %>
+                    <div class="ap-row">
+                      <div class="k"><%= row.label %></div>
+                      <div class="v" data-variant-field="<%= row.key %>"><%= __pdSafeText(row.value) %></div>
+                    </div>
+                  <% }) %>
+                <% } else { %>
+                  <div class="ap-empty">No dimension data available.</div>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="ap-box">
+              <h3>Technical attributes</h3>
+              <% if (dimensionAttrs.length) { %>
+                <div class="ap-attr-grid" id="pd-attributes">
+                  <% dimensionAttrs.forEach(function (attr) { %>
+                    <div class="ap-attr">
+                      <div class="k"><%= __pdSafeText(attr.attribute_name || attr.attribute || attr.attribute_slug) %></div>
+                      <div class="v"><%= __pdSafeText(attr.value_name || attr.value || attr.value_slug) %></div>
+                    </div>
+                  <% }) %>
+                </div>
+              <% } else { %>
+                <div class="ap-empty">No attributes found.</div>
+              <% } %>
+            </div>
+          </div>
+
+          <% (pdRecommendationSections.length ? pdRecommendationSections : [
+              { key: 'fbt', title: 'Frequently bought together', items: pdFrequentlyBoughtTogether },
+              { key: 'viewed', title: 'Customers who viewed this item also viewed', items: pdCustomersAlsoViewed },
+              { key: 'model', title: 'More from this model family', items: pdSameModelVariants },
+              { key: 'compare', title: 'Compare with similar products', items: pdCompareItems },
+              { key: 'related', title: 'Related products', items: pdRelatedProducts }
+            ]).forEach(function (section) { %>
+            <section class="ap-carousel-shell" data-carousel-section="<%= section.key %>">
+              <div class="ap-carousel-head">
+                <h2><%= section.title %></h2>
+                <div class="ap-carousel-controls">
+                  <button type="button" class="ap-carousel-btn ap-carousel-prev" aria-label="Previous">
+                    <i class="fa fa-chevron-left"></i>
+                  </button>
+                  <button type="button" class="ap-carousel-btn ap-carousel-next" aria-label="Next">
+                    <i class="fa fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+
+              <% if (section.items && section.items.length) { %>
+                <div class="ap-carousel-track">
+                  <% section.items.slice(0, 12).forEach(function (item, idx) {
+                      var title = cardTitle(item, idx);
+                      var brand = cardBrand(item);
+                      var priceMeta = cardPriceMeta(item);
+                      var price = __pdNum(item && (item.final_price ?? item.price ?? item.min_price), 0);
+                      var original = __pdNum(item && (item.original_price ?? item.price), 0);
+                      var stock = cardStock(item);
+                      var image = cardImage(item);
+                      var href = cardHref(item);
+                      var isFav = !!(item && item.is_fav);
+                      var itemVid = cardVariantId(item);
+                  %>
+                    <a class="ap-card" href="<%= href %>" data-variant-id="<%= itemVid %>" data-card-id="<%= itemVid || idx %>">
+                      <div style="position:relative;">
+                        <div class="compact-image">
+                          <img src="<%= image %>" alt="<%= title %>" loading="lazy">
+                        </div>
+                        <div class="badges">
+                          <span class="badge-green">New</span>
+                          <% if (priceMeta.label) { %>
+                            <span class="badge-red"><%= priceMeta.label %></span>
+                          <% } %>
+                        </div>
+                      </div>
+
+                      <div style="padding:8px 4px 0;">
+                        <div id="prod-<%= itemVid || idx %>" class="prod-title"><%= title %></div>
+
+                        <div class="price-line">
+                          <div class="price-current">AED <%= price.toFixed(2) %></div>
+                          <% if (original > price) { %>
+                            <div>
+                              <div class="price-old">AED <%= original.toFixed(2) %></div>
+                              <div class="saved-small"><%= priceMeta.label ? priceMeta.label : ('Save AED ' + (original - price).toFixed(2)) %></div>
+                            </div>
+                          <% } %>
+                        </div>
+
+                        <div class="stock-line">
+                          <span class="<%= stock > 0 ? (stock <= 5 ? 'stock-limited' : 'stock-available') : 'stock-out' %>">
+                            <%= stock > 0 ? (stock <= 5 ? stock + ' left' : 'In stock') : 'Out of stock' %>
+                          </span>
+                        </div>
+
+                        <% if (brand) { %>
+                          <div class="price-note"><%= brand %></div>
+                        <% } %>
+
+                        <div class="product-actions">
+                          <button type="button" class="btn-cart ap-card-add-cart" data-variant-id="<%= itemVid %>">
+                            <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+                            Add
+                          </button>
+                          <button type="button" class="btn-fav ap-card-fav <%= isFav ? 'is-fav' : '' %>" data-variant-id="<%= itemVid %>" aria-pressed="<%= isFav ? 'true' : 'false' %>">
+                            <i class="fa fa-heart" aria-hidden="true"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </a>
+                  <% }) %>
+                </div>
+                <div class="ap-swipe-hint" aria-hidden="true">
+                  <span>Swipe to see more</span>
+                  <i class="fa fa-arrow-right"></i>
+                </div>
+              <% } else { %>
+                <div class="ap-empty">No items available in this section.</div>
+              <% } %>
+            </section>
+          <% }) %>
+        </main>
+
+        <aside class="ap-buybox">
+          <div style="font-size:18px;font-weight:700;line-height:1.3;">Buy now</div>
+          <div style="margin-top:8px;font-size:13px;color:var(--ap-muted);">Delivered securely with cart and wishlist actions.</div>
+
+          <div style="margin-top:14px;">
+            <div class="ap-price-now" style="font-size:24px;" id="pd-final-price-aside">AED <%= currentFinalPrice.toFixed(2) %></div>
+            <% if (currentOriginalPrice > currentFinalPrice) { %>
+              <div class="ap-price-old" id="pd-original-price-aside">AED <%= currentOriginalPrice.toFixed(2) %></div>
+            <% } %>
+            <div class="ap-note" style="margin-top:6px;" id="pd-price-note-aside"><%= currentVariant.vat_included ? 'Includes VAT' : 'Excludes VAT' %></div>
+          </div>
+<style>
+.ap-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:nowrap;
+}
+
+.ap-buy-inline{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+/* Add Button */
+.pd-add-cart{
+  height:38px;
+  min-width:95px;
+  padding:0 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  border-radius:8px;
+  font-size:14px;
+}
+
+/* Quantity Controller */
+.ap-qty{
+  display:flex;
+  align-items:center;
+  height:38px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  overflow:hidden;
+  background:#fff;
+}
+
+/* Qty Buttons */
+.ap-qty button{
+  width:38px;
+  height:38px;
+  border:none;
+  background:#fff;
+  font-size:18px;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+/* Qty Count */
+.ap-qty span{
+  min-width:34px;
+  height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  font-weight:600;
+}
+
+/* Favourite Button */
+.btn-fav{
+  width:38px;
+  height:38px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  font-size:14px;
+}
+</style>
+       <div class="ap-actions"
+     style="margin-top:14px; display:flex; align-items:center; gap:10px;">
+
+  <!-- Add Button / Quantity Controls -->
+  <div class="ap-buy-inline"
+       style="display:flex; align-items:center; gap:10px;">
+
+    <button class="ap-btn ap-btn-primary btn-cart pd-add-cart"
+            id="pd-add-cart-btn-aside"
+            type="button"
+            data-variant-id="<%= pageVariantId %>">
+      <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+      Add
+    </button>
+
+    <div class="ap-qty ap-hidden"
+         id="pd-qty-controls-aside"
+         data-variant-id="<%= pageVariantId %>"
+         style="display:flex; align-items:center; gap:8px;">
+
+      <button type="button"
+              id="pd-qty-minus-aside"
+              aria-label="Decrease quantity">−</button>
+
+      <span id="pd-qty-count-aside">0</span>
+
+      <button type="button"
+              id="pd-qty-plus-aside"
+              aria-label="Increase quantity">+</button>
+    </div>
+  </div>
+
+  <!-- Favourite Button -->
+  <button class="ap-btn ap-btn-secondary btn-fav"
+          id="pd-wishlist-btn-aside"
+          type="button"
+          data-variant-id="<%= pageVariantId %>">
+    <i class="fa fa-heart" aria-hidden="true"></i>
+  </button>
+
+</div>
+
+
+          <div class="ap-inline-error ap-hidden" id="pd-inline-error-aside"></div>
+
+          <div class="ap-box" style="margin-top:16px;">
+            <h3 style="margin-bottom:10px;">Secure transaction</h3>
+            <div style="font-size:13px; color:var(--ap-muted); line-height:1.6;">
+              This page is ready for your cart, wishlist, and recommendation logic.
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="ap-sticky-mobile">
+        <div class="ap-mobile-bar">
+          <button class="ap-btn ap-btn-secondary btn-fav" id="pd-wishlist-btn-mobile" type="button" data-variant-id="<%= pageVariantId %>">
+            <i class="fa fa-heart" aria-hidden="true"></i>
+            
+          </button>
+
+          <div class="ap-cart-slot" style="flex:1;">
+            <button class="ap-btn ap-btn-primary btn-cart pd-add-cart" id="pd-add-cart-btn-mobile" type="button" data-variant-id="<%= pageVariantId %>">
+              <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+              Add
+            </button>
+
+            <div class="ap-qty ap-hidden" id="pd-qty-controls-mobile" data-variant-id="<%= pageVariantId %>">
+              <button type="button" id="pd-qty-minus-mobile" aria-label="Decrease quantity">−</button>
+              <span id="pd-qty-count-mobile">0</span>
+              <button type="button" id="pd-qty-plus-mobile" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<script>
+(function () {
+  "use strict";
+
+  const page = document.querySelector(".amazon-pdp");
+  if (!page) return;
+
+  const PRODUCT_ID = String(page.dataset.productId || "");
+  const INITIAL_VARIANT_ID = String(page.dataset.variantId || "");
+  const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || null;
+  const GUEST_KEY = "guest_wishlist_token";
+
+  const API = {
+    cartGet: "/customer/cart/api",
+    cartAdd: "/customer/cart/add",
+    cartUpdate: "/customer/cart/update",
+    cartRemove: "/customer/cart/remove",
+    wishlistToggle: "/wishlist/toggle",
+    wishlistGet: "/wishlist",
+    detail: PRODUCT_ID
+      ? (INITIAL_VARIANT_ID
+          ? `/customer/product/product-detail/api/${PRODUCT_ID}/${INITIAL_VARIANT_ID}`
+          : `/customer/product/product-detail/api/${PRODUCT_ID}`)
+      : "/customer/product/product-detail/api"
+  };
+
+  const state = {
+    currentVariantId: INITIAL_VARIANT_ID,
+    product: <%- __pdSafeJson(pdProduct || {}) %>,
+    variants: <%- __pdSafeJson(pdVariantsSource || []) %>,
+    cart: new Map(),
+    stock: new Map(),
+    wishlist: Object.create(null),
+    imageIndex: 0
+  };
+
+  const el = {
+    mainImage: document.getElementById("pd-main-image"),
+    prevImage: document.getElementById("pd-image-prev"),
+    nextImage: document.getElementById("pd-image-next"),
+    thumbs: document.getElementById("pd-thumbs"),
+    title: document.getElementById("pd-title"),
+    brand: document.getElementById("pd-brand"),
+    brandText: document.getElementById("pd-brand-text"),
+    stockBadge: document.getElementById("pd-stock-badge"),
+    discountBadge: document.getElementById("pd-discount-badge"),
+    finalPrice: document.getElementById("pd-final-price"),
+    finalPriceAside: document.getElementById("pd-final-price-aside"),
+    originalPrice: document.getElementById("pd-original-price"),
+    originalPriceAside: document.getElementById("pd-original-price-aside"),
+    saveAmount: document.getElementById("pd-save-amount"),
+    priceNote: document.getElementById("pd-price-note"),
+    priceNoteAside: document.getElementById("pd-price-note-aside"),
+    stockText: document.getElementById("pd-stock-text"),
+    description: document.getElementById("pd-description"),
+    addCartBtn: document.getElementById("pd-add-cart-btn"),
+    addCartBtnAside: document.getElementById("pd-add-cart-btn-aside"),
+    addCartBtnMobile: document.getElementById("pd-add-cart-btn-mobile"),
+    wishlistBtn: document.getElementById("pd-wishlist-btn"),
+    wishlistBtnAside: document.getElementById("pd-wishlist-btn-aside"),
+    wishlistBtnMobile: document.getElementById("pd-wishlist-btn-mobile"),
+    qtyControls: document.getElementById("pd-qty-controls"),
+    qtyControlsAside: document.getElementById("pd-qty-controls-aside"),
+    qtyControlsMobile: document.getElementById("pd-qty-controls-mobile"),
+    qtyMinus: document.getElementById("pd-qty-minus"),
+    qtyMinusAside: document.getElementById("pd-qty-minus-aside"),
+    qtyMinusMobile: document.getElementById("pd-qty-minus-mobile"),
+    qtyPlus: document.getElementById("pd-qty-plus"),
+    qtyPlusAside: document.getElementById("pd-qty-plus-aside"),
+    qtyPlusMobile: document.getElementById("pd-qty-plus-mobile"),
+    qtyCount: document.getElementById("pd-qty-count"),
+    qtyCountAside: document.getElementById("pd-qty-count-aside"),
+    qtyCountMobile: document.getElementById("pd-qty-count-mobile"),
+    inlineError: document.getElementById("pd-inline-error"),
+    inlineErrorAside: document.getElementById("pd-inline-error-aside"),
+    variants: document.getElementById("pd-variants")
+  };
+
+  const esc = (v) =>
+    String(v ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+
+  const toNum = (v, d = 0) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : d;
+  };
+
+  const getGuestToken = (() => {
+    try {
+      const existing = localStorage.getItem(GUEST_KEY);
+      if (existing) return existing;
+      const token = "guest_" + Math.random().toString(36).slice(2, 12);
+      localStorage.setItem(GUEST_KEY, token);
+      return token;
+    } catch (_) {
+      return "guest_" + Math.random().toString(36).slice(2, 12);
+    }
+  })();
+
+  function normalizeImageSrc(value) {
+    if (!value) return "/assets/img/default-product.jpg";
+    const str = String(value).trim();
+    if (!str) return "/assets/img/default-product.jpg";
+    if (/^https?:\/\//i.test(str) || str.startsWith("/") || str.startsWith("data:")) return str;
+    return `/uploads/products/${str}`;
+  }
+
+  function normalizeMediaList(v) {
+    if (!v || typeof v !== "object") return [];
+    const list = [
+      ...(Array.isArray(v.images) ? v.images : []),
+      ...(Array.isArray(v.variant_media) ? v.variant_media : []),
+      v.image,
+      v.main_image,
+      v.product_main_image,
+      v.product?.main_image
+    ];
+    return [...new Set(
+      list.map((m) => {
+        if (!m) return "";
+        if (typeof m === "string") return normalizeImageSrc(m);
+        if (m.filename) return normalizeImageSrc(m.filename);
+        return normalizeImageSrc(m?.url || m?.path || m?.src || m?.originalname);
+      }).filter(Boolean)
+    )];
+  }
+
+  function normalizeProductFromVariant(v) {
+    const product = { ...(v?.product || {}) };
+    if (!product.id) product.id = v?.product_id || v?.master_id || v?.product_id_master || "";
+    if (!product.name) product.name = v?.product_name || v?.name || "";
+    if (!product.brand) product.brand = v?.brand || "";
+    if (!product.short_description) product.short_description = v?.short_description || "";
+    if (!product.description) product.description = v?.product_description || v?.description || "";
+    if (!product.key_features) product.key_features = v?.key_features || v?.bullets || "";
+    if (!product.main_image) product.main_image = v?.product_main_image || v?.image || "";
+    return product;
+  }
+
+  function normalizeVariantFromAny(v) {
+    if (!v || typeof v !== "object") return null;
+    const product = normalizeProductFromVariant(v);
+    const images = normalizeMediaList(v);
+    const price = toNum(v?.price ?? 0, 0);
+    const finalPrice = toNum(v?.final_price ?? v?.sale_price ?? price, price);
+    const originalPrice = toNum(v?.original_price ?? v?.price ?? price, price);
+
+    return {
+      ...v,
+      product,
+      images,
+      image: images[0] || normalizeImageSrc(v?.image || v?.product_main_image || product.main_image || ""),
+      price,
+      final_price: finalPrice,
+      original_price: originalPrice,
+      discount_value: toNum(v?.discount_value ?? Math.max(0, originalPrice - finalPrice), 0),
+      stock: toNum(v?.stock ?? 0, 0),
+      variant_options: v?.variant_options || {},
+      is_fav: !!v?.is_fav
+    };
+  }
+
+  function normalizeDiscountType(v) {
+    const t = String(v || "").trim().toLowerCase();
+    if (t === "percentage") return "percent";
+    if (t === "amount") return "fixed";
+    if (t === "percent" || t === "fixed") return t;
+    return "none";
+  }
+
+  function computeDiscountMeta(v) {
+    const base = toNum(v?.price ?? v?.original_price, 0);
+    const final = toNum(v?.final_price ?? base, base);
+    const type = normalizeDiscountType(v?.discount_type);
+    let value = toNum(v?.discount_value, 0);
+    const pct = toNum(v?.discount_percent, 0);
+
+    if (type === "percent") {
+      if (!value && base > 0 && final < base) value = Math.round(((base - final) / base) * 100);
+      return { type, value, label: value > 0 ? `Save ${value.toFixed(0)}%` : "" };
+    }
+
+    if (type === "fixed") {
+      if (!value && base > 0 && final < base) value = Math.max(0, base - final);
+      return { type, value, label: value > 0 ? `Save AED ${value.toFixed(2)}` : "" };
+    }
+
+    if (pct > 0) return { type: "percent", value: pct, label: `Save ${pct.toFixed(0)}%` };
+    return { type: "none", value: 0, label: "" };
+  }
+
+  function formatDim(value, unit) {
+    const n = toNum(value, 0);
+    if (!n) return "";
+    const s = n.toFixed(2).replace(/\.00$/, "");
+    return unit ? `${s} ${unit}` : s;
+  }
+
+  function dimensionRows(v) {
+    const dimUnit = String(v?.dimension_unit || v?.product?.dimension_unit || "").trim();
+    const weightUnit = String(v?.weight_unit || v?.product?.weight_unit || "").trim();
+    return [
+      { key: "length", label: "Length", value: formatDim(v?.length, dimUnit) },
+      { key: "width", label: "Width", value: formatDim(v?.width, dimUnit) },
+      { key: "height", label: "Height", value: formatDim(v?.height, dimUnit) },
+      { key: "weight", label: "Weight", value: formatDim(v?.weight, weightUnit) }
+    ].filter((r) => r.value);
+  }
+
+  function getVariantById(variantId) {
+    return state.variants.find((v) => String(v.id) === String(variantId)) || null;
+  }
+
+  function currentVariant() {
+    return getVariantById(state.currentVariantId) || getVariantById(INITIAL_VARIANT_ID) || state.variants[0] || null;
+  }
+
+  function getCartQty(variantId) {
+    return Number(state.cart.get(`v:${String(variantId)}`) ?? 0);
+  }
+
+  function getStock(variantId) {
+    return Number(state.stock.get(String(variantId)) ?? 0);
+  }
+
+  function syncStockFromVariant(v) {
+    if (!v || v.id == null) return;
+    state.stock.set(String(v.id), Number(v.stock ?? 0));
+  }
+
+  function setText(target, value) {
+    if (!target) return;
+    target.textContent = value === null || value === undefined || value === "" ? "—" : String(value);
+  }
+
+  function setBusy(target, busy = true) {
+    if (!target) return;
+    target.disabled = !!busy;
+  }
+
+  function showInlineError(message, timeout = 4500) {
+    [el.inlineError, el.inlineErrorAside].forEach((node) => {
+      if (!node) return;
+      node.textContent = message || "";
+      node.classList.toggle("ap-hidden", !message);
+    });
+
+    if (message && timeout > 0) {
+      setTimeout(() => {
+        [el.inlineError, el.inlineErrorAside].forEach((node) => {
+          if (!node) return;
+          node.textContent = "";
+          node.classList.add("ap-hidden");
+        });
+      }, timeout);
+    }
+  }
+
+  function clearInlineError() {
+    [el.inlineError, el.inlineErrorAside].forEach((node) => {
+      if (!node) return;
+      node.textContent = "";
+      node.classList.add("ap-hidden");
+    });
+  }
+
+  async function apiFetch(url, method = "GET", body = null, timeout = 15000) {
+    const headers = { "x-guest-token": getGuestToken };
+    if (method !== "GET") {
+      headers["Content-Type"] = "application/json";
+      if (CSRF) headers["x-csrf-token"] = CSRF;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers,
+        credentials: "same-origin",
+        signal: controller.signal,
+        body: method !== "GET" && body != null ? JSON.stringify(body) : undefined
+      });
+
+      clearTimeout(timer);
+      if (res.status === 204) return null;
+
+      let json = null;
+      try { json = await res.json(); } catch (_) {}
+
+      if (!res.ok) {
+        const err = new Error((json && json.message) ? json.message : `HTTP ${res.status}`);
+        err.status = res.status;
+        err.body = json;
+        throw err;
+      }
+
+      if (json && typeof json === "object" && json.success === false) {
+        const err = new Error(json.message || "Server rejected request");
+        err.status = res.status;
+        err.body = json;
+        throw err;
+      }
+
+      return json;
+    } catch (err) {
+      if (err.name === "AbortError") throw new Error("Request timeout");
+      throw err;
+    }
+  }
+
+  function renderThumbs(images, title) {
+    if (!el.thumbs) return;
+    const unique = Array.from(new Set((images || []).filter(Boolean)));
+    el.thumbs.innerHTML = unique.map((img, idx) => `
+      <button type="button" class="ap-thumb ${idx === 0 ? "is-active" : ""}" data-image="${esc(img)}">
+        <img src="${esc(img)}" alt="${esc(title)} thumbnail ${idx + 1}" loading="lazy">
+      </button>
+    `).join("");
+    state.imageIndex = 0;
+  }
+
+  function setMainImageByIndex(index) {
+    const images = currentVariantImages();
+    if (!images.length || !el.mainImage) return;
+    const safeIndex = ((index % images.length) + images.length) % images.length;
+    state.imageIndex = safeIndex;
+    el.mainImage.src = images[safeIndex];
+    syncThumbActive();
+  }
+
+  function currentVariantImages() {
+    const v = currentVariant();
+    const images = normalizeMediaList(v || {});
+    return images.length ? images : [normalizeImageSrc(v?.image || v?.product?.main_image || "")];
+  }
+
+  function syncThumbActive() {
+    if (!el.thumbs) return;
+    const images = currentVariantImages();
+    const current = images[state.imageIndex] || images[0];
+    el.thumbs.querySelectorAll(".ap-thumb").forEach((btn) => {
+      btn.classList.toggle("is-active", btn.dataset.image === current);
+    });
+  }
+
+  function renderVariantCards() {
+    if (!el.variants) return;
+    const current = String(state.currentVariantId);
+    el.variants.innerHTML = state.variants.map((raw, idx) => {
+      const v = raw || {};
+      const title = String(v.variant_name || v.name || v.display_name || `Option ${idx + 1}`);
+      const stock = Number(v.stock || 0);
+      const meta = computeDiscountMeta(v);
+      const thumb = normalizeMediaList(v)[0] || normalizeImageSrc(v.image || v.product?.main_image || "");
+      return `
+        <button type="button"
+                class="ap-variant ${String(v.id) === current ? "is-active" : ""}"
+                data-variant-id="${esc(String(v.id || ""))}"
+                data-variant-json="${esc(encodeURIComponent(JSON.stringify(v)))}"
+                style="text-align:left;border:1px solid var(--ap-border);border-radius:12px;padding:12px;background:#fff;cursor:pointer;">
+          <div class="ap-variant-name" style="font-weight:700;">${esc(title)}</div>
+          <div class="ap-variant-meta" style="font-size:12px;color:var(--ap-muted);margin-top:4px;">${stock > 0 ? (stock <= 5 ? `${stock} left` : "In stock") : "Out of stock"}</div>
+          ${meta.label ? `<div class="ap-variant-meta" style="font-size:12px;color:var(--ap-green);margin-top:4px;">${esc(meta.label)}</div>` : ""}
+          ${thumb ? `<div style="margin-top:10px;border:1px solid var(--ap-border);border-radius:12px;overflow:hidden;aspect-ratio:1/1;"><img src="${esc(thumb)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>` : ""}
+        </button>
+      `;
+    }).join("");
+  }
+
+  function syncVariantButtons() {
+    if (!el.variants) return;
+    const current = String(state.currentVariantId);
+    el.variants.querySelectorAll(".ap-variant").forEach((btn) => {
+      btn.classList.toggle("is-active", String(btn.dataset.variantId) === current);
+    });
+  }
+
+  function syncPurchaseControls() {
+    const v = currentVariant();
+    if (!v) return;
+
+    const qty = getCartQty(v.id);
+    const stock = getStock(v.id) || toNum(v.stock ?? 0, 0);
+
+    const addBtns = [el.addCartBtn, el.addCartBtnAside, el.addCartBtnMobile].filter(Boolean);
+    const qtyBlocks = [el.qtyControls, el.qtyControlsAside, el.qtyControlsMobile].filter(Boolean);
+    const qtyCountNodes = [el.qtyCount, el.qtyCountAside, el.qtyCountMobile].filter(Boolean);
+    const minusNodes = [el.qtyMinus, el.qtyMinusAside, el.qtyMinusMobile].filter(Boolean);
+    const plusNodes = [el.qtyPlus, el.qtyPlusAside, el.qtyPlusMobile].filter(Boolean);
+
+    qtyCountNodes.forEach((node) => { node.textContent = String(qty); });
+
+    minusNodes.forEach((node) => {
+      node.disabled = qty <= 0;
+      node.setAttribute("aria-label", qty <= 1 ? "Remove item" : "Decrease quantity");
+    });
+
+    plusNodes.forEach((node) => {
+      node.disabled = stock <= 0;
+    });
+
+    addBtns.forEach((btn) => btn.classList.toggle("ap-hidden", qty > 0));
+    qtyBlocks.forEach((block) => block.classList.toggle("ap-hidden", qty <= 0));
+  }
+
+  function renderVariant(variant) {
+    if (!variant) return;
+    const v = normalizeVariantFromAny(variant);
+    if (!v) return;
+
+    state.currentVariantId = String(v.id);
+    syncStockFromVariant(v);
+
+    const title = v.name || v.variant_name || v.display_name || "Product Details";
+    const images = Array.isArray(v.images) && v.images.length ? v.images : normalizeMediaList(v);
+    const primary = images[0] || normalizeImageSrc(v.image || v.product?.main_image || "");
+
+    if (el.mainImage) {
+      el.mainImage.src = primary;
+      el.mainImage.alt = title;
+    }
+
+    renderThumbs(images.length ? images : [primary], title);
+
+    setText(el.title, title);
+    setText(el.brand, v.brand || v.product?.brand || "Product");
+    setText(el.brandText, v.brand || v.product?.brand || "—");
+    setText(el.stockText, String(toNum(v.stock ?? 0, 0)));
+    setText(el.description, v.product?.short_description || v.product?.description || "No description available.");
+
+    const stock = toNum(v.stock ?? 0, 0);
+    if (el.stockBadge) {
+      el.stockBadge.textContent = stock > 0 ? "In Stock" : "Out of Stock";
+      el.stockBadge.className = `ap-badge ${stock > 0 ? "success" : "danger"}`;
+    }
+
+    const meta = computeDiscountMeta(v);
+    if (el.discountBadge) {
+      el.discountBadge.textContent = meta.label || "";
+      el.discountBadge.classList.toggle("ap-hidden", !meta.label);
+    }
+
+    const finalPrice = toNum(v.final_price ?? v.price ?? 0, 0);
+    const originalPrice = toNum(v.original_price ?? v.price ?? 0, 0);
+    const saveValue = originalPrice > finalPrice ? (originalPrice - finalPrice) : 0;
+
+    [el.finalPrice, el.finalPriceAside].filter(Boolean).forEach((node) => {
+      node.textContent = `AED ${finalPrice.toFixed(2)}`;
+    });
+
+    [el.originalPrice, el.originalPriceAside].filter(Boolean).forEach((node) => {
+      if (originalPrice > finalPrice) {
+        node.textContent = `AED ${originalPrice.toFixed(2)}`;
+        node.classList.remove("ap-hidden");
+      } else {
+        node.classList.add("ap-hidden");
+      }
+    });
+
+    if (el.saveAmount) {
+      if (meta.label) {
+        el.saveAmount.textContent = meta.label;
+        el.saveAmount.classList.remove("ap-hidden");
+      } else if (saveValue > 0) {
+        el.saveAmount.textContent = `Save AED ${saveValue.toFixed(2)}`;
+        el.saveAmount.classList.remove("ap-hidden");
+      } else {
+        el.saveAmount.classList.add("ap-hidden");
+      }
+    }
+
+    if (el.priceNote) el.priceNote.textContent = v.vat_included ? "Includes VAT" : "Excludes VAT";
+    if (el.priceNoteAside) el.priceNoteAside.textContent = v.vat_included ? "Includes VAT" : "Excludes VAT";
+
+    const productMap = {
+      name: v.product?.name || v.product_name || "",
+      brand: v.brand || v.product?.brand || "",
+      short_description: v.product?.short_description || v.short_description || "",
+      description: v.product?.description || v.product_description || "",
+      key_features: v.product?.key_features || v.key_features || v.bullets || ""
+    };
+
+    Object.entries(productMap).forEach(([key, value]) => {
+      const node = document.querySelector(`[data-product-field="${CSS.escape(key)}"]`);
+      if (node) node.textContent = value || "—";
+    });
+
+    const dims = dimensionRows(v);
+    ["length", "width", "height", "weight"].forEach((key) => {
+      const node = document.querySelector(`[data-variant-field="${CSS.escape(key)}"]`);
+      if (node) {
+        const row = dims.find((r) => r.key === key);
+        node.textContent = row ? row.value : "—";
+      }
+    });
+
+    updateVariantUrl(v.id);
+    syncVariantButtons();
+    syncPurchaseControls();
+
+    const isFav = !!state.wishlist[String(v.id)] || !!v.is_fav;
+    [el.wishlistBtn, el.wishlistBtnAside, el.wishlistBtnMobile].filter(Boolean).forEach((btn) => {
+      btn.classList.toggle("is-fav", isFav);
+      const label = btn.id === "pd-wishlist-btn-mobile" ? "Wishlist" : (isFav ? "In Wishlist" : "");
+      btn.innerHTML = `<i class="fa fa-heart" aria-hidden="true"></i> `;
+    });
+  }
+
+  function updateVariantUrl(variantId) {
+    if (!PRODUCT_ID || !variantId) return;
+    const next = `/customer/product/product-details/${PRODUCT_ID}/${variantId}`;
+    try { history.replaceState({}, "", next); } catch (_) {}
+  }
+
+  function buildCartPayloadVariantOnly(variantId, quantity = 1) {
+    return { variant_id: Number(variantId), quantity: Number(quantity || 1) };
+  }
+
+  function normalizeCartRow(row) {
+    if (!row || typeof row !== "object") return null;
+    let vid = row.variant_id ?? row.variantId ?? row.vid ?? row.variant ?? null;
+    if (vid == null && typeof row.cart_key === "string" && row.cart_key.length) {
+      const m = row.cart_key.match(/(\d+)/);
+      if (m) vid = Number(m[1]);
+    }
+    const vidNum = (vid == null || vid === "" || Number.isNaN(Number(vid))) ? null : Number(vid);
+    if (vidNum == null) return null;
+    const qty = Number(row.quantity ?? row.qty ?? row.in_cart_qty ?? row.qty_in_cart ?? 0) || 0;
+    return { vidN: vidNum, qty };
+  }
+
+  async function fetchCartMap() {
+    try {
+      const json = await apiFetch(API.cartGet, "GET", null);
+      let arr = [];
+      if (Array.isArray(json?.data)) arr = json.data;
+      else if (Array.isArray(json)) arr = json;
+      else if (Array.isArray(json?.items)) arr = json.items;
+      else if (Array.isArray(json?.cart)) arr = json.cart;
+      else if (json && typeof json === "object" && json.data && !Array.isArray(json.data) && typeof json.data === "object") arr = [json.data];
+
+      state.cart.clear();
+      for (const row of arr) {
+        const n = normalizeCartRow(row);
+        if (!n || n.vidN == null) continue;
+        state.cart.set(`v:${n.vidN}`, Number(n.qty || 0));
+      }
+      syncPurchaseControls();
+      return state.cart;
+    } catch (err) {
+      console.warn("fetchCartMap failed", err);
+      return state.cart;
+    }
+  }
+
+  async function fetchWishlistMap() {
+    try {
+      const json = await apiFetch(API.wishlistGet, "GET", null);
+      for (const k of Object.keys(state.wishlist)) delete state.wishlist[k];
+      if (json?.success && Array.isArray(json.data)) {
+        for (const vid of json.data) state.wishlist[String(vid)] = true;
+      }
+      renderVariant(currentVariant());
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  async function refreshProductDetailFromServer() {
+    try {
+      const json = await apiFetch(API.detail, "GET", null);
+      const payload = json?.data || json || {};
+      const serverProduct = payload.product || {};
+      const serverVariants = Array.isArray(payload.variants) ? payload.variants : [];
+      const serverSelected = payload.selectedVariant || serverVariants[0] || null;
+
+      if (serverProduct && typeof serverProduct === "object") state.product = serverProduct;
+
+      if (serverVariants.length) {
+        state.variants = serverVariants.map((v) => normalizeVariantFromAny(v)).filter(Boolean);
+      } else if (serverSelected) {
+        state.variants = [normalizeVariantFromAny(serverSelected)].filter(Boolean);
+      }
+
+      renderVariantCards();
+
+      const found =
+        getVariantById(payload.selectedVariant?.id || state.currentVariantId) ||
+        getVariantById(INITIAL_VARIANT_ID) ||
+        state.variants[0];
+
+      if (found) renderVariant(found);
+      else if (serverSelected) renderVariant(serverSelected);
+
+      await Promise.all([fetchCartMap(), fetchWishlistMap()]);
+    } catch (err) {
+      console.warn("refreshProductDetailFromServer failed", err);
+    }
+  }
+
+  async function toggleWishlist(variantId) {
+    if (!variantId) return;
+
+    const wasFav = !!state.wishlist[String(variantId)];
+    if (wasFav) delete state.wishlist[String(variantId)];
+    else state.wishlist[String(variantId)] = true;
+
+    renderVariant(currentVariant());
+    setBusy(el.wishlistBtn, true);
+    setBusy(el.wishlistBtnAside, true);
+    setBusy(el.wishlistBtnMobile, true);
+
+    try {
+      const json = await apiFetch(API.wishlistToggle, "POST", { variant_id: Number(variantId) });
+
+      let serverIsFav = null;
+      if (json?.is_fav !== undefined) serverIsFav = !!json.is_fav;
+      else if (json?.action) serverIsFav = json.action === "added";
+
+      if (serverIsFav !== null) {
+        if (serverIsFav) state.wishlist[String(variantId)] = true;
+        else delete state.wishlist[String(variantId)];
+      }
+
+      renderVariant(currentVariant());
+    } catch (err) {
+      if (wasFav) state.wishlist[String(variantId)] = true;
+      else delete state.wishlist[String(variantId)];
+      renderVariant(currentVariant());
+      showInlineError(err?.body?.message || err.message || "Wishlist update failed", 3500);
+    } finally {
+      setBusy(el.wishlistBtn, false);
+      setBusy(el.wishlistBtnAside, false);
+      setBusy(el.wishlistBtnMobile, false);
+    }
+  }
+
+  async function updateCartQtyVariant(variantId, newQty) {
+    if (!variantId) return;
+
+    let qty = Number(newQty);
+    if (Number.isNaN(qty)) return;
+    if (qty < 0) qty = 0;
+
+    const key = `v:${String(variantId)}`;
+    const stock = getStock(variantId);
+    if (qty > stock) {
+      showInlineError(`Not enough stock. Available: ${stock}`, 3500);
+      return;
+    }
+
+    try {
+      state.cart.set(key, qty);
+      syncPurchaseControls();
+      await apiFetch(API.cartUpdate, "POST", buildCartPayloadVariantOnly(variantId, qty));
+      await fetchCartMap();
+      syncPurchaseControls();
+    } catch (err) {
+      await fetchCartMap().catch(() => {});
+      syncPurchaseControls();
+      showInlineError(err?.body?.message || err.message || "Failed to update quantity", 4500);
+      throw err;
+    }
+  }
+
+  async function addToCartVariant(variantId) {
+    if (!variantId) return;
+    const key = `v:${String(variantId)}`;
+    const v = getVariantById(variantId) || currentVariant();
+    const stock = getStock(variantId) || toNum(v?.stock ?? 0, 0);
+    const currentQty = Number(state.cart.get(key) ?? 0);
+
+    if (stock <= 0) {
+      showInlineError("Out of stock", 3500);
+      return;
+    }
+    if (currentQty + 1 > stock) {
+      showInlineError(`Not enough stock. Available: ${stock}`, 3500);
+      return;
+    }
+
+    try {
+      clearInlineError();
+      state.cart.set(key, currentQty + 1);
+      syncPurchaseControls();
+      await apiFetch(API.cartAdd, "POST", buildCartPayloadVariantOnly(variantId, 1));
+      await fetchCartMap();
+      syncPurchaseControls();
+    } catch (err) {
+      await fetchCartMap().catch(() => {});
+      syncPurchaseControls();
+      showInlineError(err?.body?.message || err.message || "Failed to Add", 4500);
+      throw err;
+    }
+  }
+
+  async function removeFromCartVariant(variantId) {
+    if (!variantId) return;
+    const key = `v:${String(variantId)}`;
+
+    try {
+      state.cart.set(key, 0);
+      syncPurchaseControls();
+      await apiFetch(API.cartRemove, "POST", { variant_id: Number(variantId) });
+      await fetchCartMap();
+      syncPurchaseControls();
+    } catch (err) {
+      await fetchCartMap().catch(() => {});
+      syncPurchaseControls();
+      showInlineError(err?.body?.message || err.message || "Failed to remove item", 4500);
+      throw err;
+    }
+  }
+
+  function bindThumbs() {
+    if (!el.thumbs) return;
+    el.thumbs.addEventListener("click", (e) => {
+      const btn = e.target.closest(".ap-thumb");
+      if (!btn) return;
+      const img = btn.dataset.image;
+      if (!img || !el.mainImage) return;
+      state.imageIndex = Array.from(el.thumbs.querySelectorAll(".ap-thumb")).findIndex((n) => n === btn);
+      el.mainImage.src = img;
+      syncThumbActive();
+    });
+  }
+
+  function bindImageNavigation() {
+    if (el.prevImage) {
+      el.prevImage.addEventListener("click", () => {
+        setMainImageByIndex(state.imageIndex - 1);
+      });
+    }
+    if (el.nextImage) {
+      el.nextImage.addEventListener("click", () => {
+        setMainImageByIndex(state.imageIndex + 1);
+      });
+    }
+  }
+
+  function bindVariantSelector() {
+    if (!el.variants) return;
+    el.variants.addEventListener("click", (e) => {
+      const btn = e.target.closest(".ap-variant");
+      if (!btn) return;
+
+      const json = btn.dataset.variantJson;
+      let found = null;
+
+      if (json) {
+        try {
+          found = JSON.parse(decodeURIComponent(json));
+        } catch (_) {
+          found = getVariantById(btn.dataset.variantId);
+        }
+      } else {
+        found = getVariantById(btn.dataset.variantId);
+      }
+
+      if (!found) return;
+      renderVariant(found);
+    });
+  }
+
+  function bindQtyControls() {
+    const minusButtons = [el.qtyMinus, el.qtyMinusAside, el.qtyMinusMobile].filter(Boolean);
+    const plusButtons = [el.qtyPlus, el.qtyPlusAside, el.qtyPlusMobile].filter(Boolean);
+
+    minusButtons.forEach((btn) => btn.addEventListener("click", async () => {
+      const v = currentVariant();
+      if (!v) return;
+
+      const currentQty = getCartQty(v.id);
+      if (currentQty <= 1) {
+        setBusy(el.qtyMinus, true);
+        setBusy(el.qtyMinusAside, true);
+        setBusy(el.qtyMinusMobile, true);
+        try {
+          await removeFromCartVariant(v.id);
+        } finally {
+          setBusy(el.qtyMinus, false);
+          setBusy(el.qtyMinusAside, false);
+          setBusy(el.qtyMinusMobile, false);
+        }
+      } else {
+        setBusy(el.qtyMinus, true);
+        setBusy(el.qtyMinusAside, true);
+        setBusy(el.qtyMinusMobile, true);
+        try {
+          await updateCartQtyVariant(v.id, currentQty - 1);
+        } finally {
+          setBusy(el.qtyMinus, false);
+          setBusy(el.qtyMinusAside, false);
+          setBusy(el.qtyMinusMobile, false);
+        }
+      }
+    }));
+
+    plusButtons.forEach((btn) => btn.addEventListener("click", async () => {
+      const v = currentVariant();
+      if (!v) return;
+
+      const currentQty = getCartQty(v.id);
+      setBusy(el.qtyPlus, true);
+      setBusy(el.qtyPlusAside, true);
+      setBusy(el.qtyPlusMobile, true);
+
+      try {
+        await updateCartQtyVariant(v.id, currentQty + 1);
+      } finally {
+        setBusy(el.qtyPlus, false);
+        setBusy(el.qtyPlusAside, false);
+        setBusy(el.qtyPlusMobile, false);
+      }
+    }));
+  }
+
+  function bindAddCartButtons() {
+    [el.addCartBtn, el.addCartBtnAside, el.addCartBtnMobile].filter(Boolean).forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const v = currentVariant();
+        if (!v) return;
+        await addToCartVariant(v.id);
+      });
+    });
+  }
+
+  function bindWishlistButtons() {
+    [el.wishlistBtn, el.wishlistBtnAside, el.wishlistBtnMobile].filter(Boolean).forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const v = currentVariant();
+        if (!v) return;
+        await toggleWishlist(v.id);
+      });
+    });
+  }
+
+  function bindCardActions() {
+    document.addEventListener("click", (e) => {
+      const addBtn = e.target.closest(".ap-card-add-cart");
+      if (addBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const vid = addBtn.dataset.variantId;
+        if (vid) addToCartVariant(vid);
+        return;
+      }
+
+      const favBtn = e.target.closest(".ap-card-fav");
+      if (favBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        const vid = favBtn.dataset.variantId;
+        if (vid) toggleWishlist(vid);
+      }
+    });
+  }
+
+  function bindCarousels() {
+    document.querySelectorAll(".ap-carousel-shell").forEach((shell) => {
+      const track = shell.querySelector(".ap-carousel-track");
+      const prev = shell.querySelector(".ap-carousel-prev");
+      const next = shell.querySelector(".ap-carousel-next");
+      if (!track) return;
+
+      const step = () => Math.max(240, Math.round(track.clientWidth * 0.86));
+
+      if (prev) prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
+      if (next) next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+    });
+  }
+
+  function init() {
+    state.variants = (state.variants || []).map((v) => normalizeVariantFromAny(v)).filter(Boolean);
+
+    const found = getVariantById(state.currentVariantId) || getVariantById(INITIAL_VARIANT_ID) || state.variants[0];
+    if (found) renderVariant(found);
+
+    renderVariantCards();
+    bindThumbs();
+    bindImageNavigation();
+    bindVariantSelector();
+    bindQtyControls();
+    bindAddCartButtons();
+    bindWishlistButtons();
+    bindCardActions();
+    bindCarousels();
+
+    Promise.all([fetchCartMap(), fetchWishlistMap()]).then(() => {
+      if (found) renderVariant(found);
+      refreshProductDetailFromServer();
+    });
+  }
+
+  window.__productDetailDiag = {
+    refresh: async () => {
+      await Promise.all([fetchCartMap(), fetchWishlistMap(), refreshProductDetailFromServer()]);
+    },
+    cart: state.cart,
+    stock: state.stock,
+    wishlist: state.wishlist,
+    variants: state.variants
+  };
+
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>  <div class="container my-4">
+      <style>
+        :root {
+  --card-bg: #ffffff;
+  --muted: #6c757d;
+  --accent: #0d6efd;
+  --success: #fed700;
+  --danger: #dc3545;
+  --surface: #fafafa;
+  --shadow: 0 10px 30px rgba(12, 15, 20, 0.06);
+}
+
+/* =========================
+   SECTION HEADER
+========================= */
+
+.section-title {
+  font-weight: 700;
+  font-size: 18px;
+  color: #111;
+  margin: 0;
+}
+
+.header-row {
+  gap: 12px;
+  align-items: center;
+}
+
+.swipe-hint {
+  display: none;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  align-items: center;
+  user-select: none;
+}
+
+.swipe-hint i {
+  font-size: 14px;
+}
+
+/* =========================
+   PRODUCT CARD
+========================= */
+
+.single-product-compact {
+  background: var(--card-bg);
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+  color: #111;
+  will-change: transform;
+}
+
+.single-product-compact:hover {
+  transform: translateY(-4px);
+  border-color: rgba(13, 110, 253, 0.2);
+}
+
+.single-product-compact:active {
+  transform: scale(0.98);
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.compact-image {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.compact-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.single-product-compact:hover .compact-image img {
+  transform: scale(1.08);
+}
+
+/* =========================
+   BADGES
+========================= */
+
+.badges {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+}
+
+.badge-green {
+  background: var(--success);
+  color: #fff;
+  padding: 4px 7px;
+  font-size: 11px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.badge-red {
+  background: var(--danger);
+  color: #fff;
+  padding: 4px 7px;
+  font-size: 11px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+/* =========================
+   TEXT
+========================= */
+
+.prod-title {
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  max-height: 2.6em;
+  overflow: hidden;
+}
+
+/* =========================
+   PRICE
+========================= */
+
+.price-line {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin: 6px 0;
+}
+
+.price-current {
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.price-old {
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.saved-small {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.price-note {
+  font-size: 11px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.price-note.vat {
+  background: #e9f7ee;
+  color: var(--success);
+}
+
+.price-note.no-vat {
+  background: #fff0f0;
+  color: var(--danger);
+}
+
+/* =========================
+   STOCK
+========================= */
+
+.stock-line {
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+.stock-available {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.stock-limited {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.stock-out {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.product-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+  justify-content: space-between;
+}
+
+.btn-cart,
+.btn-fav,
+.btn-select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  border: 0;
+  transition: all 0.2s ease;
+}
+
+/* Cart */
+.btn-cart {
+  background: var(--success);
+  color: #282828;
+  flex: 1;
+}
+
+.btn-cart:hover {
+  background: #fed700;
+}
+
+.btn-cart[disabled] {
+  background: #e9e9e9;
+  color: #8a8a8a;
+  cursor: not-allowed;
+}
+
+/* Wishlist */
+.btn-fav {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+.btn-fav:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-fav.is-fav {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+.btn-fav.is-fav:hover {
+  background: #bb2d3b;
+}
+
+/* Select */
+.btn-select {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* =========================
+   QUANTITY
+========================= */
+
+.qty-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e8e8e8;
+  padding: 4px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.qty-controls button {
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.qty-count {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 700;
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.relevant-nav-btn {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* =========================
+   CAROUSEL
+========================= */
+
+.owl-stage-outer {
+  overflow: visible;
+  padding-bottom: 8px;
+}
+
+.owl-dots {
+  display: none;
+}
+
+/* =========================
+   SECTION WRAPPER
+========================= */
+
+.relevant-products-section {
+  position: relative;
+}
+
+/* =========================
+   SKELETON LOADER
+========================= */
+
+.skeleton-card {
+  background: #f3f3f3;
+  border-radius: 12px;
+  height: 180px;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 576px) {
+  .compact-image { height: 92px; }
+  .single-product-compact { padding: 8px; }
+  .price-current { font-size: 12px; }
+
+  .relevant-nav { display: none !important; }
+
+  .swipe-hint {
+    display: flex;
+    animation: fadeHint 3s ease-in-out 2;
+  }
+
+  .swipe-hint i {
+    animation: swipeArrow 1.2s infinite;
+  }
+
+  @keyframes swipeArrow {
+    0% { transform: translateX(0); opacity: .4 }
+    50% { transform: translateX(6px); opacity: 1 }
+    100% { transform: translateX(0); opacity: .4 }
+  }
+
+  @keyframes fadeHint {
+    0% { opacity: 0 }
+    20% { opacity: 1 }
+    80% { opacity: 1 }
+    100% { opacity: 0 }
+  }
+}
+
+@media (min-width: 577px) and (max-width: 991px) {
+  .compact-image { height: 110px; }
+}
+
+@media (min-width: 992px) {
+  .compact-image { height: 120px; }
+}
+      </style>
+        <section class="relevant-products-section">
+          <div class="d-flex align-items-center justify-content-between mb-2 header-row">
+
+            <h5 class="mb-0 section-title">Relevant Products</h5>
+
+            <div class="relevant-nav" aria-hidden="true">
+              <button id="relevant-prev" class="relevant-nav-btn" aria-label="Previous">
+                <i class="fa fa-chevron-left"></i>
+              </button>
+              <button id="relevant-next" class="relevant-nav-btn" aria-label="Next">
+                <i class="fa fa-chevron-right"></i>
+              </button>
+            </div>
+
+            <div class="swipe-hint" aria-hidden="true">
+              <span>Swipe to see more</span>
+              <i class="fa fa-arrow-right"></i>
+            </div>
+          </div>
+
+          <div id="relevant-products-container" class="relevant-product-active owl-carousel owl-theme"
+            aria-live="polite"></div>
+        </section>
+        <script>
+          (function () {
+            "use strict";
+
+            /* --------------------------------------------------------------------------
+               CONFIG
+            -------------------------------------------------------------------------- */
+            const CONTAINER_ID = "relevant-products-container";
+            const PREV_BTN_ID = "relevant-prev";
+            const NEXT_BTN_ID = "relevant-next";
+
+            const CONTAINER = document.getElementById(CONTAINER_ID);
+            const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || null;
+            const GUEST_KEY = "guest_wishlist_token";
+            const CURRENT_PRODUCT_ID = document.body.dataset.productId;
+
+            const API = {
+              cartGet: "/customer/cart/api",
+              cartAdd: "/customer/cart/add",
+              cartUpdate: "/customer/cart/update",
+              cartRemove: "/customer/cart/remove",
+
+              recent: `/customer/product/product-detail/api/${CURRENT_PRODUCT_ID}`,
+              wishlistToggle: "/wishlist/toggle",
+              wishlistGet: "/wishlist"
+            };
+
+            const REQUEST_TIMEOUT = 15000;
+            const REFRESH_DEBOUNCE_MS = 250;
+            const MIN_LOOP_ITEMS = 6;
+
+            if (!CONTAINER) {
+              console.warn("relevant-products: container not found:", CONTAINER_ID);
+              return;
+            }
+
+            /* --------------------------------------------------------------------------
+               STATE
+            -------------------------------------------------------------------------- */
+            const cartData = new Map(); // key: v:<variantId> -> qty
+            const stockMap = new Map(); // key: variantId -> stock
+            const wishlistMap = Object.create(null); // key: variantId -> true
+            const requestLocks = new Map();
+
+            let lastFetchedProducts = [];
+            let socketRefreshTimer = null;
+
+            window.variantToMasterMap = window.variantToMasterMap || Object.create(null);
+
+            /* --------------------------------------------------------------------------
+               HELPERS
+            -------------------------------------------------------------------------- */
+            const escapeHtml = (v) => {
+              if (v == null) return "";
+              return String(v)
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#39;");
+            };
+
+            const toInt = (v, d = 0) => {
+              const n = parseInt(String(v ?? ""), 10);
+              return Number.isFinite(n) ? n : d;
+            };
+
+            const toNum = (v, d = 0) => {
+              const n = Number(v);
+              return Number.isFinite(n) ? n : d;
+            };
+
+            const debounce = (fn, ms) => {
+              let t = null;
+              return (...args) => {
+                if (t) clearTimeout(t);
+                t = setTimeout(() => fn(...args), ms);
+              };
+            };
+
+            const isVatIncludedFlag = (v) => {
+              if (v === true || v === 1) return true;
+              if (v === false || v === 0) return false;
+              if (typeof v === "string") {
+                const s = v.trim().toLowerCase();
+                return s === "true" || s === "t" || s === "1" || s === "yes";
+              }
+              return false;
+            };
+
+            const normalizeImageSrc = (value) => {
+              if (!value) return "/assets/img/default-product.jpg";
+              const str = String(value).trim();
+
+              if (/^https?:\/\//i.test(str) || str.startsWith("/") || str.startsWith("data:")) {
+                return str;
+              }
+
+              return `/uploads/products/${str}`;
+            };
+
+            const getGuestToken = (() => {
+              try {
+                const existing = localStorage.getItem(GUEST_KEY);
+                if (existing) return existing;
+                const token = "guest_" + Math.random().toString(36).slice(2, 12);
+                localStorage.setItem(GUEST_KEY, token);
+                return token;
+              } catch (_) {
+                return "guest_" + Math.random().toString(36).slice(2, 12);
+              }
+            })();
+
+            /* --------------------------------------------------------------------------
+               DIAGNOSTICS
+            -------------------------------------------------------------------------- */
+            function showDiagBanner(title, message, details = {}) {
+              try {
+                let banner = document.getElementById("rp-diag-banner");
+                if (!banner) {
+                  banner = document.createElement("div");
+                  banner.id = "rp-diag-banner";
+                  banner.style.cssText = [
+                    "background:#fff4e5",
+                    "color:#6a3b00",
+                    "padding:10px 12px",
+                    "border-radius:8px",
+                    "margin-bottom:10px",
+                    "font-size:13px",
+                    "border:1px solid #f0c27a"
+                  ].join(";");
+                  CONTAINER.parentNode?.insertBefore(banner, CONTAINER);
+                }
+
+                banner.innerHTML = `
+                <div style="font-weight:700">${escapeHtml(title)}</div>
+                <div style="margin-top:6px">${escapeHtml(message)}</div>
+                <details style="margin-top:8px">
+                    <summary>Details</summary>
+                    <pre style="white-space:pre-wrap;margin-top:6px;font-size:12px">${escapeHtml(JSON.stringify(details, null, 2))}</pre>
+                </details>
+            `;
+
+                setTimeout(() => {
+                  try { banner.remove(); } catch (_) { }
+                }, 30000);
+              } catch (err) {
+                console.warn("showDiagBanner failed", err);
+              }
+            }
+
+            function clearDiagBanner() {
+              const banner = document.getElementById("rp-diag-banner");
+              if (banner) banner.remove();
+            }
+
+            function showInlineError(key, message, timeout = 4500, cardId = null) {
+              try {
+                const item = findItemElement(key, cardId);
+                if (!item) return;
+
+                let errEl = item.querySelector(".recent-inline-error");
+                if (!errEl) {
+                  errEl = document.createElement("div");
+                  errEl.className = "recent-inline-error";
+                  errEl.setAttribute("role", "status");
+                  errEl.style.cssText = "color:#b00020;font-size:12px;margin-top:6px";
+
+                  const actions = item.querySelector(".product-actions");
+                  if (actions) actions.insertAdjacentElement("afterend", errEl);
+                  else item.appendChild(errEl);
+                }
+
+                errEl.textContent = message;
+
+                if (timeout > 0) {
+                  setTimeout(() => {
+                    if (errEl && errEl.parentNode) errEl.parentNode.removeChild(errEl);
+                  }, timeout);
+                }
+              } catch (err) {
+                console.warn("showInlineError failed", err);
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               NETWORK
+            -------------------------------------------------------------------------- */
+            async function apiFetch(url, method = "GET", body = null, timeout = REQUEST_TIMEOUT) {
+              const headers = {};
+
+              if (getGuestToken) headers["x-guest-token"] = getGuestToken;
+
+              if (method !== "GET") {
+                headers["Content-Type"] = "application/json";
+                if (CSRF) headers["x-csrf-token"] = CSRF;
+              }
+
+              const controller = new AbortController();
+              const timer = setTimeout(() => controller.abort(), timeout);
+
+              const init = {
+                method,
+                headers,
+                credentials: "same-origin",
+                signal: controller.signal
+              };
+
+              if (method !== "GET" && body != null) {
+                init.body = JSON.stringify(body);
+              }
+
+              try {
+                const res = await fetch(url, init);
+                clearTimeout(timer);
+
+                if (res.status === 204) return null;
+
+                let json = null;
+                try { json = await res.json(); } catch (_) { }
+
+                if (!res.ok) {
+                  const msg = (json && json.message) ? `${res.status} ${json.message}` : `HTTP ${res.status}`;
+                  const err = new Error(msg);
+                  err.status = res.status;
+                  err.body = json;
+                  throw err;
+                }
+
+                if (json && typeof json === "object" && ("success" in json) && json.success === false) {
+                  const err = new Error(json.message || "Server rejected request");
+                  err.status = res.status;
+                  err.body = json;
+                  throw err;
+                }
+
+                return json;
+              } catch (err) {
+                if (err.name === "AbortError") throw new Error("Request timeout");
+                throw err;
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               CART / WISHLIST KEYS
+            -------------------------------------------------------------------------- */
+            function keyFor(variantId) {
+              return `v:${String(variantId)}`;
+            }
+
+            function parseKey(key) {
+              const s = String(key || "");
+              if (!s.startsWith("v:")) return { variant: Number(s) || 0 };
+              return { variant: Number(s.slice(2) || 0) };
+            }
+
+            function lockKey(action, key) {
+              return `${action}:${key}`;
+            }
+
+            async function withLock(action, key, fn) {
+              const k = lockKey(action, key);
+              if (requestLocks.has(k)) return requestLocks.get(k);
+
+              const p = (async () => {
+                try {
+                  return await fn();
+                } finally {
+                  requestLocks.delete(k);
+                }
+              })();
+
+              requestLocks.set(k, p);
+              return p;
+            }
+
+            /* --------------------------------------------------------------------------
+               STOCK
+            -------------------------------------------------------------------------- */
+            function setStock(variantId, stockNum) {
+              if (variantId == null) return;
+              stockMap.set(String(variantId), Number(stockNum || 0));
+            }
+
+            function getStock(variantId) {
+              if (variantId == null && variantId !== 0) return 0;
+              const idStr = String(variantId);
+              if (stockMap.has(idStr)) return Number(stockMap.get(idStr) ?? 0);
+              return 0;
+            }
+
+            /* --------------------------------------------------------------------------
+               DOM HELPERS
+            -------------------------------------------------------------------------- */
+            function findItemElement(variantIdOrCardId, cardId = null) {
+              try {
+                if (cardId) {
+                  return CONTAINER.querySelector(`.item[data-card-id="${escapeHtml(String(cardId))}"]`);
+                }
+
+                const byCard = CONTAINER.querySelector(`.item[data-card-id="${escapeHtml(String(variantIdOrCardId))}"]`);
+                if (byCard) return byCard;
+
+                const byVariant = CONTAINER.querySelector(`.item[data-variant-id="${escapeHtml(String(variantIdOrCardId))}"]`);
+                if (byVariant) return byVariant;
+
+                return CONTAINER.querySelector(`.item[data-product-id="${escapeHtml(String(variantIdOrCardId))}"]`);
+              } catch (_) {
+                return null;
+              }
+            }
+
+            function extractVariantIdFromEl(el) {
+              if (!el) return null;
+
+              const parse = (raw) => {
+                if (raw == null) return null;
+                const n = Number(raw);
+                return Number.isFinite(n) ? n : null;
+              };
+
+              const candidates = [];
+
+              try {
+                const ds = el.dataset ?? {};
+                candidates.push(ds.variantId ?? ds.variant_id ?? ds.cardId ?? ds.card_id ?? null);
+
+                if (el.getAttribute) {
+                  candidates.push(el.getAttribute("data-variant-id"));
+                  candidates.push(el.getAttribute("data-card-id"));
+                }
+
+                const item = el.closest && el.closest(".item, .variant-item");
+                if (item) {
+                  candidates.push(item.dataset?.variantId ?? item.getAttribute("data-variant-id"));
+                }
+
+                const qtyControls = el.closest && el.closest(".qty-controls");
+                if (qtyControls) {
+                  candidates.push(
+                    qtyControls.dataset?.variantId ??
+                    qtyControls.getAttribute("data-variant-id") ??
+                    qtyControls.getAttribute("data-card-id")
+                  );
+                }
+              } catch (_) { }
+
+              for (const c of candidates) {
+                const v = parse(c);
+                if (v) return v;
+              }
+
+              return null;
+            }
+
+            function getCartQtyByVariant(variantId) {
+              if (variantId == null) return 0;
+              return Number(cartData.get(keyFor(variantId)) ?? 0);
+            }
+
+            /* --------------------------------------------------------------------------
+               CONTROLS
+            -------------------------------------------------------------------------- */
+            function createQtyControls(variantId, qty, cardId) {
+              const wrapper = document.createElement("div");
+              wrapper.className = "qty-controls";
+              wrapper.dataset.variantId = String(variantId);
+              wrapper.dataset.managed = "true";
+              if (cardId != null) wrapper.dataset.cardId = String(cardId);
+
+              const minus = document.createElement("button");
+              minus.className = "qty-minus";
+              if (qty === 1) minus.classList.add("bin");
+              minus.setAttribute("aria-label", qty === 1 ? "Remove item" : "Decrease quantity");
+              minus.dataset.variantId = String(variantId);
+              minus.innerHTML = qty === 1 ? `<i class="fa fa-trash"></i>` : "–";
+
+              const span = document.createElement("span");
+              span.className = "qty-count";
+              span.setAttribute("aria-live", "polite");
+              span.textContent = String(qty);
+
+              const plus = document.createElement("button");
+              plus.className = "qty-plus";
+              plus.setAttribute("aria-label", "Increase quantity");
+              plus.dataset.variantId = String(variantId);
+              plus.textContent = "+";
+
+              wrapper.appendChild(minus);
+              wrapper.appendChild(span);
+              wrapper.appendChild(plus);
+
+              return wrapper;
+            }
+
+            function createAddButton(variantId, cardId, label = "Add") {
+              const btn = document.createElement("button");
+              btn.className = "btn-cart";
+              btn.type = "button";
+              if (variantId != null) btn.dataset.variantId = String(variantId);
+              if (cardId != null) btn.dataset.cardId = String(cardId);
+
+              btn.innerHTML = `
+            <span class="btn-content">
+                <i class="fa fa-shopping-cart" aria-hidden="true"></i> ${escapeHtml(label)}
+            </span>
+            <span class="btn-spinner" style="display:none;margin-left:6px">
+                <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+            </span>
+        `;
+
+              return btn;
+            }
+
+            function syncControlsForElement(itemEl) {
+              if (!itemEl) return;
+
+              const variantId = Number(itemEl.dataset?.variantId ?? itemEl.getAttribute("data-variant-id"));
+              if (!variantId || Number.isNaN(variantId)) return;
+
+              const key = keyFor(variantId);
+              const displayQty = Number(cartData.get(key) ?? 0);
+              const actionsArea = itemEl.querySelector(".product-actions") || itemEl;
+              const existing = actionsArea.querySelector(".qty-controls, .btn-cart");
+
+              if (displayQty > 0) {
+                if (existing?.dataset?.managed === "true" && existing.classList.contains("qty-controls")) {
+                  const cnt = existing.querySelector(".qty-count");
+                  if (cnt) cnt.textContent = String(displayQty);
+
+                  const minusBtn = existing.querySelector(".qty-minus");
+                  if (minusBtn) {
+                    if (displayQty === 1) {
+                      minusBtn.classList.add("bin");
+                      minusBtn.innerHTML = "<i class='fa fa-trash'></i>";
+                      minusBtn.setAttribute("aria-label", "Remove item");
+                    } else {
+                      minusBtn.classList.remove("bin");
+                      minusBtn.textContent = "–";
+                      minusBtn.setAttribute("aria-label", "Decrease quantity");
+                    }
+                  }
+                  return;
+                }
+
+                const newControls = createQtyControls(variantId, displayQty, itemEl.dataset?.cardId ?? null);
+                if (existing) existing.replaceWith(newControls);
+                else actionsArea.appendChild(newControls);
+              } else {
+                const addBtn = createAddButton(variantId, itemEl.dataset?.cardId ?? null);
+                if (existing) existing.replaceWith(addBtn);
+                else actionsArea.appendChild(addBtn);
+              }
+            }
+
+            function syncControlsWithCart() {
+              try {
+                Array.from(CONTAINER.querySelectorAll(".item")).forEach(syncControlsForElement);
+              } catch (err) {
+                console.warn("syncControlsWithCart failed", err);
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               RENDER
+            -------------------------------------------------------------------------- */
+            function buildItemHtml(variant) {
+              const vid = Number(variant.id);
+              const pid = String(variant.product_id ?? variant.productId ?? variant.master_id ?? "");
+              const cardUniqueId = String(vid);
+
+              const name = escapeHtml(variant.variant_name ?? variant.name ?? variant.title ?? "");
+              const img = normalizeImageSrc(variant.image ?? variant.main_image ?? variant.images?.[0] ?? "");
+              const final = Number(variant.final_price ?? variant.price ?? 0);
+              const base = Number(variant.original_price ?? variant.price ?? 0);
+              const discountVal = Number(variant.discount_value ?? 0);
+              const discountPct = Number(variant.discount_percent ?? 0);
+              const priceNote = String(variant.price_note ?? "");
+              const vatIncluded = isVatIncludedFlag(variant.vat_included ?? variant.vatIncluded ?? priceNote);
+              const priceNoteClass = vatIncluded ? "vat" : "no-vat";
+              const vatBadge = vatIncluded ? `<span class="badge-vat" title="Price includes VAT">VAT included</span>` : "";
+              const discountBadge = discountPct > 0
+                ? `<span class="badge-red" title="${escapeHtml(String(discountPct))}% off">${escapeHtml(String(discountPct))}%</span>`
+                : "";
+
+              const priceBlock = `
+            <div class="price-line">
+                <div class="price-current">AED ${final.toFixed(2)}</div>
+                ${discountVal > 0
+                  ? `
+                            <div>
+                                <div class="price-old">AED ${base.toFixed(2)}</div>
+                                <div class="saved-small">(-${discountVal.toFixed(2)} AED)</div>
+                            </div>
+                          `
+                  : ""
+                }
+            </div>
+        `;
+
+              const stock = Number(variant.stock ?? variant.available_stock ?? 0);
+              const productStockHtml =
+                stock <= 0
+                  ? '<div class="stock-line"><span class="stock-out">Out of Stock</span></div>'
+                  : stock <= 5
+                    ? `<div class="stock-line"><span class="stock-limited">${escapeHtml(String(stock))} (Limited)</span></div>`
+                    : `<div class="stock-line"><span class="stock-available">${escapeHtml(String(stock))} available</span></div>`;
+
+              const isFavOnRender =
+                typeof wishlistMap[String(vid)] !== "undefined"
+                  ? !!wishlistMap[String(vid)]
+                  : !!variant.is_fav;
+
+              const favClass = isFavOnRender ? "btn-fav is-fav" : "btn-fav";
+              const favHtml = `
+            <button class="${favClass}"
+                    data-variant-id="${vid}"
+                    aria-pressed="${isFavOnRender ? "true" : "false"}"
+                    title="">
+                <i class="fa fa-heart"></i>
+            </button>
+        `;
+
+              try {
+                setStock(vid, stock);
+                if (pid) window.variantToMasterMap[vid] = Number(pid);
+              } catch (_) { }
+
+              return `
+            <div class="item"
+                 data-variant-id="${escapeHtml(String(vid))}"
+                 data-product-id="${escapeHtml(String(pid))}"
+                 data-card-id="${escapeHtml(cardUniqueId)}">
+
+                <div class="single-product-compact"
+                     data-href="/customer/product/product-details/${pid}/${vid}"
+                     role="group"
+                     aria-labelledby="prod-${escapeHtml(cardUniqueId)}"
+                     tabindex="0"
+                     style="position:relative;">
+
+                    <div style="position:relative;">
+                        <div class="compact-image">
+                            <img src="${img}" alt="${name}" loading="lazy">
+                        </div>
+                        <div class="badges">
+                            <span class="badge-green">New</span>
+                            ${discountBadge}
+                        </div>
+                    </div>
+
+                    <div style="padding:8px 4px;">
+                        <div id="prod-${escapeHtml(cardUniqueId)}" class="prod-title">${name}</div>
+                        ${priceBlock}
+                        <div style="display:flex; justify-content:space-between; align-items:center;" class="small">
+                            ${productStockHtml}
+                            ${priceNote ? `<div class="price-note ${priceNoteClass}">${escapeHtml(priceNote)}</div>` : ""}
+                            ${vatBadge ? `<div class="vat-badge-small">${vatBadge}</div>` : ""}
+                        </div>
+                        <div class="product-actions">${favHtml}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+            }
+
+            function buildHtml(variants) {
+              if (!Array.isArray(variants) || variants.length === 0) {
+                return `
+                <div class="item">
+                    <div class="single-product-compact" style="padding:20px;text-align:center;">
+                        No products available
+                    </div>
+                </div>
+            `;
+              }
+
+              return variants.map(buildItemHtml).join("");
+            }
+
+            function render(variants) {
+              try {
+                CONTAINER.innerHTML = buildHtml(variants);
+                syncControlsWithCart();
+                initOwl();
+              } catch (err) {
+                console.error("render error", err);
+                CONTAINER.innerHTML = `
+                <div class="item">
+                    <div class="single-product-compact" style="padding:20px;text-align:center;">
+                        Rendering error
+                    </div>
+                </div>
+            `;
+                showDiagBanner("Render failed", "Check console for details.", { error: String(err) });
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               CART NORMALIZATION
+            -------------------------------------------------------------------------- */
+            function normalizeCartRow(row) {
+              if (!row || typeof row !== "object") return null;
+
+              let vid = null;
+              vid = (row.variant_id != null) ? row.variant_id
+                : (row.variantId != null) ? row.variantId
+                  : (row.vid != null) ? row.vid
+                    : (row.variant != null) ? row.variant
+                      : null;
+
+              if (vid == null && typeof row.cart_key === "string" && row.cart_key.length) {
+                const m = row.cart_key.match(/(\d+)/);
+                if (m) vid = Number(m[1]);
+              }
+
+              const vidNum = (vid == null || vid === "" || Number.isNaN(Number(vid))) ? null : Number(vid);
+              if (vidNum == null) return null;
+
+              const qty = Number(row.quantity ?? row.qty ?? row.in_cart_qty ?? row.qty_in_cart ?? 0) || 0;
+
+              return { vidN: vidNum, qty };
+            }
+
+            async function fetchCartMap() {
+              try {
+                const json = await apiFetch(API.cartGet, "GET", null);
+
+                let arr = [];
+                if (Array.isArray(json?.data)) arr = json.data;
+                else if (Array.isArray(json)) arr = json;
+                else if (Array.isArray(json?.items)) arr = json.items;
+                else if (Array.isArray(json?.cart)) arr = json.cart;
+                else if (json && typeof json === "object" && json.data && !Array.isArray(json.data) && typeof json.data === "object") arr = [json.data];
+                else arr = [];
+
+                cartData.clear();
+
+                for (const row of arr) {
+                  const n = normalizeCartRow(row);
+                  if (!n || n.vidN == null) continue;
+                  cartData.set(keyFor(n.vidN), Number(n.qty || 0));
+                }
+
+                syncControlsWithCart();
+                return cartData;
+              } catch (err) {
+                console.warn("fetchCartMap failed", err);
+                showDiagBanner("Cart fetch failed", "Unable to fetch cart data. Check console for details.", { error: String(err) });
+                return cartData;
+              }
+            }
+
+            async function fetchRecentProducts(limit = 12) {
+              try {
+                const url = new URL(API.recent, window.location.origin);
+                url.searchParams.set("limit", String(limit));
+
+                const json = await apiFetch(url.toString(), "GET", null);
+                const arr = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+
+                lastFetchedProducts = (arr || []).map((v) => (typeof v === "object" ? v : {}));
+
+                lastFetchedProducts.forEach((v) => {
+                  try {
+                    setStock(Number(v.id), Number(v.stock ?? v.available_stock ?? 0));
+                    if (v.product_id) window.variantToMasterMap[Number(v.id)] = Number(v.product_id);
+                  } catch (_) { }
+                });
+
+                return lastFetchedProducts;
+              } catch (err) {
+                console.error("fetchRecentProducts failed", err);
+                showDiagBanner("Failed to fetch relevant products", "Check console for details.", { error: String(err) });
+                return [];
+              }
+            }
+
+            async function fetchWishlistMap() {
+              try {
+                for (const k of Object.keys(wishlistMap)) delete wishlistMap[k];
+
+                const json = await apiFetch(API.wishlistGet, "GET", null);
+                if (json?.success && Array.isArray(json.data)) {
+                  for (const vid of json.data) wishlistMap[String(vid)] = true;
+                  return true;
+                }
+
+                return false;
+              } catch (_) {
+                return false;
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               PAYLOAD BUILDERS
+            -------------------------------------------------------------------------- */
+            function buildCartPayloadVariantOnly(variantId, quantity = 1) {
+              const payload = {};
+              if (variantId != null && variantId !== undefined) payload.variant_id = Number(variantId);
+              payload.quantity = Number(quantity || 1);
+              return payload;
+            }
+
+            function findVariantForProduct(masterId) {
+              if (!masterId) return null;
+              const pidStr = String(masterId);
+              const found = lastFetchedProducts.find((v) => String(v.product_id ?? v.productId ?? "") === pidStr);
+              return found ? Number(found.id) : null;
+            }
+
+            /* --------------------------------------------------------------------------
+               CART OPERATIONS
+            -------------------------------------------------------------------------- */
+            async function addToCartVariant(sourceEl = null, explicitVariantId = null) {
+              let variantId = null;
+
+              if (explicitVariantId != null && explicitVariantId !== "") {
+                const n = Number(explicitVariantId);
+                if (!Number.isNaN(n)) variantId = n;
+              }
+
+              if (!variantId) variantId = extractVariantIdFromEl(sourceEl);
+
+              const cardEl = sourceEl?.closest?.(".item") ?? (sourceEl && sourceEl.closest ? sourceEl.closest(".item") : null);
+
+              if ((!variantId || variantId == null) && cardEl) {
+                const vidAttr = cardEl.dataset?.variantId ?? cardEl.getAttribute?.("data-variant-id");
+                if (vidAttr) {
+                  const n = Number(vidAttr);
+                  if (!Number.isNaN(n)) variantId = n;
+                }
+              }
+
+              if ((!variantId || variantId == null) && cardEl) {
+                const pid = cardEl.dataset?.productId ?? cardEl.getAttribute?.("data-product-id");
+                if (pid) {
+                  const mem = findVariantForProduct(pid);
+                  if (mem) variantId = mem;
+                }
+              }
+
+              if ((!variantId || variantId == null) && Array.isArray(lastFetchedProducts) && lastFetchedProducts.length) {
+                variantId = Number(lastFetchedProducts[0].id);
+              }
+
+              if (!variantId || Number.isNaN(Number(variantId))) {
+                const details = {
+                  attempted_from_sourceEl: !!sourceEl,
+                  sourceEl_tag: sourceEl?.tagName,
+                  sourceEl_dataset: sourceEl?.dataset ? { ...sourceEl.dataset } : null,
+                  card_dataset: cardEl?.dataset ? { ...cardEl.dataset } : null,
+                  lastFetchedProducts_count: Array.isArray(lastFetchedProducts) ? lastFetchedProducts.length : 0
+                };
+
+                showDiagBanner(
+                  "Variant resolution failed",
+                  "No variant could be resolved from the clicked element or card.",
+                  details
+                );
+
+                console.warn("addToCartVariant: no variant resolved", details);
+                showInlineError(cardEl?.dataset?.productId ?? "product", "No variant selected", 4000, cardEl?.dataset?.cardId ?? null);
+                return;
+              }
+
+              variantId = Number(variantId);
+              const key = keyFor(variantId);
+              const cardId = cardEl?.dataset?.cardId ?? null;
+
+              return withLock("add", key, async () => {
+                try {
+                  clearDiagBanner();
+
+                  const currentQty = Number(cartData.get(key) ?? 0);
+                  const stock = getStock(variantId);
+
+                  if (stock <= 0) {
+                    showInlineError(variantId, "Out of stock", 4000, cardId);
+                    throw new Error("Out of stock");
+                  }
+
+                  if (currentQty + 1 > stock) {
+                    showInlineError(variantId, `Not enough stock. Available: ${stock}`, 4000, cardId);
+                    throw new Error("Not enough stock");
+                  }
+
+                  cartData.set(key, currentQty + 1);
+                  syncControlsWithCart();
+
+                  const payload = buildCartPayloadVariantOnly(variantId, 1);
+                  const res = await apiFetch(API.cartAdd, "POST", payload);
+
+                  const serverArr = Array.isArray(res?.data)
+                    ? res.data
+                    : (Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : (res && res.data && typeof res.data === "object" ? [res.data] : [])));
+
+                  if (Array.isArray(serverArr) && serverArr.length) {
+                    cartData.clear();
+                    for (const row of serverArr) {
+                      const n = normalizeCartRow(row);
+                      if (!n || n.vidN == null) continue;
+                      cartData.set(keyFor(n.vidN), Number(n.qty || 0));
+                    }
+                  } else {
+                    cartData.set(key, currentQty + 1);
+                  }
+
+                  await fetchCartMap().catch(() => { });
+                  await fetchRecentProducts(lastFetchedProducts.length || 12).catch(() => { });
+                  syncControlsWithCart();
+                  return res;
+                } catch (err) {
+                  const body = err?.body ?? null;
+
+                  if (body && body.error_code === "VARIANT_REQUIRED" && Array.isArray(body.available_variants) && body.available_variants.length) {
+                    const first = body.available_variants[0];
+                    if (first && typeof first.variant_id !== "undefined") {
+                      try {
+                        const retryPayload = buildCartPayloadVariantOnly(Number(first.variant_id), 1);
+                        const retry = await apiFetch(API.cartAdd, "POST", retryPayload);
+                        await fetchCartMap().catch(() => { });
+                        syncControlsWithCart();
+                        return retry;
+                      } catch (retryErr) {
+                        console.warn("retry with server-provided variant failed", retryErr);
+                      }
+                    }
+                  }
+
+                  const errMsg = err?.body?.message || err.message || String(err);
+                  showInlineError(cardEl?.dataset?.productId ?? "product", errMsg, 7000, cardId);
+                  await fetchCartMap().catch(() => { });
+                  syncControlsWithCart();
+                  throw err;
+                }
+              });
+            }
+
+            async function updateCartQtyVariant(variantId, newQty, controlsEl = null) {
+              const qty = Number(newQty);
+
+              if (!variantId || Number.isNaN(Number(variantId))) {
+                variantId = extractVariantIdFromEl(controlsEl);
+              }
+
+              if (!variantId || Number.isNaN(Number(variantId))) {
+                showInlineError("product", "Invalid variant", 3000);
+                return;
+              }
+
+              if (qty < 1) return removeFromCartVariant(variantId, controlsEl);
+
+              const key = keyFor(variantId);
+              const stock = getStock(variantId);
+
+              if (qty > stock) {
+                showInlineError(variantId, `Not enough stock. Available: ${stock}`);
+                return;
+              }
+
+              return withLock("update", key, async () => {
+                try {
+                  cartData.set(key, qty);
+                  syncControlsWithCart();
+
+                  const payload = buildCartPayloadVariantOnly(variantId, qty);
+                  await apiFetch(API.cartUpdate, "POST", payload);
+                  await fetchCartMap();
+                } catch (err) {
+                  const msg = err?.body?.message || err.message || "";
+                  if (err.status === 404 || /product not found/i.test(msg)) {
+                    await runAddDiagnostics({ variant_id: variantId, quantity: qty }, err);
+                  }
+
+                  const userMsg = (err.body && err.body.message) ? err.body.message : (err.message || "Failed to update quantity");
+                  showInlineError("product", userMsg);
+                  await fetchCartMap().catch(() => { });
+                  throw err;
+                } finally {
+                  syncControlsWithCart();
+                }
+              });
+            }
+
+            async function removeFromCartVariant(variantId, controlsEl = null) {
+              if (!variantId || Number.isNaN(Number(variantId))) {
+                variantId = extractVariantIdFromEl(controlsEl);
+              }
+
+              if (!variantId || Number.isNaN(Number(variantId))) {
+                showInlineError("product", "Invalid variant", 3000);
+                return;
+              }
+
+              const key = keyFor(variantId);
+              const cardId = controlsEl?.closest?.(".item")?.dataset?.cardId ?? null;
+
+              return withLock("remove", key, async () => {
+                try {
+                  cartData.set(key, 0);
+                  syncControlsWithCart();
+
+                  await apiFetch(API.cartRemove, "POST", { variant_id: Number(variantId) });
+                  await fetchCartMap();
+                } catch (err) {
+                  const userMsg = (err.body && err.body.message) ? err.body.message : (err.message || "Failed to remove item");
+                  if (err.status === 404 || /product not found/i.test(userMsg)) {
+                    await runAddDiagnostics({ variant_id: variantId }, err);
+                  }
+                  showInlineError("product", userMsg);
+                  await fetchCartMap().catch(() => { });
+                  throw err;
+                } finally {
+                  syncControlsWithCart();
+                }
+              });
+            }
+
+            /* --------------------------------------------------------------------------
+               WISHLIST
+            -------------------------------------------------------------------------- */
+            async function runAddDiagnostics(payload, serverError) {
+              try {
+                const diag = {
+                  timestamp: new Date().toISOString(),
+                  attempted_payload: payload,
+                  server_error: serverError && (serverError.body || serverError.message || serverError.status)
+                    ? (serverError.body || serverError.message || serverError.status)
+                    : serverError,
+                  last_fetched_products_count: lastFetchedProducts.length
+                };
+
+                showDiagBanner("Cart Diagnostic", "See details below.", diag);
+                return diag;
+              } catch (err) {
+                console.warn("runAddDiagnostics failed", err);
+                return { error: String(err) };
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               OWL CAROUSEL
+            -------------------------------------------------------------------------- */
+            function hasJQuery() {
+              return typeof window.jQuery === "function" && typeof window.jQuery.fn !== "undefined";
+            }
+
+            function initOwl() {
+              if (!hasJQuery()) return;
+
+              try {
+                const $c = window.jQuery(`#${CONTAINER_ID}`);
+
+                if ($c.hasClass("owl-loaded")) {
+                  try { $c.trigger("destroy.owl.carousel"); } catch (_) { }
+                  $c.removeClass("owl-loaded owl-hidden").attr("style", "");
+                }
+
+                const itemCount = $c.find(".item").length;
+
+                $c.owlCarousel({
+                  loop: itemCount > MIN_LOOP_ITEMS,
+                  margin: 12,
+                  nav: false,
+                  dots: false,
+                  smartSpeed: 450,
+                  slideBy: 1,
+                  responsive: {
+                    0: { items: 2 },
+                    480: { items: 2 },
+                    768: { items: 4 },
+                    992: { items: 6 }
+                  }
+                });
+
+                window.jQuery(`#${PREV_BTN_ID}`).off("click.relevant").on("click.relevant", () => {
+                  $c.trigger("prev.owl.carousel");
+                });
+
+                window.jQuery(`#${NEXT_BTN_ID}`).off("click.relevant").on("click.relevant", () => {
+                  $c.trigger("next.owl.carousel");
+                });
+              } catch (err) {
+                console.warn("initOwl failed", err);
+              }
+            }
+
+            function refreshOwl() {
+              if (!hasJQuery()) return;
+
+              try {
+                const $c = window.jQuery(`#${CONTAINER_ID}`);
+                if ($c.length && $c.hasClass("owl-loaded")) {
+                  $c.trigger("refresh.owl.carousel");
+                } else {
+                  initOwl();
+                }
+              } catch (err) {
+                initOwl();
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               SOCKETS
+            -------------------------------------------------------------------------- */
+            function initSocket() {
+              if (typeof io === "undefined") {
+                console.debug("Socket.IO not present — realtime skipped");
+                return;
+              }
+
+              try {
+                const SOCKET_URL = window.SOCKET_URL || null;
+                const socket = SOCKET_URL
+                  ? io(SOCKET_URL, { transports: ["websocket"], withCredentials: true })
+                  : io({ transports: ["websocket"], withCredentials: true });
+
+                const triggerRefresh = () => {
+                  if (socketRefreshTimer) clearTimeout(socketRefreshTimer);
+                  socketRefreshTimer = setTimeout(async () => {
+                    await refreshFromServer({ limit: 12, resetToFirst: false });
+                  }, REFRESH_DEBOUNCE_MS);
+                };
+
+                socket.on("connect", () => console.debug("socket connected", socket.id));
+                socket.on("disconnect", (reason) => console.debug("socket disconnected", reason));
+
+                socket.on("recentProductsUpdated", (data) => {
+                  if (!Array.isArray(data)) return;
+                  lastFetchedProducts = data.map(v => v);
+                  data.forEach(v => {
+                    try {
+                      setStock(Number(v.id), Number(v.stock ?? 0));
+                      if (v.product_id) window.variantToMasterMap[Number(v.id)] = Number(v.product_id);
+                    } catch (_) { }
+                  });
+                  render(data);
+                });
+
+                socket.on("recentProductAdded", (variant) => {
+                  if (!variant) return;
+                  upsertItem(variant);
+                });
+
+                socket.on("recentProductUpdated", (variant) => {
+                  if (!variant) return;
+                  upsertItem(variant);
+                });
+
+                socket.on("recentProductDeleted", (vid) => {
+                  if (!vid) return;
+                  removeItem(vid);
+                });
+
+                socket.on("wishlistUpdated", (payload) => {
+                  try {
+                    if (!payload || typeof payload.variant_id === "undefined") return;
+
+                    const vid = String(payload.variant_id);
+                    const isFav = !!payload.is_fav;
+
+                    if (isFav) wishlistMap[vid] = true;
+                    else delete wishlistMap[vid];
+
+                    const items = Array.from(CONTAINER.querySelectorAll(`.item[data-variant-id="${escapeHtml(vid)}"]`));
+                    items.forEach(item => {
+                      const btn = item.querySelector(".btn-fav");
+                      if (btn) {
+                        btn.classList.toggle("is-fav", isFav);
+                        btn.setAttribute("aria-pressed", String(!!isFav));
+                      }
+                    });
+                  } catch (err) {
+                    console.warn("wishlistUpdated handler failed", err);
+                  }
+                });
+
+                socket.on("cartUpdated", triggerRefresh);
+              } catch (err) {
+                console.warn("initSocket failed", err);
+              }
+            }
+
+            function upsertItem(variant) {
+              try {
+                const vid = String(variant.id ?? variant.variant_id ?? "");
+                if (!vid) return;
+
+                setStock(Number(variant.id), Number(variant.stock ?? 0));
+                if (variant.product_id) {
+                  try { window.variantToMasterMap[Number(variant.id)] = Number(variant.product_id); } catch (_) { }
+                }
+
+                variant.in_cart_qty = Number(cartData.get(keyFor(variant.id ?? 0)) ?? variant.in_cart_qty ?? 0);
+
+                const existing = findItemElement(variant.id, vid);
+                const html = buildItemHtml(variant);
+
+                const wrapper = document.createElement("div");
+                wrapper.innerHTML = html;
+
+                const newEl = wrapper.firstElementChild;
+                if (!newEl) return;
+
+                if (existing) {
+                  existing.replaceWith(newEl);
+                  refreshOwl();
+                } else {
+                  CONTAINER.insertAdjacentElement("afterbegin", newEl);
+                  initOwl();
+                }
+
+                syncControlsWithCart();
+              } catch (err) {
+                console.warn("upsertItem error", err);
+              }
+            }
+
+            function removeItem(vidOrCard) {
+              try {
+                const elByCard = CONTAINER.querySelector(`.item[data-card-id="${escapeHtml(String(vidOrCard))}"]`);
+                if (elByCard) {
+                  elByCard.remove();
+                  refreshOwl();
+                  return;
+                }
+
+                const el = CONTAINER.querySelector(
+                  `.item[data-variant-id="${escapeHtml(String(vidOrCard))}"], .item[data-product-id="${escapeHtml(String(vidOrCard))}"]`
+                );
+
+                if (el) el.remove();
+                refreshOwl();
+              } catch (err) {
+                console.warn("removeItem error", err);
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               REFRESH
+            -------------------------------------------------------------------------- */
+            const debouncedRefresh = debounce(async (opts = { limit: 12, resetToFirst: true }) => {
+              await refreshFromServer(opts);
+            }, REFRESH_DEBOUNCE_MS);
+
+            async function refreshFromServer({ limit = 12, resetToFirst = true } = {}) {
+              try {
+                clearDiagBanner();
+                await fetchCartMap();
+                await fetchWishlistMap();
+
+                const variants = await fetchRecentProducts(limit);
+
+                variants.forEach(v => {
+                  try {
+                    setStock(Number(v.id), Number(v.stock ?? v.available_stock ?? 0));
+                    if (v.product_id) window.variantToMasterMap[Number(v.id)] = Number(v.product_id);
+                  } catch (_) { }
+                });
+
+                render(variants);
+
+                if (resetToFirst && hasJQuery()) {
+                  try {
+                    window.jQuery(`#${CONTAINER_ID}`).trigger("to.owl.carousel", [0, 0, true]);
+                  } catch (_) { }
+                }
+              } catch (err) {
+                console.error("refreshFromServer failed", err);
+                showDiagBanner("Refresh failed", "Check console for details.", { error: String(err) });
+              }
+            }
+
+            async function loadInitial() {
+              try {
+                await refreshFromServer({ limit: 12, resetToFirst: true });
+                initSocket();
+                window.addEventListener("resize", () => setTimeout(initOwl, 200), { passive: true });
+              } catch (err) {
+                console.error("loadInitial failed", err);
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               EVENT DELEGATION
+            -------------------------------------------------------------------------- */
+            CONTAINER.addEventListener("click", (e) => {
+              const t = e.target;
+              if (!t) return;
+
+              const addBtn = t.closest?.(".btn-cart");
+              if (addBtn) {
+                e.preventDefault();
+
+                if (addBtn.disabled) {
+                  const idForErr = addBtn.dataset?.variantId ?? addBtn.dataset?.cardId ?? null;
+                  if (idForErr) showInlineError(idForErr, "Please wait...", 1200);
+                  return;
+                }
+
+                setButtonBusyByElement(addBtn, true);
+                addToCartVariant(addBtn, addBtn.dataset?.variantId ? Number(addBtn.dataset.variantId) : null)
+                  .catch(() => { })
+                  .finally(() => {
+                    setButtonBusyByElement(addBtn, false);
+                    syncControlsWithCart();
+                  });
+
+                return;
+              }
+
+              const favBtn = t.closest?.(".btn-fav");
+              if (favBtn) {
+                e.preventDefault();
+
+                const card = favBtn.closest(".item");
+                const variantId = Number(card?.dataset?.variantId ?? favBtn.dataset?.variantId ?? favBtn.dataset?.cardId);
+
+                if (!variantId) return;
+
+                const key = String(variantId);
+                const was = favBtn.classList.contains("is-fav");
+
+                if (was) {
+                  favBtn.classList.remove("is-fav");
+                  favBtn.setAttribute("aria-pressed", "false");
+                } else {
+                  favBtn.classList.add("is-fav");
+                  favBtn.setAttribute("aria-pressed", "true");
+                }
+
+                if (!was) wishlistMap[key] = true;
+                else delete wishlistMap[key];
+
+                setButtonBusyByElement(favBtn, true);
+
+                apiFetch(API.wishlistToggle, "POST", { variant_id: variantId })
+                  .then((json) => {
+                    let serverIsFav = null;
+
+                    if (json?.is_fav !== undefined) {
+                      serverIsFav = !!json.is_fav;
+                    } else if (json?.action) {
+                      serverIsFav = json.action === "added";
+                    }
+
+                    if (serverIsFav !== null) {
+                      if (serverIsFav) {
+                        favBtn.classList.add("is-fav");
+                        favBtn.setAttribute("aria-pressed", "true");
+                        wishlistMap[key] = true;
+                      } else {
+                        favBtn.classList.remove("is-fav");
+                        favBtn.setAttribute("aria-pressed", "false");
+                        delete wishlistMap[key];
+                      }
+                    }
+                  })
+                  .catch((err) => {
+                    favBtn.classList.toggle("is-fav", was);
+                    favBtn.setAttribute("aria-pressed", String(was));
+
+                    if (was) wishlistMap[key] = true;
+                    else delete wishlistMap[key];
+
+                    showInlineError(
+                      variantId,
+                      err?.body?.message || err.message || "Wishlist update failed",
+                      3000
+                    );
+                  })
+                  .finally(() => {
+                    setButtonBusyByElement(favBtn, false);
+                  });
+
+                return;
+              }
+
+              const minus = t.closest?.(".qty-minus");
+              if (minus) {
+                e.preventDefault();
+
+                const controls = minus.closest(".qty-controls");
+                const variantId = extractVariantIdFromEl(controls);
+                if (!variantId) return;
+
+                const cnt = controls.querySelector(".qty-count");
+                let qty = toInt(cnt?.textContent ?? 0, 0);
+
+                if (minus.classList.contains("bin") || qty === 1) {
+                  setButtonBusyByElement(minus, true);
+                  removeFromCartVariant(variantId, controls)
+                    .catch(() => { })
+                    .finally(() => {
+                      setButtonBusyByElement(minus, false);
+                      syncControlsWithCart();
+                    });
+                } else {
+                  qty = Math.max(0, qty - 1);
+                  const key = keyFor(variantId);
+                  cartData.set(key, qty);
+                  syncControlsWithCart();
+
+                  setButtonBusyByElement(minus, true);
+                  updateCartQtyVariant(variantId, qty, controls)
+                    .catch(() => { })
+                    .finally(() => {
+                      setButtonBusyByElement(minus, false);
+                    });
+                }
+
+                return;
+              }
+
+              const plus = t.closest?.(".qty-plus");
+              if (plus) {
+                e.preventDefault();
+
+                const controls = plus.closest(".qty-controls");
+                const variantId = extractVariantIdFromEl(controls);
+                if (!variantId) return;
+
+                const cnt = controls.querySelector(".qty-count");
+                let qty = toInt(cnt?.textContent ?? 0, 0);
+                const key = keyFor(variantId);
+                const stock = getStock(variantId);
+
+                if (qty + 1 > stock) {
+                  showInlineError(variantId, `Not enough stock. Available: ${stock}`);
+                  return;
+                }
+
+                qty += 1;
+                cartData.set(key, qty);
+                syncControlsWithCart();
+
+                setButtonBusyByElement(plus, true);
+                updateCartQtyVariant(variantId, qty, controls)
+                  .catch(() => { })
+                  .finally(() => {
+                    setButtonBusyByElement(plus, false);
+                  });
+
+                return;
+              }
+
+              const card = t.closest?.(".single-product-compact");
+              if (card) {
+                const href = card.getAttribute("data-href");
+                if (href && href.startsWith("/")) {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey) window.open(href, "_blank");
+                  else window.location.href = href;
+                }
+              }
+            });
+
+            /* --------------------------------------------------------------------------
+               BUSY STATE
+            -------------------------------------------------------------------------- */
+            function setButtonBusyByElement(el, busy = true) {
+              if (!el) return;
+
+              try {
+                if (busy) {
+                  if (!el.dataset.rpOriginal) el.dataset.rpOriginal = el.innerHTML;
+                  el.classList.add("rp-busy");
+
+                  const spinner = el.querySelector(".btn-spinner");
+                  if (spinner) {
+                    spinner.style.display = "inline-block";
+                  } else {
+                    const label = el.textContent || el.innerText || "";
+                    el.innerHTML = `<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> <span class="btn-label">${escapeHtml(label)}</span>`;
+                  }
+
+                  el.setAttribute("disabled", "true");
+                  el.setAttribute("aria-busy", "true");
+                } else {
+                  el.classList.remove("rp-busy");
+
+                  const spinner = el.querySelector(".btn-spinner");
+                  if (spinner) spinner.style.display = "none";
+
+                  if (el.dataset.rpOriginal) {
+                    el.innerHTML = el.dataset.rpOriginal;
+                    delete el.dataset.rpOriginal;
+                  }
+
+                  el.removeAttribute("aria-busy");
+                  el.removeAttribute("disabled");
+                }
+              } catch (_) {
+                try {
+                  el.removeAttribute("disabled");
+                  el.removeAttribute("aria-busy");
+                } catch (__) { }
+              }
+            }
+
+            /* --------------------------------------------------------------------------
+               PUBLIC DIAGNOSTICS
+            -------------------------------------------------------------------------- */
+            Object.defineProperty(window, "__relevantProductsDiag", {
+              configurable: true,
+              value: {
+                refresh: () => debouncedRefresh({ limit: 12, resetToFirst: true }),
+                cartData,
+                stockMap,
+                wishlistMap,
+                lastFetchedProducts,
+                runAddDiagnostics,
+                fetchRecentProducts,
+                fetchCartMap,
+                addToCartVariant: (btn = null, vid = null) => addToCartVariant(btn, vid).catch(() => { }),
+                updateCartQtyVariant: (vid, q, controls = null) => updateCartQtyVariant(vid, q, controls).catch(() => { }),
+                removeFromCartVariant: (vid, controls = null) => removeFromCartVariant(vid, controls).catch(() => { })
+              }
+            });
+
+            /* --------------------------------------------------------------------------
+               INIT
+            -------------------------------------------------------------------------- */
+            document.addEventListener("DOMContentLoaded", loadInitial);
+          })();
+        </script>
+        
+      </div>
+
+
+      <%- include('../includes/footer') %>
+        <!-- Footer Area End Here -->
+        <!-- Begin Quick View | Modal Area -->
+
+        <!-- Quick View | Modal Area End Here -->
+  </div>
+  <!-- load libs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <!-- Body Wrapper End Here -->
+  <!-- jQuery-V1.12.4 -->
+  <!-- <script src="/customer/javascript/include.js"></script> -->
+  <script src="/customer/js/vendor/jquery-1.12.4.min.js"></script>
+  <!-- Popper js -->
+  <script src="/customer/js/vendor/popper.min.js"></script>
+  <!-- Bootstrap V4.1.3 Fremwork js -->
+  <script src="/customer/js/bootstrap.min.js"></script>
+  <!-- Ajax Mail js -->
+  <script src="/customer/js/ajax-mail.js"></script>
+  <!-- Meanmenu js -->
+  <script src="/customer/js/jquery.meanmenu.min.js"></script>
+  <!-- Wow.min js -->
+  <script src="/customer/js/wow.min.js"></script>
+  <!-- Slick Carousel js -->
+  <script src="/customer/js/slick.min.js"></script>
+  <!-- Owl Carousel-2 js -->
+  <script src="/customer/js/owl.carousel.min.js"></script>
+  <!-- Magnific popup js -->
+  <script src="/customer/js/jquery.magnific-popup.min.js"></script>
+  <!-- Isotope js -->
+  <script src="/customer/js/isotope.pkgd.min.js"></script>
+  <!-- Imagesloaded js -->
+  <script src="/customer/js/imagesloaded.pkgd.min.js"></script>
+  <!-- Mixitup js -->
+  <script src="/customer/js/jquery.mixitup.min.js"></script>
+  <!-- Countdown -->
+  <script src="/customer/js/jquery.countdown.min.js"></script>
+  <!-- Counterup -->
+  <script src="/customer/js/jquery.counterup.min.js"></script>
+  <!-- Waypoints -->
+  <script src="/customer/js/waypoints.min.js"></script>
+  <!-- Barrating -->
+  <script src="/customer/js/jquery.barrating.min.js"></script>
+  <!-- Jquery-ui -->
+  <script src="/customer/js/jquery-ui.min.js"></script>
+  <!-- Venobox -->
+  <script src="/customer/js/venobox.min.js"></script>
+  <!-- Nice Select js -->
+  <script src="/customer/js/jquery.nice-select.min.js"></script>
+  <!-- ScrollUp js -->
+  <script src="/customer/js/scrollUp.min.js"></script>
+  <!-- Main/Activator js -->
+  <script src="/customer/js/main.js"></script>
+</body>
+
+<!-- index-331:41-->
+
+</html>

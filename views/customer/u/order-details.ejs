@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' && csrfToken ? csrfToken : '' %>"/>
+<title>Order Details | JOOD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/customer/css/account.css"/>
+<link rel="stylesheet" href="/customer/css/style.css"/>
+<link rel="stylesheet" href="/customer/css/responsive.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --card: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.12);
+  --text:#0f172a;
+  --muted:#64748b;
+  --accent: #0f172a;
+  --accent-d: #64748b;
+  --accent-light: #c1c9d4;
+  --accent-border: #333b48;
+  --ok: #1a6641;
+  --ok-bg: #e8f5ee;
+  --ok-border: #a3d9ba;
+  --warn: #7a0000;
+  --warn-bg: #fff8ed;
+  --warn-border: #f5cc82;
+  --info: #1a3f7a;
+  --info-bg: #eaf0fb;
+  --info-border: #b5ccf0;
+  --danger: #891a1a;
+  --danger-bg: #fdf0f0;
+  --danger-border: #f0b8b8;
+  --refund: #5b2d91;
+  --refund-bg: #f3eeff;
+  --refund-border: #c9aeef;
+  --sidebar: 250px;
+  --topbar: 64px;
+  --r: 16px;
+  --r-sm: 10px;
+  --font: 'Sora', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font:inherit;cursor:pointer}
+
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--card);
+  border-right:1px solid var(--border);
+  position:fixed;top:0;left:0;height:100vh;
+  display:flex;flex-direction:column;
+  z-index:200;
+  transition:transform .25s ease;
+  overflow-y:auto;overflow-x:hidden;
+}
+.sidebar-brand{
+  padding:20px 18px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.brand-mark{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;letter-spacing:-.03em;flex-shrink:0;
+}
+.brand-name{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.brand-tagline{font-size:11px;color:var(--muted);margin-top:1px}
+.sidebar-section{padding:14px 12px 6px}
+.sidebar-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;padding:0 6px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--muted);transition:.15s;cursor:pointer;border:none;background:none;width:100%;text-align:left}
+.nav-item i{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.nav-item:hover{background:#f7f5f1;color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent);font-weight:700}
+.nav-item .badge-mini{margin-left:auto;font-size:10px;background:rgba(0,0,0,.07);color:inherit;padding:2px 6px;border-radius:999px;font-weight:700}
+.nav-item.active .badge-mini{background:rgba(193,124,46,.18)}
+.sidebar-user{margin-top:auto;padding:14px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-light);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.user-name{font-size:13px;font-weight:700;line-height:1.2}
+.user-email{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px}
+.main-wrap{margin-left:var(--sidebar);flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(255, 255, 255, 0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);height:var(--topbar);display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:16px}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.topbar-page-title{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.topbar-page-sub{font-size:12px;color:var(--muted);margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.hamburger{display:none;width:38px;height:38px;border-radius:var(--r-sm);background:#fff;border:1px solid var(--border);align-items:center;justify-content:center;font-size:16px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:var(--r-sm);font-size:13px;font-weight:700;border:1px solid var(--border);background:#fff;color:var(--text);transition:.15s;white-space:nowrap}
+.btn:hover{background:#f7f5f1;border-color:var(--border2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent-d);border-color:var(--accent-d)}
+.btn.danger{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
+.btn.danger:hover{background:#f9dfdf}
+.btn.export{background:#18160f;border-color:#18160f;color:#fff}
+.btn.export:hover{background:#2e2a1e}
+.btn i{font-size:13px}
+.status-tabs{display:flex;gap:6px;flex-wrap:wrap;padding:18px 24px 0}
+.status-tab{padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:default;transition:.15s;display:flex;align-items:center;gap:6px}
+.status-tab.active{background:var(--text);border-color:var(--text);color:#fff}
+.status-tab .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.6}
+.content{padding:16px 24px 40px;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px}
+.card-head{margin-bottom:14px}
+.card-title{font-size:14px;font-weight:800;letter-spacing:-.01em}
+.card-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.hero-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.hero-order-num{font-size:20px;font-weight:800;letter-spacing:-.03em}
+.hero-meta-line{font-size:13px;color:var(--muted);margin-top:5px;line-height:1.6}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;background:var(--bg);border:1px solid var(--border);border-radius:999px;font-size:11px;font-weight:600;color:var(--muted)}
+.chip i{font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid transparent;white-space:nowrap}
+.badge.pending{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-border)}
+.badge.confirmed{background:var(--info-bg);color:var(--info);border-color:var(--info-border)}
+.badge.processing{background:var(--info-bg);color:var(--info);border-color:var(--info-border)}
+.badge.ongoing{background:var(--info-bg);color:var(--info);border-color:var(--info-border)}
+.badge.completed{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-border)}
+.badge.cancelled{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
+.badge.refunded{background:var(--refund-bg);color:var(--refund);border-color:var(--refund-border)}
+.badge.paid{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-border)}
+.badge.unpaid{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-border)}
+.tracker-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
+.tracker-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.tracker-title{font-size:14px;font-weight:800}
+.tracker-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.tracker-line{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding-top:8px}
+.tracker-line::before{content:'';position:absolute;left:10%;right:10%;top:25px;height:2px;background:#c7c5c2;z-index:0}
+.t-step{text-align:center;position:relative;z-index:1}
+.t-dot{width:34px;height:34px;border-radius:50%;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border:2px solid #ddd9d2;background:#fff;color:var(--muted);transition:.2s}
+.t-step.done .t-dot{background:var(--ok-bg);border-color:var(--ok-border);color:var(--ok)}
+.t-step.active .t-dot{background:var(--accent-light);border-color:var(--accent-border);color:var(--accent);box-shadow:0 0 0 4px rgba(76,88,96,.1)}
+.t-step.cancelled .t-dot{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger)}
+.t-step.refunded .t-dot{background:var(--refund-bg);border-color:var(--refund-border);color:var(--refund)}
+.t-name{font-size:11px;font-weight:700;color:#5a5040;line-height:1.3}
+.t-step.done .t-name{color:var(--ok)}
+.t-step.active .t-name{color:var(--accent)}
+.t-step.cancelled .t-name{color:var(--danger)}
+.t-step.refunded .t-name{color:var(--refund)}
+.t-date{font-size:10px;color:var(--muted);margin-top:3px}
+.alert-banner{padding:12px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:600;margin-top:14px;border:1px solid;display:flex;align-items:center;gap:8px}
+.alert-banner.danger{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-border)}
+.alert-banner.refund{background:var(--refund-bg);color:var(--refund);border-color:var(--refund-border)}
+.alert-banner.ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-border)}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.db{border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 12px}
+.db .k{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-bottom:4px}
+.db .v{font-size:13px;font-weight:700;word-break:break-word}
+.db .v.mono{font-family:var(--mono);font-size:11.5px;font-weight:500}
+.stat{border:1px solid var(--border);border-radius:var(--r-sm);padding:13px}
+.stat small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-bottom:6px}
+.stat strong{font-size:13px;font-weight:800}
+.product-list{display:flex;flex-direction:column;gap:12px}
+.product-card{background:#faf9f6;border:1px solid var(--border);border-radius:12px;padding:13px;display:grid;grid-template-columns:80px minmax(0,1fr);gap:13px;align-items:start}
+.product-thumb{width:80px;height:80px;border-radius:10px;overflow:hidden;background:#ede9e2;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#b8b0a0;font-size:10px;font-weight:700;flex-shrink:0;text-align:center}
+.product-thumb img{width:100%;height:100%;object-fit:cover}
+.product-name{font-size:13px;font-weight:800;line-height:1.4;margin-bottom:9px}
+.product-attrs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.price-table{width:100%;border-collapse:collapse}
+.price-table tr td{padding:8px 0;font-size:13px;border-bottom:1px solid var(--border)}
+.price-table tr:last-child td{border-bottom:none;font-weight:800;font-size:14px;padding-top:12px}
+.price-table .lbl{color:var(--muted)}
+.price-table .amt{text-align:right;font-weight:700}
+.price-table .discount{color:var(--ok)}
+.actions-row{display:flex;gap:8px;flex-wrap:wrap}
+.modal-overlay{position:fixed;inset:0;background:rgba(24,22,15,.45);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:var(--r);padding:26px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(10px);transition:transform .2s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:8px}
+.modal-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end}
+#invoice-frame{display:none}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main-wrap{margin-left:0}
+  .hamburger{display:inline-flex}
+  .backdrop{display:block;position:fixed;inset:0;background:rgba(24,22,15,.3);z-index:199}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .grid-4{grid-template-columns:1fr 1fr}
+  .tracker-line{grid-template-columns:1fr;gap:6px}
+  .tracker-line::before{display:none}
+  .t-step{display:flex;align-items:center;gap:12px;text-align:left}
+  .t-dot{margin:0;flex-shrink:0}
+}
+@media(max-width:600px){
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .content{padding:12px 14px 30px}
+  .status-tabs{padding:14px 14px 0}
+  .topbar{padding:0 14px}
+  .product-card{grid-template-columns:1fr}
+  .product-thumb{width:100%;height:180px}
+  .hero-card{flex-direction:column}
+  .chips{flex-direction:column}
+}
+.fade-in{animation:fadeIn .3s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<%
+  const pageUser = typeof user !== 'undefined' ? user : null;
+  const currentOrder = (typeof order !== 'undefined' && order) ? order : null;
+  const productsList = Array.isArray(typeof products !== 'undefined' ? products : []) ? (typeof products !== 'undefined' ? products : []) : [];
+  const csrfTokenValue = typeof csrfToken !== 'undefined' ? csrfToken : '';
+
+  const safeText = (v, fb='—') => String(v ?? '').trim() || fb;
+  const fmtDate = (v) => {
+    if (!v) return '—';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  };
+  const aed = (n) => 'AED ' + Number(n||0).toLocaleString('en-AE', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  const normalize = (v) => String(v || 'pending').trim().toLowerCase();
+  const status = normalize(currentOrder?.status || currentOrder?.order_status || 'pending');
+  const canCancel = ['pending','confirmed','processing','ongoing'].includes(status);
+  const trackerStages = [
+    { key:'pending', label:'Pending' },
+    { key:'confirmed', label:'Confirmed' },
+    { key:'processing', label:'Processing' },
+    { key:'ongoing', label:'On the Way' },
+    { key:'completed', label:'Completed' }
+  ];
+  const idxMap = { pending:0, confirmed:1, processing:2, ongoing:3, completed:4 };
+  const activeIndex = ['cancelled','refunded'].includes(status) ? -1 : (idxMap[status] ?? 0);
+  const totalAmount = Number(currentOrder?.grand_total ?? currentOrder?.total_amount ?? currentOrder?.amount ?? 0);
+  const shippingAmount = Number(currentOrder?.shipping_amount ?? currentOrder?.shipping_fee ?? 0);
+  const taxAmount = Number(currentOrder?.tax_amount ?? 0);
+  const discountAmount = Number(currentOrder?.discount_amount ?? 0);
+  const subtotalAmount = Number(currentOrder?.subtotal ?? currentOrder?.items_total ?? (totalAmount - shippingAmount - taxAmount + discountAmount));
+  const currency = safeText(currentOrder?.currency || 'AED', 'AED');
+  const orderNumber = safeText(currentOrder?.order_number || currentOrder?.tracking_id || currentOrder?.payment_reference || ('Order #' + (currentOrder?.id || '')));
+  const customerName = safeText(currentOrder?.customer_name || pageUser?.full_name || pageUser?.name || 'Customer');
+  const customerEmail = safeText(currentOrder?.email || pageUser?.email || '');
+  const customerPhone = safeText(currentOrder?.phone || pageUser?.phone || '');
+  const customerId = safeText(currentOrder?.user_id || pageUser?.id || '');
+  const cancelAction = `/customer/u/orders/${currentOrder?.id || ''}/cancel`;
+  const trackerLabelMap = {
+    pending: 'Order has been placed and is awaiting confirmation.',
+    confirmed: 'Order confirmed by store.',
+    processing: 'Order is being prepared.',
+    ongoing: 'Order is on the way.',
+    completed: 'Order delivered successfully.',
+    cancelled: 'This order was cancelled.',
+    refunded: 'This order has been refunded.'
+  };
+%>
+
+<div class="layout">
+  <aside class="sidebar" id="accountSidebar" aria-label="Account Sidebar">
+    <%- include('../includes/account-sidebar', { user: pageUser, activePage: 'orders' }) %>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger btn" type="button" onclick="toggleSidebar()" aria-label="Toggle sidebar"><i class="fa fa-bars"></i></button>
+        <div>
+          <div class="topbar-page-title">Order Details</div>
+          <div class="topbar-page-sub">Customer order tracker & product summary</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn export" type="button" onclick="exportPDF()"><i class="fa fa-file-pdf"></i> Export Invoice</button>
+        <a href="/customer/u/orders" class="btn"><i class="fa fa-arrow-left"></i> Back</a>
+      </div>
+    </header>
+
+    <div class="status-tabs" aria-label="Order status">
+      <button class="status-tab <%= status==='pending' ? 'active' : '' %>" type="button"><span class="dot" style="background:#c17c2e"></span>Pending</button>
+      <button class="status-tab <%= status==='confirmed' ? 'active' : '' %>" type="button"><span class="dot" style="background:#1a3f7a"></span>Confirmed</button>
+      <button class="status-tab <%= status==='processing' ? 'active' : '' %>" type="button"><span class="dot" style="background:#1a3f7a"></span>Processing</button>
+      <button class="status-tab <%= status==='ongoing' ? 'active' : '' %>" type="button"><span class="dot" style="background:#1a3f7a"></span>Ongoing</button>
+      <button class="status-tab <%= status==='completed' ? 'active' : '' %>" type="button"><span class="dot"></span>Completed</button>
+      <button class="status-tab <%= status==='cancelled' ? 'active' : '' %>" type="button"><span class="dot" style="background:#891a1a"></span>Cancelled</button>
+      <button class="status-tab <%= status==='refunded' ? 'active' : '' %>" type="button"><span class="dot" style="background:#5b2d91"></span>Refunded</button>
+    </div>
+
+    <div class="content" id="orderContent">
+      <div class="hero-card fade-in">
+        <div>
+          <div class="hero-order-num"><%= orderNumber %></div>
+          <div class="hero-meta-line">Customer: <%= customerName %> &nbsp;·&nbsp; ID: <%= customerId || '—' %> &nbsp;·&nbsp; <%= customerEmail || '—' %></div>
+          <div class="chips">
+            <div class="chip"><i class="fa fa-hashtag"></i> Order ID: <%= currentOrder?.id || '—' %></div>
+            <div class="chip"><i class="fa fa-clock"></i> <%= fmtDate(currentOrder?.created_at) %></div>
+            <div class="chip"><i class="fa fa-coins"></i> <%= aed(totalAmount) %></div>
+          </div>
+        </div>
+        <span class="badge <%= status %>"><%= status.charAt(0).toUpperCase() + status.slice(1) %></span>
+      </div>
+
+      <div class="tracker-card fade-in">
+        <div class="tracker-top">
+          <div>
+            <div class="tracker-title">Order tracker</div>
+            <div class="tracker-sub"><%= trackerLabelMap[status] || 'Track the current progress of your order.' %></div>
+          </div>
+          <span class="badge <%= status %>"><%= status.charAt(0).toUpperCase() + status.slice(1) %></span>
+        </div>
+        <div class="tracker-line">
+          <% trackerStages.forEach((st, i) => {
+               let cls = 'todo';
+               let icon = (i + 1).toString();
+               if (!['cancelled','refunded'].includes(status) && activeIndex >= i) { cls = 'done'; icon = '<i class="fa fa-check"></i>'; }
+               if (!['cancelled','refunded'].includes(status) && activeIndex === i) { cls = 'active'; icon = '<i class="fa fa-circle-dot"></i>'; }
+               if (status === 'cancelled') { cls = 'cancelled'; icon = '<i class="fa fa-xmark"></i>'; }
+               if (status === 'refunded') { cls = 'refunded'; icon = '<i class="fa fa-rotate-left"></i>'; }
+               const label = st.key === status ? 'Current stage' : ((!['cancelled','refunded'].includes(status) && activeIndex > i) ? 'Completed' : 'Waiting');
+          %>
+            <div class="t-step <%= cls %>">
+              <div class="t-dot"><%- icon %></div>
+              <div>
+                <div class="t-name"><%= st.label %></div>
+                <div class="t-date"><%= label %></div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <% if (status === 'cancelled') { %>
+          <div class="alert-banner danger"><i class="fa fa-circle-xmark"></i> This order has been cancelled. Payment refund will be processed within 5–7 business days if applicable.</div>
+        <% } else if (status === 'refunded') { %>
+          <div class="alert-banner refund"><i class="fa fa-rotate-left"></i> This order has been fully refunded. Funds should appear in your account within 3–5 business days.</div>
+        <% } else if (status === 'completed') { %>
+          <div class="alert-banner ok"><i class="fa fa-circle-check"></i> Your order was delivered successfully. Thank you for shopping with JOOD!</div>
+        <% } %>
+      </div>
+
+      <div class="grid-3 fade-in">
+        <div class="stat"><small>Payment Status</small><strong><span class="badge <%= normalize(currentOrder?.payment_status || 'unpaid') %>"><%= safeText(currentOrder?.payment_status || '—') %></span></strong></div>
+        <div class="stat"><small>Payment Method</small><strong><%= safeText(currentOrder?.payment_method || '—') %></strong></div>
+        <div class="stat"><small>Gateway</small><strong><%= safeText(currentOrder?.gateway_provider || '—') %></strong></div>
+      </div>
+
+      <div class="grid-2 fade-in">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Customer Details</div><div class="card-sub">Linked to this order.</div></div>
+          <div class="grid-2">
+            <div class="db"><div class="k">Full Name</div><div class="v"><%= customerName %></div></div>
+            <div class="db"><div class="k">Customer ID</div><div class="v mono"><%= customerId || '—' %></div></div>
+            <div class="db"><div class="k">Email</div><div class="v" style="font-size:11.5px"><%= customerEmail || '—' %></div></div>
+            <div class="db"><div class="k">Phone</div><div class="v"><%= customerPhone || '—' %></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Order References</div><div class="card-sub">Tracking & payment info.</div></div>
+          <div class="grid-2">
+            <div class="db"><div class="k">Order Number</div><div class="v mono"><%= orderNumber %></div></div>
+            <div class="db"><div class="k">Tracking ID</div><div class="v mono"><%= safeText(currentOrder?.tracking_id || '—') %></div></div>
+            <div class="db"><div class="k">Payment Ref</div><div class="v mono"><%= safeText(currentOrder?.payment_reference || '—') %></div></div>
+            <div class="db"><div class="k">Order Date</div><div class="v"><%= fmtDate(currentOrder?.created_at) %></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-head"><div class="card-title">Product Details</div><div class="card-sub">Items in this order.</div></div>
+        <div class="product-list">
+          <% if (!productsList.length) { %>
+            <div class="db"><div class="v">No product data was attached to this order yet.</div></div>
+          <% } else { %>
+            <% productsList.forEach((p) => { 
+              const name = safeText(p.product_name || p.name || p.title || 'Product');
+              const sku = safeText(p.sku || p.product_sku || '—');
+              const qty = Number(p.qty || p.quantity || 1);
+              const price = Number(p.price || p.unit_price || p.sale_price || 0);
+              const total = Number(p.total || p.line_total || (price * qty));
+              const image = safeText(p.image || p.product_image || p.thumbnail || '');
+            %>
+              <div class="product-card">
+                <div class="product-thumb">
+                  <% if (image && image !== '—') { %>
+                    <img src="<%= image %>" alt="<%= name %>">
+                  <% } else { %>
+                    No Image
+                  <% } %>
+                </div>
+                <div>
+                  <div class="product-name"><%= name %></div>
+                  <div class="product-attrs">
+                    <div class="db"><div class="k">SKU</div><div class="v mono"><%= sku %></div></div>
+                    <div class="db"><div class="k">Quantity</div><div class="v"><%= qty %></div></div>
+                    <div class="db"><div class="k">Unit Price</div><div class="v"><%= aed(price) %></div></div>
+                    <div class="db"><div class="k">Line Total</div><div class="v"><%= aed(total) %></div></div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="grid-2 fade-in">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Pricing Breakdown</div><div class="card-sub">Full cost summary in AED.</div></div>
+          <table class="price-table">
+            <tr><td class="lbl">Subtotal</td><td class="amt"><%= aed(subtotalAmount) %></td></tr>
+            <tr><td class="lbl">Shipping</td><td class="amt"><%= aed(shippingAmount) %></td></tr>
+            <tr><td class="lbl">Tax (5% VAT)</td><td class="amt"><%= aed(taxAmount) %></td></tr>
+            <tr><td class="lbl">Discount</td><td class="amt discount"><%= discountAmount > 0 ? ('− ' + aed(discountAmount)) : aed(0) %></td></tr>
+            <tr><td>Grand Total</td><td class="amt"><%= aed(totalAmount) %></td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Delivery & Notes</div><div class="card-sub">Shipping information.</div></div>
+          <div class="grid-2">
+            <div class="db" style="grid-column:1/-1"><div class="k">Delivery Address</div><div class="v"><%= safeText(currentOrder?.delivery_address || currentOrder?.shipping_address || '—') %></div></div>
+            <div class="db"><div class="k">City</div><div class="v"><%= safeText(currentOrder?.city || '—') %></div></div>
+            <div class="db"><div class="k">Country</div><div class="v"><%= safeText(currentOrder?.country || '—') %></div></div>
+            <div class="db" style="grid-column:1/-1"><div class="k">Notes</div><div class="v"><%= safeText(currentOrder?.notes || currentOrder?.customer_note || '—') %></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-head"><div class="card-title">Actions</div><div class="card-sub">Manage or export this order.</div></div>
+        <div class="actions-row">
+          <a class="btn" href="/customer/u/orders><i class="fa fa-arrow-left"></i> My orders</a>
+          <button class="btn export" type="button" onclick="exportPDF()"><i class="fa fa-file-pdf"></i> Download Invoice</button>
+          <% if (canCancel) { %>
+            <button class="btn danger" type="button" onclick="openModal('cancelModal')"><i class="fa fa-xmark"></i> Cancel Order</button>
+          <% } else if (!['cancelled','refunded'].includes(status)) { %>
+            <span style="display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:var(--info-bg);color:var(--info);border:1px solid var(--info-border);border-radius:var(--r-sm);font-size:12px;font-weight:700"><i class="fa fa-lock"></i> Cancellation not available for this status</span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<form id="cancelOrderForm" method="POST" action="<%= cancelAction %>" style="display:none;">
+  <input type="hidden" name="_csrf" value="<%= csrfTokenValue %>">
+</form>
+
+<!-- Modal -->
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal">
+    <div class="modal-title">Cancel this order?</div>
+    <div class="modal-sub">This action cannot be undone. The order will be marked as <strong>Cancelled</strong> and a refund may be initiated if payment was made.</div>
+    <div class="modal-actions">
+      <button class="btn" type="button" onclick="closeModal('cancelModal')">Keep Order</button>
+      <button class="btn danger" type="button" onclick="confirmCancel()"><i class="fa fa-xmark"></i> Yes, Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  function qs(id) {
+    return document.getElementById(id);
+  }
+
+  window.toggleSidebar = function toggleSidebar() {
+    const sidebar = qs('accountSidebar');
+    const backdrop = qs('accountBackdrop');
+    if (!sidebar || !backdrop) return;
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('show');
+  };
+
+  window.closeSidebar = function closeSidebar() {
+    const sidebar = qs('accountSidebar');
+    const backdrop = qs('accountBackdrop');
+    if (sidebar) sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('show');
+  };
+
+  window.openModal = function openModal(id) {
+    const el = qs(id);
+    if (el) el.classList.add('open');
+  };
+
+  window.closeModal = function closeModal(id) {
+    const el = qs(id);
+    if (el) el.classList.remove('open');
+  };
+
+  window.confirmCancel = function confirmCancel() {
+    const form = qs('cancelOrderForm');
+    if (form) form.submit();
+  };
+
+  function aed(n) {
+    return 'AED ' + Number(n || 0).toLocaleString('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function fmtDate(v) {
+    if (!v) return '—';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function safe(v, fb = '—') {
+    return String(v ?? '').trim() || fb;
+  }
+
+  const ORDER_PAGE = {
+    id: <%- JSON.stringify(currentOrder?.id || null) %>,
+    order_number: <%- JSON.stringify(currentOrder?.order_number || currentOrder?.tracking_id || currentOrder?.payment_reference || '') %>,
+    tracking_id: <%- JSON.stringify(currentOrder?.tracking_id || '') %>,
+    payment_reference: <%- JSON.stringify(currentOrder?.payment_reference || '') %>,
+    status: <%- JSON.stringify(status) %>,
+    payment_status: <%- JSON.stringify(currentOrder?.payment_status || 'unpaid') %>,
+    payment_method: <%- JSON.stringify(currentOrder?.payment_method || '') %>,
+    gateway_provider: <%- JSON.stringify(currentOrder?.gateway_provider || '') %>,
+    customer_name: <%- JSON.stringify(customerName) %>,
+    email: <%- JSON.stringify(customerEmail || '') %>,
+    phone: <%- JSON.stringify(customerPhone || '') %>,
+    user_id: <%- JSON.stringify(customerId || '') %>,
+    created_at: <%- JSON.stringify(currentOrder?.created_at || '') %>,
+    currency: <%- JSON.stringify(currency) %>,
+    subtotal: <%- JSON.stringify(subtotalAmount) %>,
+    shipping_amount: <%- JSON.stringify(shippingAmount) %>,
+    tax_amount: <%- JSON.stringify(taxAmount) %>,
+    discount_amount: <%- JSON.stringify(discountAmount) %>,
+    grand_total: <%- JSON.stringify(totalAmount) %>,
+    delivery_address: <%- JSON.stringify(currentOrder?.delivery_address || currentOrder?.shipping_address || '') %>,
+    city: <%- JSON.stringify(currentOrder?.city || '') %>,
+    country: <%- JSON.stringify(currentOrder?.country || '') %>,
+    notes: <%- JSON.stringify(currentOrder?.notes || currentOrder?.customer_note || '') %>,
+    products: <%- JSON.stringify(productsList.map(p => ({
+      name: p.product_name || p.name || p.title || 'Product',
+      sku: p.sku || p.product_sku || '',
+      qty: Number(p.qty || p.quantity || 1),
+      price: Number(p.price || p.unit_price || p.sale_price || 0),
+      total: Number(p.total || p.line_total || (Number(p.price || p.unit_price || p.sale_price || 0) * Number(p.qty || p.quantity || 1))),
+      image: p.image || p.product_image || p.thumbnail || ''
+    }))) %>
+  };
+
+  window.exportPDF = function exportPDF() {
+    const o = ORDER_PAGE;
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const PW = 210, M = 18;
+    let y = M;
+
+    doc.setFillColor(24, 22, 15);
+    doc.rect(0, 0, PW, 28, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('JOOD', M, 17);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Customer Invoice', M + 28, 17);
+    doc.setFontSize(9);
+    doc.text('Generated: ' + new Date().toLocaleString('en-GB'), PW - M, 17, { align: 'right' });
+
+    y = 36;
+    const statusColor = {
+      pending: [234,179,8],
+      confirmed: [26,63,122],
+      processing: [26,63,122],
+      ongoing: [26,63,122],
+      completed: [26,102,65],
+      cancelled: [137,26,26],
+      refunded: [91,45,145]
+    }[o.status] || [100,100,100];
+
+    doc.setFillColor(...statusColor);
+    doc.roundedRect(M, y, 45, 9, 2, 2, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.text(String(o.status || '').toUpperCase(), M + 22.5, y + 6, { align: 'center' });
+    y += 15;
+
+    doc.setTextColor(24, 22, 15);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text(safe(o.order_number), M, y);
+    y += 6;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(100, 95, 85);
+    doc.text('Order Date: ' + fmtDate(o.created_at), M, y);
+    doc.text('Tracking ID: ' + safe(o.tracking_id), PW - M, y, { align: 'right' });
+    y += 5;
+    doc.text('Payment Ref: ' + safe(o.payment_reference), M, y);
+    doc.text('Order ID: ' + safe(o.id), PW - M, y, { align: 'right' });
+    y += 10;
+
+    doc.setDrawColor(220, 215, 205);
+    doc.setLineWidth(0.3);
+    doc.line(M, y, PW - M, y);
+    y += 8;
+
+    const col2 = M + (PW - M * 2) / 2 + 4;
+    doc.setTextColor(150, 140, 120);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.text('BILL TO', M, y);
+    doc.text('DELIVER TO', col2, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(24, 22, 15);
+    doc.text(safe(o.customer_name), M, y);
+    doc.text(safe(o.delivery_address), col2, y);
+    y += 5;
+    doc.setTextColor(100, 95, 85);
+    doc.text(safe(o.email), M, y);
+    doc.text(safe(o.city) + ', ' + safe(o.country), col2, y);
+    y += 5;
+    doc.text(safe(o.phone), M, y);
+    if (o.notes && o.notes !== '—') doc.text('Note: ' + o.notes, col2, y);
+    y += 12;
+
+    doc.setTextColor(150, 140, 120);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.5);
+    doc.text('ORDER ITEMS', M, y);
+    y += 4;
+
+    const rows = (o.products || []).map(p => [safe(p.name), safe(p.sku), String(p.qty || 0), aed(p.price), aed(p.total)]);
+    doc.autoTable({
+      startY: y,
+      head: [['Product', 'SKU', 'Qty', 'Unit Price', 'Line Total']],
+      body: rows,
+      margin: { left: M, right: M },
+      headStyles: { fillColor: [24,22,15], textColor: [255,255,255], fontStyle: 'bold', fontSize: 8 },
+      bodyStyles: { fontSize: 8.5, textColor: [24,22,15] },
+      alternateRowStyles: { fillColor: [250,249,246] },
+      columnStyles: { 0:{cellWidth:65}, 1:{cellWidth:28}, 2:{cellWidth:12, halign:'center'}, 3:{cellWidth:28, halign:'right'}, 4:{cellWidth:28, halign:'right'} },
+      theme: 'striped'
+    });
+
+    y = doc.lastAutoTable.finalY + 8;
+    const priceX = PW - M - 60;
+    const priceRows = [
+      ['Subtotal', aed(o.subtotal)],
+      ['Shipping', aed(o.shipping_amount)],
+      ['Tax (5% VAT)', aed(o.tax_amount)],
+      ['Discount', Number(o.discount_amount) > 0 ? '− ' + aed(o.discount_amount) : aed(0)]
+    ];
+
+    doc.setFontSize(8.5);
+    priceRows.forEach(([lbl, val]) => {
+      doc.setTextColor(100, 95, 85);
+      doc.setFont('helvetica', 'normal');
+      doc.text(lbl, priceX, y);
+      doc.setTextColor(24, 22, 15);
+      doc.text(val, PW - M, y, { align: 'right' });
+      y += 5.5;
+    });
+
+    doc.setFillColor(24, 22, 15);
+    doc.rect(priceX - 4, y, PW - M - priceX + 4 + M, 10, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.text('GRAND TOTAL', priceX, y + 6.5);
+    doc.text(aed(o.grand_total), PW - M, y + 6.5, { align: 'right' });
+    y += 18;
+
+    doc.setFillColor(250, 249, 246);
+    doc.setDrawColor(220,215,205);
+    doc.rect(M, y, PW - M*2, 14, 'FD');
+    doc.setTextColor(100, 95, 85);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('Payment Method: ' + safe(o.payment_method), M + 4, y + 5);
+    doc.text('Gateway: ' + safe(o.gateway_provider), M + 4, y + 10);
+    doc.setTextColor(24,22,15);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Payment Status: ' + safe(o.payment_status, '—').toUpperCase(), PW - M - 4, y + 5, { align:'right' });
+    y += 20;
+
+    doc.setDrawColor(220, 215, 205);
+    doc.line(M, y, PW - M, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(150, 140, 120);
+    doc.text('Thank you for shopping with JOOD. For queries contact support@jood.ae', PW/2, y, { align:'center' });
+    y += 4;
+    doc.text('This is a computer-generated invoice and does not require a signature.', PW/2, y, { align:'center' });
+
+    doc.save('JOOD-Invoice-' + String(o.order_number || 'order').replace('#','') + '.pdf');
+  };
+
+  document.addEventListener('click', function (e) {
+    const sidebar = qs('accountSidebar');
+    const backdrop = qs('accountBackdrop');
+    if (backdrop && e.target === backdrop) {
+      window.closeSidebar();
+    }
+    if (sidebar && sidebar.classList.contains('open')) {
+      const clickedInside = sidebar.contains(e.target) || (e.target.closest && e.target.closest('.hamburger'));
+      if (!clickedInside && window.innerWidth <= 900 && !e.target.closest('.modal')) {
+        // keep sidebar open unless backdrop clicked; handled above
+      }
+    }
+  });
+
+  // Ensure status tabs do not throw errors on click.
+  document.querySelectorAll('.status-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.status-tab').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+})();
+</script>
+<script src="/customer/js/account.js"></script>
+<!-- <script src="/customer/js/main.js"></script> -->
+</body>
+</html>

@@ -1,0 +1,1164 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Customer Profile — JOOD | Quality Goods & Products</title>
+
+  <meta name="description" content="Manage your JOOD customer profile, update account details, and review your access information securely." />
+  <meta name="robots" content="noindex, nofollow" />
+
+   <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Customer Profile — JOOD" />
+  <meta property="og:description" content="Manage your JOOD customer profile and account settings securely." />
+  <meta property="og:url" content="https://jood.com/customer/u/profile" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Customer Profile — JOOD" />
+  <meta name="twitter:description" content="Manage your JOOD customer profile securely." />
+
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/customer/css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    :root{
+      --page-bg:#ffffff;
+      --card-bg:#ffffff;
+      --card-border:#e5eaf1;
+      --line:#e8edf3;
+      --text:#0f172a;
+      --muted:#64748b;
+      --green:#166534;
+      --green-bg:#ecfdf3;
+      --red:#991b1b;
+      --red-bg:#fef2f2;
+      --gray:#64748b;
+      --gray-bg:#f8fafc;
+      --input-border:#d8e0ea;
+      --shadow:0 8px 28px rgba(15, 23, 42, 0.04);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      background:var(--page-bg);
+      color:var(--text);
+    }
+
+    .account-layout{ min-height:100vh; }
+    .account-content{ background:transparent; }
+
+    .profile-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .profile-card{
+      background:var(--card-bg);
+      border:1px solid var(--card-border);
+      border-radius:18px;
+      padding:18px;
+    }
+
+    .profile-header{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:14px;
+      align-items:center;
+    }
+
+    .profile-user{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+
+    .profile-avatar-wrap{
+      position:relative;
+      flex:0 0 auto;
+    }
+
+    .profile-avatar{
+      width:66px;
+      height:66px;
+      border-radius:50%;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(135deg, #0f172a, #334155);
+      color:#fff;
+      font-weight:700;
+      font-size:22px;
+      border:1px solid rgba(15,23,42,.12);
+      position:relative;
+    }
+
+    .profile-avatar img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .presence-dot{
+      position:absolute;
+      right:2px;
+      bottom:2px;
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      border:2px solid #fff;
+      background:#94a3b8;
+    }
+
+    .presence-dot.is-online{ background:#16a34a; }
+    .presence-dot.is-offline{ background:#94a3b8; }
+
+    .profile-title{ min-width:0; }
+
+    .profile-title h2{
+      margin:0;
+      font-size:1rem;
+      font-weight:700;
+      color:var(--text);
+      line-height:1.25;
+      word-break:break-word;
+    }
+
+    .profile-mini-info{
+      margin-top:8px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .mini-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:.84rem;
+      color:#475569;
+      word-break:break-word;
+    }
+
+    .mini-row i{
+      width:26px;
+      height:26px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#f8fafc;
+      border-radius:8px;
+      color:#0f172a;
+      flex:0 0 auto;
+    }
+
+    .profile-badges-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:10px;
+      min-width:260px;
+    }
+
+    .profile-badge{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:7px;
+      padding:10px;
+      border-radius:12px;
+      font-size:.8rem;
+      font-weight:600;
+      border:1px solid #e5eaf1;
+      background:#fff;
+      text-align:center;
+    }
+
+    .badge-verified{
+      background:var(--green-bg);
+      color:var(--green);
+      border-color:#c7eed6;
+    }
+
+    .badge-unverified{
+      background:var(--gray-bg);
+      color:var(--gray);
+      border-color:#e2e8f0;
+    }
+
+    .badge-online{
+      background:var(--green-bg);
+      color:var(--green);
+      border-color:#c7eed6;
+    }
+
+    .badge-offline{
+      background:var(--red-bg);
+      color:var(--red);
+      border-color:#fbcaca;
+    }
+
+    .badge-neutral{
+      background:var(--gray-bg);
+      color:var(--gray);
+      border-color:#e2e8f0;
+    }
+
+    .profile-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.6fr) minmax(0,.7fr);
+      gap:14px;
+      align-items:start;
+    }
+
+    .profile-grid > .profile-card{ min-width:0; }
+
+    .section-title{
+      margin:0 0 8px;
+      font-size:.98rem;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .section-subtitle{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:.82rem;
+      font-weight:400;
+      line-height:1.45;
+    }
+
+    .form-label{
+      font-weight:600;
+      color:var(--text);
+      margin-bottom:6px;
+      font-size:.84rem;
+    }
+
+    .form-control{
+      min-height:42px;
+      border-radius:11px;
+      border-color:var(--input-border);
+      background:#fff;
+      font-size:.88rem;
+      padding-left:12px;
+      padding-right:12px;
+    }
+
+    .form-control::placeholder{
+      color:#94a3b8;
+      font-weight:400;
+    }
+
+    .form-control:focus{
+      border-color:#cbd5e1;
+    }
+
+    textarea.form-control{
+      min-height:105px;
+      resize:vertical;
+    }
+
+    .readonly-box{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+      border-radius:11px;
+      padding:12px 14px;
+      color:#475569;
+      min-height:42px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      word-break:break-word;
+      font-size:.88rem;
+    }
+
+    .readonly-box strong{
+      color:var(--text);
+      font-weight:600;
+    }
+
+    .helper-text{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      font-size:.78rem;
+      font-weight:400;
+      line-height:1.4;
+    }
+
+    .verification-row{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:10px;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      background:#fff;
+    }
+
+    .verification-left{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:8px;
+      min-width:0;
+      width:100%;
+    }
+
+    .verification-text{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      min-width:0;
+      width:100%;
+    }
+
+    .verification-text strong{
+      color:var(--text);
+      font-size:.88rem;
+      font-weight:600;
+    }
+
+    .verification-text span{
+      color:var(--muted);
+      font-size:.8rem;
+      line-height:1.45;
+      word-break:break-word;
+      font-weight:400;
+    }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:7px 11px;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:600;
+      line-height:1;
+      white-space:nowrap;
+    }
+
+    .status-active{
+      background:var(--green-bg);
+      color:var(--green);
+    }
+
+    .status-inactive{
+      background:var(--gray-bg);
+      color:var(--gray);
+    }
+
+    .quick-actions{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:10px;
+    }
+
+    .quick-action-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:11px 13px;
+      border:1px solid var(--line);
+      border-radius:13px;
+      text-decoration:none;
+      color:var(--text);
+      background:#fff;
+      transition:.2s ease;
+      min-height:52px;
+      font-size:.88rem;
+      font-weight:400;
+      min-width:0;
+    }
+
+    .quick-action-item:hover{
+      border-color:#cbd5e1;
+      transform:translateY(-1px);
+      color:var(--text);
+      text-decoration:none;
+    }
+
+    .quick-action-item i{
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:#f8fafc;
+      color:#0f172a;
+      flex:0 0 auto;
+    }
+
+    .quick-action-item span{
+      font-weight:600;
+      font-size:.88rem;
+      min-width:0;
+    }
+
+    .saving-state{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:600;
+      color:#475569;
+      font-size:.82rem;
+      white-space:nowrap;
+    }
+
+    .saving-dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:#94a3b8;
+      flex:0 0 auto;
+    }
+
+    .saving-dot.is-saving{
+      background:#0f172a;
+      animation:pulse 1.2s infinite;
+    }
+
+    .saving-dot.is-saved{ background:#16a34a; }
+    .saving-dot.is-error{ background:#dc2626; }
+
+    .toast-mini{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:1060;
+      min-width:220px;
+      max-width:90vw;
+      padding:12px 14px;
+      border-radius:13px;
+      background:#0f172a;
+      color:#fff;
+      font-size:.86rem;
+      font-weight:400;
+      transform:translateY(18px);
+      opacity:0;
+      pointer-events:none;
+      transition:.25s ease;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .toast-mini.show{
+      transform:translateY(0);
+      opacity:1;
+    }
+
+    .account-page-content{ min-width:0; }
+
+    @media (max-width: 1199px){
+      .profile-grid{ grid-template-columns:1fr; }
+    }
+
+    @media (max-width: 991px){
+      .profile-header{
+        grid-template-columns:1fr;
+        align-items:flex-start;
+      }
+
+      .profile-badges-grid{ width:100%; }
+    }
+
+    @media (max-width: 768px){
+      .profile-card{
+        padding:16px;
+        border-radius:15px;
+      }
+
+      .profile-user{ align-items:flex-start; }
+
+      .profile-avatar{
+        width:58px;
+        height:58px;
+        font-size:20px;
+      }
+
+      .presence-dot{
+        width:12px;
+        height:12px;
+      }
+
+      .profile-title h2{ font-size:.98rem; }
+
+      .quick-actions{ grid-template-columns:1fr; }
+
+      .verification-row,
+      .info-row{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .info-value{ text-align:left; }
+
+      .saving-state{
+        width:100%;
+        justify-content:flex-start;
+      }
+
+      .profile-badges-grid{ grid-template-columns:1fr 1fr; }
+
+      .profile-badge{
+        justify-content:center;
+        text-align:center;
+      }
+    }
+
+    @media (max-width: 480px){
+      .profile-card{ padding:14px; }
+      .profile-avatar{
+        width:52px;
+        height:52px;
+        font-size:18px;
+      }
+
+      .profile-title p{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:6px;
+      }
+
+      .profile-badges-grid{ grid-template-columns:1fr; }
+      .quick-action-item{ min-height:48px; }
+    }
+  </style>
+</head>
+
+<body>
+<%
+  const customerData = typeof user !== 'undefined' && user ? user : {};
+  const isOnline = !!customerData?.is_online;
+
+  const fmt = (value) =>
+    value
+      ? new Date(value).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : 'Not available';
+
+  const createdText = customerData?.created_at
+    ? new Date(customerData.created_at).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      })
+    : 'Not available';
+
+  const updatedText = customerData?.updated_at
+    ? new Date(customerData.updated_at).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      })
+    : 'Not available';
+
+  const lastAttemptText = fmt(customerData?.last_attempt_time);
+  const lastLoginText = fmt(customerData?.last_login_at);
+  const lastLogoutText = fmt(customerData?.last_logout_at);
+  const lastActivityText = fmt(customerData?.last_activity_at);
+%>
+
+<div class="account-layout" id="accountLayout">
+  <aside class="account-sidebar" id="accountSidebar" aria-label="Account Sidebar">
+    <%- include('../includes/account-sidebar', {
+      user: customerData,
+      activePage: 'profile'
+    }) %>
+  </aside>
+
+  <div class="account-right">
+    <header class="account-topbar" aria-label="Account Topbar">
+      <div class="account-topbar-left">
+        <button
+          type="button"
+          class="account-toggle-btn"
+          id="accountToggleBtn"
+          aria-label="Toggle sidebar"
+          aria-controls="accountSidebar"
+          aria-expanded="false"
+        >
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+
+      <div class="account-topbar-right">
+        <div class="account-user-mini">
+          <i class="fa fa-user-circle"></i>
+          <span id="topbarUserName"><%= customerData?.full_name || 'Customer' %></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+    <main class="account-content">
+      <section class="account-page-header">
+        <%- include('../includes/account-header', {
+          title: 'Customer Profile',
+          subtitle: 'Your details save automatically as you type',
+          primaryAction: null,
+          secondaryAction: null
+        }) %>
+      </section>
+
+      <section class="account-page-content">
+        <div class="profile-wrap">
+          <div class="profile-card">
+ <style>
+  .name-with-badge{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .verified-name-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:.74rem;
+    font-weight:700;
+    line-height:1;
+    text-decoration:none;
+    border:1px solid transparent;
+  }
+
+  .verified-name-badge.is-verified{
+    background:#eff6ff;
+    color:#2563eb;
+    border-color:#bfdbfe;
+  }
+
+  .verified-name-badge.is-unverified{
+    background:#fef2f2;
+    color:#dc2626;
+    border-color:#fecaca;
+  }
+</style>
+
+<div class="profile-card">
+  <div class="profile-header">
+    <div class="profile-user">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar">
+          <% if (customerData?.profile_image) { %>
+            <img
+              src="<%= customerData.profile_image %>"
+              alt="<%= customerData?.full_name || 'Customer' %>"
+            >
+          <% } else { %>
+            <span id="avatarInitials">
+              <%= (customerData?.full_name || 'Customer')
+                .split(' ')
+                .filter(Boolean)
+                .slice(0, 2)
+                .map(word => word[0]?.toUpperCase() || '')
+                .join('') || 'C' %>
+            </span>
+          <% } %>
+        </div>
+
+        <span
+          class="presence-dot <%= isOnline ? 'is-online' : 'is-offline' %>"
+          id="presenceDot"
+        ></span>
+      </div>
+
+      <div class="profile-title">
+        <div class="name-with-badge">
+          <h2 id="profileNameDisplay">
+            <%= customerData?.full_name || 'Customer' %>
+          </h2>
+
+          <% if (customerData?.email_verified) { %>
+  <span class="verified-name-badge is-verified">
+    <i class="fa fa-check-circle"></i>
+    Verified Account
+  </span>
+<% } else { %>
+  <a
+    href="/customer/verify-otp"
+    class="verified-name-badge is-unverified"
+  >
+    <i class="fa fa-envelope-open"></i>
+    Verify Email
+  </a>
+<% } %>
+        </div>
+
+        <div class="profile-mini-info">
+          <div class="mini-row">
+            <i class="fa fa-envelope"></i>
+
+            <span id="emailDisplay">
+              <%= customerData?.email || 'No email added' %>
+            </span>
+          </div>
+
+          <div class="mini-row">
+            <i class="fa fa-phone"></i>
+
+            <span id="phoneDisplay">
+              <%= customerData?.phone || 'No phone added' %>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+          <div class="profile-grid">
+            <div class="profile-card">
+              <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                <div>
+                  <h3 class="section-title mb-0">Edit Profile</h3>
+                  <div class="section-subtitle mb-0">Changes save automatically after a short pause.</div>
+                </div>
+
+                <div class="saving-state">
+                  <span class="saving-dot" id="savingDot"></span>
+                  <span id="savingText">All changes saved</span>
+                </div>
+              </div>
+
+              <form action="/customer/u/profile/update-profile" method="POST" id="profileForm" class="profile-form">
+                <% if (csrfToken) { %>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% } %>
+
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Customer ID</label>
+                    <div class="readonly-box">
+                      <%= customerData?.user_id || customerData?.id || '—' %>
+                    </div>
+                    <span class="helper-text">This identifier cannot be changed.</span>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Email Address</label>
+                    <div class="readonly-box">
+                     <%= customerData?.email || '—' %>
+                    </div>
+                    <span class="helper-text">Email changes are managed separately.</span>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="full_name">Full Name</label>
+                    <input
+                      type="text"
+                      name="full_name"
+                      id="full_name"
+                      class="form-control js-autosave"
+                      value="<%= customerData?.full_name || '' %>"
+                      placeholder="Enter your full name"
+                      autocomplete="name"
+                      required
+                    >
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input
+                      type="text"
+                      name="phone"
+                      id="phone"
+                      class="form-control js-autosave"
+                      value="<%= customerData?.phone || '' %>"
+                      placeholder="Enter your phone number"
+                      autocomplete="tel"
+                    >
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="city">City</label>
+                    <input
+                      type="text"
+                      name="city"
+                      id="city"
+                      class="form-control js-autosave"
+                      value="<%= customerData?.city || '' %>"
+                      placeholder="Enter your city"
+                      autocomplete="address-level2"
+                    >
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label" for="country">Country</label>
+                    <input
+                      type="text"
+                      name="country"
+                      id="country"
+                      class="form-control js-autosave"
+                      value="<%= customerData?.country || '' %>"
+                      placeholder="Enter your country"
+                      autocomplete="country-name"
+                    >
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="address">Address</label>
+                    <textarea
+                      name="address"
+                      id="address"
+                      class="form-control js-autosave"
+                      placeholder="Enter your address"
+                    ><%= customerData?.address || '' %></textarea>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="bio">Bio</label>
+                    <textarea
+                      name="bio"
+                      id="bio"
+                      class="form-control js-autosave"
+                      placeholder="Write something about yourself"
+                    ><%= customerData?.bio || '' %></textarea>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label d-block">Account Status</label>
+                    <div class="verification-row">
+                      <div class="verification-left">
+                        <span class="status-badge <%= customerData?.status === 'active' ? 'status-active' : 'status-inactive' %>">
+                          <i class="fa <%= customerData?.status === 'active' ? 'fa-check-circle' : 'fa-clock-o' %>"></i>
+                          <%= customerData?.status || 'active' %>
+                        </span>
+                        <div class="verification-text">
+                          <strong>Status</strong>
+                          <span>This is managed by the system and cannot be edited here.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label d-block">Provider</label>
+                    <div class="verification-row">
+                      <div class="verification-left">
+                        <span class="profile-badge badge-neutral">
+                          <i class="fa fa-id-badge"></i>
+                          <%= customerData?.provider || 'local' %>
+                        </span>
+                        <div class="verification-text">
+                          <strong>Login Provider</strong>
+                          <span>This value is set by the authentication system.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="profile-card">
+              <h3 class="section-title">Account Information</h3>
+
+              <div class="account-info-list mb-3">
+                <div class="info-row">
+                  <span class="info-label">Status</span>
+                  <span class="info-value">
+                    <span class="status-badge <%= customerData?.status === 'active' ? 'status-active' : 'status-inactive' %>">
+                      <i class="fa <%= customerData?.status === 'active' ? 'fa-check-circle' : 'fa-clock-o' %>"></i>
+                      <%= customerData?.status || 'active' %>
+                    </span>
+                  </span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Provider</span>
+                  <span class="info-value"><%= customerData?.provider || 'local' %></span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Member Since</span>
+                  <span class="info-value"><%= createdText %></span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Last Updated</span>
+                  <span class="info-value" id="lastUpdatedValue"><%= updatedText %></span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Last Login</span>
+                  <span class="info-value" id="lastLoginValue"><%= lastLoginText %></span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Last Attempt Time</span>
+                  <span class="info-value" id="lastAttemptValueRow"><%= lastAttemptText %></span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Last Logout</span>
+                  <span class="info-value" id="lastLogoutValue"><%= lastLogoutText %></span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Last Activity</span>
+                  <span class="info-value" id="lastActivityValue"><%= lastActivityText %></span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Email Verified</span>
+                  <span class="info-value"><%= customerData?.email_verified ? 'Yes' : 'No' %></span>
+                </div>
+
+                <div class="info-row">
+                  <span class="info-label">Phone Verified</span>
+                  <span class="info-value"><%= customerData?.phone_verified ? 'Yes' : 'No' %></span>
+                </div>
+              </div>
+
+              <h3 class="section-title">Quick Actions</h3>
+
+              <div class="quick-actions">
+
+                <a href="/customer/u/profile" class="quick-action-item">
+                  <i class="fa fa-refresh"></i>
+                  <span>Refresh</span>
+                </a>
+
+                <a href="/customer/logout" class="quick-action-item">
+                  <i class="fa fa-sign-out"></i>
+                  <span>Logout</span>
+                </a>
+               
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <%- include('../includes/account-footer') %>
+  </div>
+</div>
+
+<div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+<script src="/customer/js/account.js"></script>
+
+<script>
+(function () {
+  const form = document.getElementById('profileForm');
+  if (!form) return;
+
+  const inputs = form.querySelectorAll('.js-autosave');
+  const savingDot = document.getElementById('savingDot');
+  const savingText = document.getElementById('savingText');
+  const toast = document.getElementById('toastMini');
+
+  const profileNameDisplay = document.getElementById('profileNameDisplay');
+  const topbarUserName = document.getElementById('topbarUserName');
+  const phoneDisplay = document.getElementById('phoneDisplay');
+  const avatarInitials = document.getElementById('avatarInitials');
+  const lastUpdatedValue = document.getElementById('lastUpdatedValue');
+  const lastLoginValue = document.getElementById('lastLoginValue');
+  const lastAttemptValueRow = document.getElementById('lastAttemptValueRow');
+  const lastLogoutValue = document.getElementById('lastLogoutValue');
+  const lastActivityValue = document.getElementById('lastActivityValue');
+  const onlineBadge = document.getElementById('onlineBadge');
+  const presenceDot = document.getElementById('presenceDot');
+
+  let timer = null;
+  let lastPayload = '';
+  let isSaving = false;
+
+  function setSavingState(state, message) {
+    if (!savingDot || !savingText) return;
+    savingDot.classList.remove('is-saving', 'is-saved', 'is-error');
+
+    if (state === 'saving') {
+      savingDot.classList.add('is-saving');
+    } else if (state === 'saved') {
+      savingDot.classList.add('is-saved');
+    } else if (state === 'error') {
+      savingDot.classList.add('is-error');
+    }
+
+    savingText.textContent = message || 'All changes saved';
+  }
+
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
+  function getFormDataObject() {
+    const fd = new FormData(form);
+    const data = {};
+    for (const [key, value] of fd.entries()) {
+      data[key] = String(value).trim();
+    }
+    return data;
+  }
+
+  function formatDateTime(value) {
+    if (!value) return 'Not available';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Not available';
+    return date.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function updateHeaderFromForm() {
+    const fullName = document.getElementById('full_name')?.value?.trim() || 'Customer';
+    const phone = document.getElementById('phone')?.value?.trim() || 'No phone added';
+
+    if (profileNameDisplay) profileNameDisplay.textContent = fullName;
+    if (topbarUserName) topbarUserName.textContent = fullName;
+    if (phoneDisplay) phoneDisplay.textContent = phone;
+
+    if (avatarInitials) {
+      const initials = fullName
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(word => word[0]?.toUpperCase() || '')
+        .join('') || 'C';
+      avatarInitials.textContent = initials;
+    }
+  }
+
+  function applyPresenceUI(isOnline) {
+    if (onlineBadge) {
+      onlineBadge.classList.remove('badge-online', 'badge-offline');
+      onlineBadge.classList.add(isOnline ? 'badge-online' : 'badge-offline');
+      onlineBadge.innerHTML = isOnline
+        ? '<i class="fa fa-circle"></i> Online'
+        : '<i class="fa fa-power-off"></i> Offline';
+    }
+
+    if (presenceDot) {
+      presenceDot.classList.remove('is-online', 'is-offline');
+      presenceDot.classList.add(isOnline ? 'is-online' : 'is-offline');
+    }
+  }
+
+  function applyProfileTimingUI(customer) {
+    if (lastUpdatedValue && customer?.updated_at) {
+      lastUpdatedValue.textContent = new Date(customer.updated_at).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+    if (lastLoginValue) lastLoginValue.textContent = formatDateTime(customer?.last_login_at);
+    if (lastAttemptValueRow) lastAttemptValueRow.textContent = formatDateTime(customer?.last_attempt_time);
+    if (lastLogoutValue) lastLogoutValue.textContent = formatDateTime(customer?.last_logout_at);
+    if (lastActivityValue) lastActivityValue.textContent = formatDateTime(customer?.last_activity_at);
+
+    applyPresenceUI(!!customer?.is_online);
+  }
+
+  async function saveProfile() {
+    if (isSaving) return;
+
+    const payload = getFormDataObject();
+    const payloadKey = JSON.stringify(payload);
+
+    if (payloadKey === lastPayload) return;
+
+    isSaving = true;
+    setSavingState('saving', 'Saving changes...');
+
+    try {
+      const body = new URLSearchParams();
+      Object.entries(payload).forEach(([key, value]) => body.append(key, value));
+
+      const response = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: body.toString()
+      });
+
+      const text = await response.text();
+      let data;
+
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (parseErr) {
+        console.error('Non-JSON response:', text);
+        throw new Error('Server did not return JSON.');
+      }
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || `Save failed (${response.status})`);
+      }
+
+      lastPayload = payloadKey;
+      updateHeaderFromForm();
+      applyProfileTimingUI(data.user || {});
+
+      setSavingState('saved', 'Saved');
+      showToast(data.message || 'Profile updated successfully');
+    } catch (error) {
+      console.error(error);
+      setSavingState('error', 'Save failed');
+      showToast(error.message || 'Save failed');
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  function scheduleSave() {
+    updateHeaderFromForm();
+    setSavingState('saving', 'Typing...');
+    clearTimeout(timer);
+    timer = setTimeout(saveProfile, 800);
+  }
+
+  inputs.forEach(input => {
+    input.addEventListener('input', scheduleSave);
+    input.addEventListener('change', scheduleSave);
+  });
+
+  lastPayload = JSON.stringify(getFormDataObject());
+  setSavingState('saved', 'All changes saved');
+})();
+</script>
+
+</body>
+</html>

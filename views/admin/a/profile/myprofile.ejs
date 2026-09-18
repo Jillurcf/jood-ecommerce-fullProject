@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Admin Profile — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="Manage your JOOD admin profile, update safe account details, and review your access information securely." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Admin Profile — JOOD" />
+  <meta property="og:description" content="Manage your JOOD admin profile and account settings securely." />
+  <meta property="og:url" content="https://jood.com/admin/a/profile/myprofile" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Admin Profile — JOOD" />
+  <meta name="twitter:description" content="Manage your JOOD admin profile securely." />
+
+  <link rel="stylesheet" href="/customer/css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --card: #ffffff;
+      --border: #e5eaf3;
+      --border-strong: #cfd8e3;
+      --text: #1f2937;
+      --muted: #64748b;
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --primary-soft: rgba(245, 158, 11, 0.12);
+      --radius: 22px;
+      --sidebar-wide: 280px;
+      --sidebar-collapsed: 78px;
+      --topbar-height: 68px;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --green-bg: #ecfdf5;
+      --gray-bg: #f8fafc;
+      --red-bg: #fef2f2;
+      --line-strong: var(--border-strong);
+    }
+
+    * {
+      box-sizing: border-box;
+      min-width: 0;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      max-width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+      background: var(--bg);
+    }
+
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      color: var(--text);
+      -webkit-text-size-adjust: 100%;
+      text-rendering: optimizeLegibility;
+      overflow: hidden;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img,
+    svg,
+    canvas,
+    video {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .account-layout {
+      width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+      position: relative;
+      display: block;
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    .account-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-collapsed);
+      height: 100vh;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      z-index: 1040;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+      transition: width 0.25s ease, transform 0.25s ease;
+    }
+
+    .account-sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .account-sidebar::-webkit-scrollbar-thumb {
+      background: transparent;
+      border-radius: 999px;
+    }
+
+    .account-sidebar:hover::-webkit-scrollbar-thumb {
+      background: rgba(17, 24, 39, 0.25);
+    }
+
+    .account-sidebar-brand {
+      padding: 14px 16px 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .account-brand-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 100%;
+    }
+
+    .account-logo {
+      display: block;
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+    }
+
+    .account-sidebar-top {
+      padding: 18px 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .account-profile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .account-avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .account-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar-initials {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #2d6cdf;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .account-name {
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.3;
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .account-email {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 3px;
+      word-break: break-word;
+    }
+
+    .account-nav {
+      padding: 12px;
+    }
+
+    .account-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: var(--text);
+      font-weight: 600;
+      transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+      margin-bottom: 4px;
+      min-width: 0;
+    }
+
+    .account-nav-link:hover {
+      background: rgba(245, 158, 11, 0.10);
+      transform: translateX(2px);
+      color: #000;
+    }
+
+    .account-nav-link.active {
+      background: var(--primary-soft);
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .account-nav-link i {
+      width: 22px;
+      text-align: center;
+      color: var(--primary);
+      font-size: 16px;
+      flex: 0 0 auto;
+    }
+
+    .account-nav-link.logout i {
+      color: #ef4444;
+    }
+
+    .account-layout.sidebar-collapsed .account-sidebar,
+    .account-sidebar.collapsed {
+      width: var(--sidebar-collapsed);
+    }
+
+    .account-layout.sidebar-expanded .account-sidebar,
+    .account-sidebar.expanded {
+      width: var(--sidebar-wide);
+    }
+
+    .account-layout.sidebar-collapsed .account-name,
+    .account-layout.sidebar-collapsed .account-email,
+    .account-layout.sidebar-collapsed .link-text,
+    .account-sidebar.collapsed .account-name,
+    .account-sidebar.collapsed .account-email,
+    .account-sidebar.collapsed .link-text {
+      display: none;
+    }
+
+    .account-layout.sidebar-collapsed .account-profile,
+    .account-sidebar.collapsed .account-profile {
+      align-items: center;
+    }
+
+    .account-layout.sidebar-collapsed .account-nav-link,
+    .account-sidebar.collapsed .account-nav-link {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .account-layout.sidebar-collapsed .account-nav-link i,
+    .account-sidebar.collapsed .account-nav-link i {
+      width: auto;
+      min-width: 22px;
+      font-size: 18px;
+    }
+
+    .account-layout.sidebar-collapsed .account-sidebar-brand,
+    .account-sidebar.collapsed .account-sidebar-brand {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .account-right {
+      min-width: 0;
+      margin-left: var(--sidebar-collapsed);
+      width: calc(100% - var(--sidebar-collapsed));
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg);
+      transition: margin-left 0.25s ease, width 0.25s ease;
+    }
+
+    .account-layout.sidebar-expanded .account-right {
+      margin-left: var(--sidebar-wide);
+      width: calc(100% - var(--sidebar-wide));
+    }
+
+    .account-topbar {
+      position: fixed;
+      top: 0;
+      left: var(--sidebar-collapsed);
+      right: 0;
+      height: var(--topbar-height);
+      min-height: var(--topbar-height);
+      padding: 10px 18px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      z-index: 1030;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: left 0.25s ease;
+    }
+
+    .account-layout.sidebar-expanded .account-topbar {
+      left: var(--sidebar-wide);
+    }
+
+    .account-topbar-left,
+    .account-topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .account-toggle-btn,
+    .btn-secure,
+    .btn-ghost,
+    .subnav-toggle-btn {
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0 14px;
+      font-weight: 800;
+      transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .account-toggle-btn {
+      width: 44px;
+      padding: 0;
+      flex: 0 0 auto;
+    }
+
+    .account-toggle-btn:hover,
+    .btn-ghost:hover,
+    .subnav-toggle-btn:hover {
+      border-color: var(--line-strong);
+    }
+
+    .btn-secure {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-secure:hover {
+      background: var(--primary-hover);
+      color: #fff;
+    }
+
+    .topbar-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .topbar-title .title {
+      font-size: 1rem;
+      font-weight: 900;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-title .sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .account-user-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .account-user-mini i {
+      font-size: 20px;
+      color: #475569;
+      flex: 0 0 auto;
+    }
+
+    .account-user-mini span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      max-width: 220px;
+    }
+
+    .account-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.22);
+      z-index: 1035;
+    }
+
+    .account-backdrop.show {
+      display: block;
+    }
+
+    .account-content-wrap {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      overflow-x: hidden;
+      padding: calc(var(--topbar-height) + 10px) 0 0 0;
+      background: var(--bg);
+      width: 100%;
+      max-width: 100%;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .profile-shell {
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(235px, 270px) minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .profile-subsidebar {
+      position: sticky;
+      top: calc(var(--topbar-height) + 10px);
+      align-self: start;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .profile-subsidebar-mobilebar {
+      display: none;
+    }
+
+    .profile-sidepanel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-panel,
+    .profile-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .card-panel.pad,
+    .profile-card {
+      padding: 18px;
+    }
+
+    .profile-main {
+      min-width: 0;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .section-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      line-height: 1;
+    }
+
+    .pill-verified {
+      background: var(--green-bg);
+      color: var(--success);
+      border-color: #c7eed6;
+    }
+
+    .pill-unverified {
+      background: #f8fafc;
+      color: #64748b;
+      border-color: #e2e8f0;
+    }
+
+    .pill-neutral {
+      background: #f8fafc;
+      color: #64748b;
+      border-color: #e2e8f0;
+    }
+
+    .profile-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .profile-user {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .profile-avatar-wrap {
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .profile-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f172a, #334155);
+      color: #fff;
+      font-weight: 700;
+      font-size: 20px;
+      border: 1px solid rgba(15, 23, 42, .12);
+      position: relative;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .presence-dot {
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: #94a3b8;
+    }
+
+    .presence-dot.is-online {
+      background: #16a34a;
+    }
+
+    .presence-dot.is-offline {
+      background: #94a3b8;
+    }
+
+    .profile-title {
+      min-width: 0;
+    }
+
+    .profile-title h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .profile-mini-info {
+      margin-top: 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .mini-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .84rem;
+      color: #475569;
+    }
+
+    .mini-row i {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      border-radius: 8px;
+      color: #0f172a;
+    }
+
+    .profile-badges-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      min-width: 0;
+      max-width: 360px;
+    }
+
+    .profile-badge {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: .75rem;
+      font-weight: 700;
+      border: 1px solid #e5eaf1;
+      background: #fff;
+      text-align: center;
+      min-height: 36px;
+    }
+
+    .badge-verified {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: #c7eed6;
+    }
+
+    .badge-unverified {
+      background: var(--gray-bg);
+      color: var(--gray);
+      border-color: #e2e8f0;
+    }
+
+    .badge-online {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: #c7eed6;
+    }
+
+    .badge-offline {
+      background: var(--red-bg);
+      color: var(--red);
+      border-color: #fbcaca;
+    }
+
+    .badge-neutral {
+      background: var(--gray-bg);
+      color: var(--gray);
+      border-color: #e2e8f0;
+    }
+
+    .sub-nav-wrap {
+      border: 0px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .sub-nav-head {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .sub-nav-head h4 {
+      margin: 0;
+      font-size: .88rem;
+      font-weight: 900;
+    }
+
+    .sub-nav-head span {
+      font-size: .76rem;
+      color: var(--muted);
+    }
+
+    .subnav-toggle-btn {
+      display: none;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border-radius: 10px;
+    }
+
+    .sub-nav-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sub-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      border-bottom: 1px solid #f1f5f9;
+      transition: background .2s ease, transform .2s ease;
+      font-weight: 500;
+    }
+
+    .sub-nav-link:last-child {
+      border-bottom: 0;
+    }
+
+    .sub-nav-link:hover {
+      background: rgba(245, 158, 11, 0.08);
+      transform: translateX(2px);
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .sub-nav-link.active {
+      background: var(--primary-soft);
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .sub-nav-link i {
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      color: var(--primary);
+    }
+
+    .sub-nav-link .txt {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: .86rem;
+    }
+
+    .form-label {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-size: .86rem;
+      display: block;
+    }
+
+    .form-control,
+    .form-select {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 14px;
+      border: 1px solid #dbe3ec;
+      font-size: .92rem;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #b8c4d1;
+      outline: none;
+    }
+
+    textarea.form-control {
+      min-height: 118px;
+      resize: vertical;
+    }
+
+    .readonly-box {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      border-radius: 14px;
+      font-size: .92rem;
+      color: var(--text);
+    }
+
+    .helper-text {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .78rem;
+      line-height: 1.4;
+    }
+
+    .verification-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fff;
+      width: 100%;
+    }
+
+    .verification-left {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .verification-text {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .verification-text strong {
+      color: var(--text);
+      font-size: .88rem;
+      font-weight: 700;
+    }
+
+    .verification-text span {
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .status-active {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .status-inactive {
+      background: var(--gray-bg);
+      color: var(--gray);
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .quick-action-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      text-decoration: none;
+      color: var(--text);
+      background: #fff;
+      transition: .2s ease;
+      min-height: 52px;
+      font-size: .88rem;
+      min-width: 0;
+    }
+
+    .quick-action-item:hover {
+      border-color: #cbd5e1;
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .quick-action-item i {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      color: #0f172a;
+      flex: 0 0 auto;
+    }
+
+    .quick-action-item span {
+      font-weight: 700;
+      font-size: .88rem;
+      min-width: 0;
+    }
+
+    .saving-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #475569;
+      font-size: .82rem;
+      white-space: nowrap;
+    }
+
+    .saving-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #94a3b8;
+      flex: 0 0 auto;
+    }
+
+    .saving-dot.is-saving {
+      background: #0f172a;
+      animation: pulse 1.2s infinite;
+    }
+
+    .saving-dot.is-saved {
+      background: #16a34a;
+    }
+
+    .saving-dot.is-error {
+      background: #dc2626;
+    }
+
+    .toast-mini {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 1060;
+      min-width: 220px;
+      max-width: 90vw;
+      padding: 12px 14px;
+      border-radius: 13px;
+      background: #0f172a;
+      color: #fff;
+      font-size: .86rem;
+      transform: translateY(18px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s ease;
+      border: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .toast-mini.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .info-label {
+      color: var(--muted);
+      font-size: .78rem;
+      letter-spacing: .06em;
+      font-weight: 600;
+    }
+
+    .info-value {
+      color: var(--text);
+      font-size: .92rem;
+      word-break: break-word;
+    }
+
+    @media (max-width: 1199px) {
+      .profile-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-subsidebar {
+        position: relative;
+        top: auto;
+      }
+
+      .account-user-mini span {
+        max-width: 180px;
+      }
+    }
+
+    @media (max-width: 991px) {
+      body {
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      .account-layout {
+        display: block;
+        min-height: 100vh;
+      }
+
+      .account-sidebar {
+        width: 290px !important;
+        transform: translateX(-100%);
+        height: 100vh;
+        max-width: 100vw;
+      }
+
+      .account-sidebar.open {
+        transform: translateX(0);
+      }
+
+      .account-sidebar.collapsed {
+        width: 290px !important;
+      }
+
+      .account-right {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .account-topbar {
+        left: 0 !important;
+        width: 100%;
+      }
+
+      .account-content-wrap {
+        padding: calc(var(--topbar-height) + 8px) 10px 10px;
+      }
+
+      .profile-shell {
+        gap: 10px;
+      }
+
+      .profile-subsidebar {
+        padding: 0;
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      .profile-subsidebar-mobilebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 14px 12px;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .profile-subsidebar-inner {
+        display: none;
+      }
+
+      .profile-subsidebar.open .profile-subsidebar-inner {
+        display: block;
+      }
+
+      .subnav-toggle-btn {
+        display: inline-flex;
+      }
+
+      .sub-nav-list {
+        display: none;
+      }
+
+      .profile-subsidebar.open .sub-nav-list {
+        display: flex;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+
+      .card-panel.pad,
+      .profile-card {
+        padding: 16px;
+      }
+
+      .profile-card {
+        border-radius: 15px;
+      }
+
+      .profile-user {
+        align-items: flex-start;
+      }
+
+      .profile-avatar {
+        width: 56px;
+        height: 56px;
+        font-size: 19px;
+      }
+
+      .presence-dot {
+        width: 12px;
+        height: 12px;
+      }
+
+      .profile-title h2 {
+        font-size: .98rem;
+      }
+
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .verification-row,
+      .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .info-value {
+        text-align: left;
+      }
+
+      .saving-state {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .profile-badges-grid {
+        grid-template-columns: 1fr 1fr;
+        max-width: none;
+      }
+
+      .profile-badge {
+        justify-content: center;
+        text-align: center;
+        min-height: 36px;
+      }
+
+      .account-user-mini span {
+        max-width: 90px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .profile-card {
+        padding: 14px;
+      }
+
+      .profile-avatar {
+        width: 50px;
+        height: 50px;
+        font-size: 17px;
+      }
+
+      .profile-title p {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .profile-badges-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-action-item {
+        min-height: 48px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <%
+  const adminData =
+    (typeof admin !== 'undefined' && admin) ||
+    (typeof user !== 'undefined' && user) ||
+    (typeof sessionAdmin !== 'undefined' && sessionAdmin) ||
+    {};
+
+  // -----------------------------
+  // Helpers
+  // -----------------------------
+  const safeDate = (v) => {
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const fmtDateTime = (v) => {
+    const d = safeDate(v);
+    return d
+      ? d.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : 'Not available';
+  };
+
+  const fmtDate = (v) => {
+    const d = safeDate(v);
+    return d
+      ? d.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        })
+      : 'Not available';
+  };
+
+  const normalizeRole = (role = '') =>
+    String(role)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_');
+
+  // -----------------------------
+  // Core Values
+  // -----------------------------
+  const fullNameValue = adminData?.full_name || 'Admin';
+  const emailValue = adminData?.email || '—';
+  const phoneValue = adminData?.phone || '';
+  const statusValue = adminData?.status || 'active';
+  const adminIdValue = adminData?.admin_id || '—';
+  const sessionVersionValue = adminData?.session_version || 1;
+
+  const isOnline = !!adminData?.is_online;
+
+  // Role (FIXED — no reassignment bug)
+  const roleValue = normalizeRole(
+    adminData?.role ||
+    user?.role ||
+    sessionAdmin?.role ||
+    currentAdmin?.role ||
+    locals?.role ||
+    'admin'
+  );
+
+  // -----------------------------
+  // Dates
+  // -----------------------------
+  const lastAttemptText = fmtDateTime(adminData?.last_attempt_time);
+  const lastLoginText = fmtDateTime(adminData?.last_login_at);
+  const lastLogoutText = fmtDateTime(adminData?.last_logout_at);
+  const lastActivityText = fmtDateTime(adminData?.last_activity_at);
+  const createdText = fmtDate(adminData?.created_at);
+  const updatedText = fmtDate(adminData?.updated_at);
+%>
+
+  <div class="account-layout sidebar-collapsed" id="accountLayout">
+    <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+      <%- include('../../includes/account-sidebar', { user: adminData, admin: adminData, activePage: 'profile' }) %>
+    </aside>
+
+    <div class="account-right">
+      <header class="account-topbar" aria-label="Account Topbar">
+        <div class="account-topbar-left">
+          <button type="button" class="account-toggle-btn" id="accountToggleBtn" aria-label="Toggle sidebar" aria-controls="accountSidebar" aria-expanded="false"><i class="fa fa-bars"></i></button>
+          <div class="topbar-title d-none d-md-block">
+            <div class="title">Admin Profile</div>
+            <div class="sub">Your details save automatically as you type</div>
+          </div>
+        </div>
+        <div class="account-topbar-right">
+          <div class="account-user-mini"><i class="fa fa-user-circle"></i><span id="topbarUserName"><%= fullNameValue %></span></div>
+        </div>
+      </header>
+
+      <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+      <main class="account-content">
+        <div class="account-content-wrap">
+          <div class="profile-shell">
+            <aside class="profile-subsidebar" id="profileSubSidebar" aria-label="Profile Sections Sidebar">
+              <div class="profile-subsidebar-mobilebar">
+                <div>
+                  <div class="profile-sidepanel-label">Account Pages</div>
+                  <h3 class="profile-sidepanel-title">Profile Navigation</h3>
+                </div>
+                <button type="button" class="subnav-toggle-btn" id="subnavToggleBtn" aria-label="Toggle profile navigation"><i class="fa fa-angle-down"></i></button>
+              </div>
+
+              <div class="profile-subsidebar-inner" id="profileSubSidebarInner">
+                <div class="profile-sidepanel">
+                  <div class="sub-nav-wrap">
+                    <div class="sub-nav-head">
+                      <div>
+                        <h4>Profile Navigation</h4>
+                        <span>Administrative sections</span>
+                      </div>
+                      <button type="button" class="subnav-toggle-btn" id="subnavToggleBtnDesktop" aria-label="Toggle profile navigation"><i class="fa fa-angle-down"></i></button>
+                    </div>
+                    <div class="sub-nav-list" id="subnavList">
+                      <a href="/admin/a/profile/myprofile" class="sub-nav-link active"><i class="fa fa-user"></i><span class="txt">My Profile</span></a>
+
+                      <% if (normalizeRole(roleValue) === 'super_admin') { %>
+                      <a href="/admin/a/profile/add-admin" class="sub-nav-link"><i class="fa fa-user-plus"></i><span class="txt">Add Admin</span></a>
+                      <a href="/admin/a/profile/super-admins" class="sub-nav-link"><i class="fa fa-shield"></i><span class="txt">Super Admin</span></a>
+                      <a href="/admin/a/profile/master-admins" class="sub-nav-link"><i class="fa fa-sitemap"></i><span class="txt">Master Admin</span></a>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link "><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                      <% } else if (normalizeRole(roleValue) === 'master_admin' || normalizeRole(roleValue) === 'master') { %>
+                      <a href="/admin/a/profile/add-admin" class="sub-nav-link"><i class="fa fa-user-plus"></i><span class="txt">Add Admin</span></a>
+                      <a href="/admin/a/profile/master-admins" class="sub-nav-link"><i class="fa fa-sitemap"></i><span class="txt">Master Admin</span></a>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link "><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                      <% } else if (normalizeRole(roleValue) === 'admin') { %>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link "><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                      <% } else { %>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link "><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            <section class="profile-main">
+              <div class="profile-grid">
+                <section class="profile-card">
+                  <div class="profile-header">
+                    <div class="profile-user">
+                      <div class="profile-avatar-wrap">
+                        <div class="profile-avatar">
+                          <% if (adminData?.profile_image) { %>
+                          <img src="<%= adminData.profile_image %>" alt="<%= fullNameValue %>">
+                          <% } else { %>
+                          <span><%= fullNameValue.split(' ').filter(Boolean).slice(0, 2).map(word => word[0]?.toUpperCase() || '').join('') || 'A' %></span>
+                          <% } %>
+                        </div>
+                        <span class="presence-dot <%= isOnline ? 'is-online' : 'is-offline' %>"></span>
+                      </div>
+                      <div class="profile-title">
+                        <h2><%= fullNameValue %></h2>
+                        <div class="profile-mini-info">
+                          <div class="mini-row"><i class="fa fa-envelope"></i><span><%= emailValue %></span></div>
+                          <div class="mini-row"><i class="fa fa-phone"></i><span><%= phoneValue || 'No phone added' %></span></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="profile-badges-grid">
+                      <div class="profile-badge <%= isOnline ? 'badge-online' : 'badge-offline' %>"><i class="fa <%= isOnline ? 'fa-circle' : 'fa-power-off' %>"></i><%= isOnline ? 'Online' : 'Offline' %></div>
+                      <div class="profile-badge badge-neutral"><i class="fa fa-clock-o"></i><%= lastLoginText %></div>
+                      <div class="profile-badge <%= adminData?.email_verified ? 'badge-verified' : 'badge-unverified' %>"><i class="fa <%= adminData?.email_verified ? 'fa-check-circle' : 'fa-clock-o' %>"></i><%= adminData?.email_verified ? 'Email Verified' : 'Email Not Verified' %></div>
+                      <div class="profile-badge badge-neutral"><i class="fa fa-id-badge"></i><%= roleValue %></div>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="profile-card">
+                  <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                    <div>
+                      <h3 class="section-title mb-0">Edit Profile</h3>
+                      <div class="section-subtitle mb-0">Changes save automatically after a short pause.</div>
+                    </div>
+                    <div class="saving-state"><span class="saving-dot" id="savingDot"></span><span id="savingText">All changes saved</span></div>
+                  </div>
+
+                  <form action="/admin/a/profile/myprofile/update-profile" method="POST" id="profileForm" class="profile-form" autocomplete="off">
+                    <% if (csrfToken) { %><input type="hidden" name="_csrf" value="<%= csrfToken %>"><% } %>
+
+                    <div class="row g-3">
+                      <div class="col-12 col-md-6">
+                        <label class="form-label" for="admin_id">Admin ID</label>
+                        <input type="text" id="admin_id" class="form-control" value="<%= adminIdValue %>" readonly>
+                        <span class="helper-text">This identifier cannot be changed.</span>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Email Address</label>
+                        <div class="readonly-box"><strong><%= emailValue %></strong></div>
+                        <span class="helper-text">Email changes are managed separately.</span>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label" for="full_name">Full Name</label>
+                        <input type="text" name="full_name" id="full_name" class="form-control js-autosave" value="<%= fullNameValue %>" placeholder="Enter your full name" autocomplete="name" required>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label" for="phone">Phone Number</label>
+                        <input type="text" name="phone" id="phone" class="form-control js-autosave" value="<%= phoneValue %>" placeholder="Enter your phone number" autocomplete="tel">
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label d-block">Email Verification</label>
+                        <div class="verification-row">
+                          <div class="verification-left">
+                            <span class="profile-badge <%= adminData?.email_verified ? 'badge-verified' : 'badge-unverified' %>"><i class="fa <%= adminData?.email_verified ? 'fa-check-circle' : 'fa-clock-o' %>"></i><%= adminData?.email_verified ? 'Verified' : 'Not Verified' %></span>
+                            <div class="verification-text">
+                              <strong>Email</strong>
+                              <span><%= adminData?.email_verified ? 'Your email is verified.' : 'Verify your email to secure your account.' %></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label d-block">Role</label>
+                        <div class="verification-row">
+                          <div class="verification-left">
+                            <span class="profile-badge badge-neutral"><i class="fa fa-id-badge"></i><%= roleValue %></span>
+                            <div class="verification-text">
+                              <strong>Access Level</strong>
+                              <span>This value is controlled by the system and cannot be edited here.</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label d-block">Status</label>
+                        <div class="verification-row">
+                          <div class="verification-left">
+                            <span class="status-badge <%= statusValue === 'active' ? 'status-active' : 'status-inactive' %>"><i class="fa <%= statusValue === 'active' ? 'fa-check-circle' : 'fa-clock-o' %>"></i><%= statusValue %></span>
+                            <div class="verification-text">
+                              <strong>Account Status</strong>
+                              <span>This is managed by the master admin or system rules.</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <label class="form-label">Session Version</label>
+                        <div class="readonly-box"><strong><%= sessionVersionValue %></strong></div>
+                        <span class="helper-text">Updates automatically after login or remote logout.</span>
+                      </div>
+                    </div>
+                  </form>
+                </section>
+
+                <section class="profile-card">
+                  <h3 class="section-title">Account Information</h3>
+                  <p class="section-subtitle">A quick summary of your identity, session history, and access state.</p>
+
+                  <div class="info-grid mb-3">
+                    <div class="info-row"><span class="info-label">Status</span><span class="info-value"><span class="status-badge <%= statusValue === 'active' ? 'status-active' : 'status-inactive' %>"><i class="fa <%= statusValue === 'active' ? 'fa-check-circle' : 'fa-clock-o' %>"></i><%= statusValue %></span></span></div>
+                    <div class="info-row"><span class="info-label">Role</span><span class="info-value"><%= roleValue %></span></div>
+                    <div class="info-row"><span class="info-label">Member Since</span><span class="info-value"><%= createdText %></span></div>
+                    <div class="info-row"><span class="info-label">Last Updated</span><span class="info-value" id="lastUpdatedValue"><%= updatedText %></span></div>
+                    <div class="info-row"><span class="info-label">Last Login</span><span class="info-value" id="lastLoginValue"><%= lastLoginText %></span></div>
+                    <div class="info-row"><span class="info-label">Last Attempt Time</span><span class="info-value" id="lastAttemptValueRow"><%= lastAttemptText %></span></div>
+                    <div class="info-row"><span class="info-label">Last Logout</span><span class="info-value" id="lastLogoutValue"><%= lastLogoutText %></span></div>
+                    <div class="info-row"><span class="info-label">Last Activity</span><span class="info-value" id="lastActivityValue"><%= lastActivityText %></span></div>
+                  </div>
+                  
+                  <h3 class="section-title">Quick Actions</h3>
+                  <div class="quick-actions">
+                    <a href="/admin/a/dashboard" class="quick-action-item"><i class="fa fa-tachometer"></i><span>Dashboard</span></a>
+                    <a href="/admin/a/profile/myprofile" class="quick-action-item"><i class="fa fa-refresh"></i><span>Reload Profile</span></a>
+                    <a href="/admin/a/logout" class="quick-action-item"><i class="fa fa-sign-out"></i><span>Logout</span></a>
+                    <a href="/admin/a/sign/in" class="quick-action-item"><i class="fa fa-lock"></i><span>Sign In</span></a>
+                  </div>
+                </section>
+              </div>
+            </section>
+          </div>
+
+          <div style="padding-top: 12px;">
+            <%- include('../../includes/account-footer') %>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+  <script src="/customer/js/vendor/jquery-1.12.4.min.js"></script>
+  <script src="/customer/js/vendor/popper.min.js"></script>
+  <script src="/customer/js/bootstrap.min.js"></script>
+  <script src="/customer/js/main.js"></script>
+
+  <script>
+    (function() {
+      const layout = document.getElementById('accountLayout');
+      const sidebar = document.getElementById('accountSidebar');
+      const toggleBtn = document.getElementById('accountToggleBtn');
+      const backdrop = document.getElementById('accountBackdrop');
+      const form = document.getElementById('profileForm');
+      const subSidebar = document.getElementById('profileSubSidebar');
+      const subnavToggleBtn = document.getElementById('subnavToggleBtn');
+      const subnavToggleBtnDesktop = document.getElementById('subnavToggleBtnDesktop');
+      const subnavList = document.getElementById('subnavList');
+
+      const savingDot = document.getElementById('savingDot');
+      const savingText = document.getElementById('savingText');
+      const toast = document.getElementById('toastMini');
+
+      const profileNameDisplay = document.getElementById('profileNameDisplay');
+      const topbarUserName = document.getElementById('topbarUserName');
+      const phoneDisplay = document.getElementById('phoneDisplay');
+      const emailDisplay = document.getElementById('emailDisplay');
+      const avatarInitials = document.getElementById('avatarInitials');
+      const lastUpdatedValue = document.getElementById('lastUpdatedValue');
+      const lastLoginValue = document.getElementById('lastLoginValue');
+      const lastAttemptValueRow = document.getElementById('lastAttemptValueRow');
+      const lastLogoutValue = document.getElementById('lastLogoutValue');
+      const lastActivityValue = document.getElementById('lastActivityValue');
+      const onlineBadge = document.getElementById('onlineBadge');
+      const presenceDot = document.getElementById('presenceDot');
+      const inputs = form ? form.querySelectorAll('.js-autosave') : [];
+
+      let timer = null;
+      let lastPayload = '';
+      let isSaving = false;
+
+      function isMobile() {
+        return window.innerWidth <= 991;
+      }
+
+      function setSavingState(state, message) {
+        if (!savingDot || !savingText) return;
+        savingDot.classList.remove('is-saving', 'is-saved', 'is-error');
+        if (state === 'saving') {
+          savingDot.classList.add('is-saving');
+          savingText.textContent = message || 'Saving...';
+        } else if (state === 'saved') {
+          savingDot.classList.add('is-saved');
+          savingText.textContent = message || 'All changes saved';
+        } else if (state === 'error') {
+          savingDot.classList.add('is-error');
+          savingText.textContent = message || 'Save failed';
+        } else {
+          savingText.textContent = message || 'All changes saved';
+        }
+      }
+
+      function showToast(message) {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => toast.classList.remove('show'), 2200);
+      }
+
+      function getFormDataObject() {
+        const fd = new FormData(form);
+        const data = {};
+        for (const [key, value] of fd.entries()) data[key] = String(value).trim();
+        return data;
+      }
+
+      function formatDateTime(value) {
+        if (!value) return 'Not available';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return 'Not available';
+        return date.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+
+      function updateHeaderFromForm() {
+        const fullName = document.getElementById('full_name')?.value?.trim() || 'Admin';
+        const phone = document.getElementById('phone')?.value?.trim() || 'No phone added';
+        const email = document.getElementById('emailDisplay')?.textContent?.trim() || '—';
+
+        if (profileNameDisplay) profileNameDisplay.textContent = fullName;
+        if (topbarUserName) topbarUserName.textContent = fullName;
+        if (phoneDisplay) phoneDisplay.textContent = phone;
+        if (emailDisplay) emailDisplay.textContent = email;
+
+        if (avatarInitials) {
+          const initials = fullName.split(' ').filter(Boolean).slice(0, 2).map(word => word[0]?.toUpperCase() || '').join('') || 'A';
+          avatarInitials.textContent = initials;
+        }
+      }
+
+      function applyPresenceUI(isOnline) {
+        if (onlineBadge) {
+          onlineBadge.classList.remove('badge-online', 'badge-offline');
+          onlineBadge.classList.add(isOnline ? 'badge-online' : 'badge-offline');
+          onlineBadge.innerHTML = isOnline ? '<i class="fa fa-circle"></i> Online' : '<i class="fa fa-power-off"></i> Offline';
+        }
+        if (presenceDot) {
+          presenceDot.classList.remove('is-online', 'is-offline');
+          presenceDot.classList.add(isOnline ? 'is-online' : 'is-offline');
+        }
+      }
+
+      function applyProfileTimingUI(admin) {
+        if (lastUpdatedValue && admin?.updated_at) lastUpdatedValue.textContent = new Date(admin.updated_at).toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        });
+        if (lastLoginValue) lastLoginValue.textContent = formatDateTime(admin?.last_login_at);
+        if (lastAttemptValueRow) lastAttemptValueRow.textContent = formatDateTime(admin?.last_attempt_time);
+        if (lastLogoutValue) lastLogoutValue.textContent = formatDateTime(admin?.last_logout_at);
+        if (lastActivityValue) lastActivityValue.textContent = formatDateTime(admin?.last_activity_at);
+        applyPresenceUI(!!admin?.is_online);
+      }
+
+      function closeMobileSidebar() {
+        sidebar?.classList.remove('open');
+        backdrop?.classList.remove('show');
+        document.body.style.overflow = '';
+        toggleBtn?.setAttribute('aria-expanded', 'false');
+      }
+
+      function applySidebarMode() {
+        if (!layout || !sidebar) return;
+        if (isMobile()) {
+          closeMobileSidebar();
+          layout.classList.remove('sidebar-expanded');
+          layout.classList.add('sidebar-collapsed');
+          sidebar.classList.add('collapsed');
+          sidebar.classList.remove('expanded');
+          if (subSidebar) subSidebar.classList.remove('open');
+          if (subnavList) subnavList.style.display = 'none';
+          return;
+        }
+        layout.classList.remove('sidebar-expanded');
+        layout.classList.add('sidebar-collapsed');
+        sidebar.classList.add('collapsed');
+        sidebar.classList.remove('expanded');
+        backdrop?.classList.remove('show');
+        document.body.style.overflow = '';
+        if (subSidebar) subSidebar.classList.add('open');
+        if (subnavList) subnavList.style.display = 'flex';
+      }
+
+      function toggleSubnav() {
+        if (!subSidebar || !subnavList) return;
+        const isOpen = subSidebar.classList.toggle('open');
+        if (isMobile()) subnavList.style.display = isOpen ? 'flex' : 'none';
+        document.querySelectorAll('#subnavToggleBtn i, #subnavToggleBtnDesktop i').forEach(i => i.className = isOpen ? 'fa fa-angle-up' : 'fa fa-angle-down');
+      }
+
+      async function saveProfile() {
+        if (isSaving) return;
+        const payload = getFormDataObject();
+        const payloadKey = JSON.stringify(payload);
+        if (payloadKey === lastPayload) return;
+
+        isSaving = true;
+        setSavingState('saving', 'Saving changes...');
+
+        try {
+          const body = new URLSearchParams();
+          Object.entries(payload).forEach(([key, value]) => body.append(key, value));
+
+          const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              'Accept': 'application/json',
+              'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            },
+            body: body.toString()
+          });
+
+          const text = await response.text();
+          let data;
+          try {
+            data = text ? JSON.parse(text) : {};
+          } catch (parseErr) {
+            throw new Error('Server did not return JSON.');
+          }
+
+          if (!response.ok || !data.ok) throw new Error(data.message || `Save failed (${response.status})`);
+
+          lastPayload = payloadKey;
+          updateHeaderFromForm();
+          applyProfileTimingUI(data.admin || data.user || {});
+          setSavingState('saved', 'Saved');
+          showToast(data.message || 'Profile updated successfully');
+        } catch (error) {
+          console.error(error);
+          setSavingState('error', 'Save failed');
+          showToast(error.message || 'Save failed');
+        } finally {
+          isSaving = false;
+        }
+      }
+
+      function scheduleSave() {
+        updateHeaderFromForm();
+        setSavingState('saving', 'Typing...');
+        clearTimeout(timer);
+        timer = setTimeout(saveProfile, 800);
+      }
+
+      inputs.forEach(input => {
+        input.addEventListener('input', scheduleSave);
+        input.addEventListener('change', scheduleSave);
+      });
+
+      toggleBtn?.addEventListener('click', () => {
+        if (isMobile()) {
+          const isOpen = sidebar.classList.contains('open');
+          if (isOpen) closeMobileSidebar();
+          else {
+            sidebar.classList.add('open');
+            backdrop?.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            toggleBtn.setAttribute('aria-expanded', 'true');
+          }
+          return;
+        }
+        const expanded = layout.classList.toggle('sidebar-expanded');
+        layout.classList.toggle('sidebar-collapsed', !expanded);
+        sidebar.classList.toggle('collapsed', !expanded);
+        sidebar.classList.toggle('expanded', expanded);
+      });
+
+      [subnavToggleBtn, subnavToggleBtnDesktop].forEach(btn => btn?.addEventListener('click', toggleSubnav));
+      backdrop?.addEventListener('click', closeMobileSidebar);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMobileSidebar();
+      });
+      window.addEventListener('resize', applySidebarMode);
+
+      function init() {
+        lastPayload = JSON.stringify(getFormDataObject());
+        updateHeaderFromForm();
+        setSavingState('saved', 'All changes saved');
+        applyProfileTimingUI({
+          is_online: <%= JSON.stringify(isOnline) %>,
+          updated_at: <%- JSON.stringify(adminData?.updated_at || null) %>,
+          last_login_at: <%- JSON.stringify(adminData?.last_login_at || null) %>,
+          last_attempt_time: <%- JSON.stringify(adminData?.last_attempt_time || null) %>,
+          last_logout_at: <%- JSON.stringify(adminData?.last_logout_at || null) %>,
+          last_activity_at: <%- JSON.stringify(adminData?.last_activity_at || null) %>
+        });
+        applySidebarMode();
+      }
+
+      init();
+    })();
+  </script>
+
+</body>
+
+</html>

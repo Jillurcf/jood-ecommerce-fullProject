@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title>My Orders — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="View and manage all your placed orders in your JOOD account." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/customer/css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+  <link rel="stylesheet" href="/customer/css/animate.css" />
+  <link rel="stylesheet" href="/customer/css/jquery-ui.min.css" />
+  <link rel="stylesheet" href="/customer/css/meanmenu.css" />
+  <link rel="stylesheet" href="/customer/css/owl.carousel.min.css" />
+  <link rel="stylesheet" href="/customer/css/slick.css" />
+  <link rel="stylesheet" href="/customer/css/venobox.css" />
+  <link rel="stylesheet" href="/customer/css/nice-select.css" />
+  <link rel="stylesheet" href="/customer/css/magnific-popup.css" />
+  <link rel="stylesheet" href="/customer/css/helper.css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <style>
+    :root{
+      --page-bg:#ffffff;
+      --card-bg:#ffffff;
+      --card-border:#e5eaf1;
+      --line:#e8edf3;
+      --text:#0f172a;
+      --muted:#64748b;
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      background:var(--page-bg);
+      color:var(--text);
+    }
+
+    .account-layout{ min-height:100vh; }
+    .account-content{ background:transparent; }
+    .account-page-content{ min-width:0; }
+
+    .profile-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .profile-card{
+      background:var(--card-bg);
+      border:1px solid var(--card-border);
+      border-radius:var(--radius);
+      padding:18px;
+    }
+
+    .section-title{
+      margin:0 0 8px;
+      font-size:.98rem;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .section-subtitle{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-size:.82rem;
+      font-weight:400;
+      line-height:1.45;
+    }
+
+    .ordersx-page-container {
+      max-width: 1250px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .ordersx-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .ordersx-page-header h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: #222;
+    }
+
+    .ordersx-page-subtitle {
+      margin: 6px 0 0;
+      color: #777;
+      font-size: 14px;
+    }
+
+
+    .ordersx-summary-bar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .ordersx-summary-box {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .ordersx-summary-label {
+      display: block;
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 6px;
+    }
+
+    .ordersx-summary-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.2;
+    }
+
+    .ordersx-total-box {
+      background: #111;
+      border-color: #111;
+    }
+
+    .ordersx-total-box .ordersx-summary-label,
+    .ordersx-total-box .ordersx-summary-value {
+      color: #fff;
+    }
+
+    .ordersx-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 14px;
+    }
+
+    .ordersx-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+
+    .ordersx-table th,
+    .ordersx-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .ordersx-table th {
+      background: #fafafa;
+      font-weight: 700;
+      color: #333;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .ordersx-table td {
+      font-size: 14px;
+      color: #222;
+    }
+
+    .ordersx-order-cell {
+      text-align: left;
+    }
+
+    .ordersx-order-number {
+      display: block;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 4px;
+      text-decoration: none;
+    }
+
+    .ordersx-order-number:hover {
+      text-decoration: underline;
+    }
+
+    .ordersx-order-meta {
+      display: block;
+      font-size: 12px;
+      color: #777;
+      line-height: 1.5;
+    }
+
+    .ordersx-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    .ordersx-badge-pending{
+      background:#fff3cd;
+      color:#856404;
+    }
+
+    .ordersx-badge-confirmed{
+      background:#d1ecf1;
+      color:#0c5460;
+    }
+
+    .ordersx-badge-processing{
+      background:#cce5ff;
+      color:#004085;
+    }
+
+    .ordersx-badge-ongoing{
+      background:#e2e3ff;
+      color:#383d7a;
+    }
+
+    .ordersx-badge-completed{
+      background:#d4edda;
+      color:#155724;
+    }
+
+    .ordersx-badge-cancelled{
+      background:#f8d7da;
+      color:#721c24;
+    }
+
+    .ordersx-badge-refunded{
+      background:#ececec;
+      color:#444;
+    }
+
+    .ordersx-badge-paid{
+      background:#d4edda;
+      color:#155724;
+    }
+
+    .ordersx-badge-failed,
+    .ordersx-badge-unpaid,
+    .ordersx-badge-pendingpayment{
+      background:#f8d7da;
+      color:#721c24;
+    }
+
+    .ordersx-badge-partiallypaid{
+      background:#fff3cd;
+      color:#856404;
+    }
+
+    .ordersx-empty-cart {
+      padding: 40px 20px;
+      text-align: center;
+      color: #666;
+    }
+
+    .ordersx-empty-cart h3 {
+      margin: 0 0 10px;
+      color: #222;
+    }
+
+    .ordersx-empty-cart p { margin: 0 0 18px; }
+
+    .ordersx-empty-cart a {
+      display: inline-block;
+      text-decoration: none;
+      background: #111;
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: 8px;
+    }
+
+    .ordersx-address {
+      max-width: 240px;
+      margin: 0 auto;
+      font-size: 12px;
+      color: #444;
+      line-height: 1.45;
+      text-align: left;
+      word-break: break-word;
+    }
+
+    .ordersx-order-date {
+      white-space: nowrap;
+    }
+
+    .ordersx-payment-method{
+      display:block;
+      font-weight:600;
+      color:#111;
+      text-transform: capitalize;
+    }
+
+    .ordersx-payment-reference{
+      display:block;
+      margin-top:4px;
+      font-size:12px;
+      color:#777;
+      word-break: break-word;
+    }
+
+  .ordersx-clickable-row {
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .ordersx-clickable-row:hover {
+      background: #f8f8f8;
+    }
+
+    .ordersx-clickable-row:hover td {
+      color: #111;
+    }
+
+    .ordersx-clickable-row:hover .ordersx-order-number {
+      color: #000;
+    }
+
+    .toast-mini{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:1060;
+      min-width:220px;
+      max-width:90vw;
+      padding:12px 14px;
+      border-radius:13px;
+      background:#0f172a;
+      color:#fff;
+      font-size:.86rem;
+      font-weight:400;
+      transform:translateY(18px);
+      opacity:0;
+      pointer-events:none;
+      transition:.25s ease;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .toast-mini.show{ transform:translateY(0); opacity:1; }
+
+    @media (max-width: 768px){
+      .profile-card{ padding:16px; border-radius:15px; }
+      .ordersx-page-header{ flex-direction:column; align-items:flex-start; }
+      .ordersx-summary-bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<%
+  const safeUser = user || null;
+  const safeOrders = Array.isArray(orders) ? orders : [];
+
+  function orderText(v, fallback = "—") {
+    if (v === null || v === undefined || v === "") return fallback;
+    return String(v);
+  }
+
+  function fmtMoney(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "0.00";
+    return n.toFixed(2);
+  }
+
+  function fmtDate(v) {
+    if (!v) return "—";
+    try {
+      const d = new Date(v);
+      if (Number.isNaN(d.getTime())) return "—";
+      return d.toLocaleString("en-AE", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    } catch (e) {
+      return "—";
+    }
+  }
+
+  function badgeClass(value, prefix) {
+    const raw = String(value || "pending").trim().toLowerCase().replace(/\s+/g, "");
+    return `${prefix}-${raw || "pending"}`;
+  }
+
+  const totalOrders = safeOrders.length;
+  const totalValue = safeOrders.reduce((sum, order) => {
+    const amount = Number(order?.grand_total ?? 0);
+    return sum + (Number.isFinite(amount) ? amount : 0);
+  }, 0);
+
+  const latestOrder = safeOrders.length ? safeOrders[0] : null;
+%>
+
+<div class="account-layout" id="accountLayout">
+  <aside class="account-sidebar" id="accountSidebar" aria-label="Account Sidebar">
+    <%- include('../includes/account-sidebar', {
+      user: safeUser,
+      activePage: 'orders'
+    }) %>
+  </aside>
+
+  <div class="account-right">
+    <%- include('../includes/account-topbar') %>
+
+    <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+    <main class="account-content">
+      <section class="account-page-content">
+        <div class="profile-wrap">
+          <div class="profile-card">
+            <h3 class="section-title">Orders Overview</h3>
+            <p class="section-subtitle">All your placed orders are shown below, including payment and order status.</p>
+
+            <div class="ordersx-page-container">
+              <div class="ordersx-page-header">
+                <div>
+                  <h2>Your Orders</h2>
+                  <p class="ordersx-page-subtitle">
+                    <%= totalOrders ? `${totalOrders} order(s) found` : 'No orders found yet' %>
+                  </p>
+                </div>
+              </div>
+
+              <div class="ordersx-summary-bar">
+                <div class="ordersx-summary-box">
+                  <span class="ordersx-summary-label">Total Orders</span>
+                  <span class="ordersx-summary-value"><%= totalOrders %></span>
+                </div>
+
+                <div class="ordersx-summary-box ordersx-total-box">
+                  <span class="ordersx-summary-label">Latest Order</span>
+                  <span class="ordersx-summary-value">
+                    <%= latestOrder ? `#${orderText(latestOrder.order_number, latestOrder.id)}` : '—' %>
+                  </span>
+                </div>
+              </div>
+
+              <div class="ordersx-table-wrap">
+                <table class="ordersx-table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>Date</th>
+                      <th>Grand Total</th>
+                      <th>Payment Method</th>
+                      <th>Payment Status</th>
+                      <th>Order Status</th>
+                      <th>Tracking ID</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (!safeOrders.length) { %>
+                      <tr>
+                        <td colspan="8">
+                          <div class="ordersx-empty-cart">
+                            <h3>No Orders Found</h3>
+                            <p>You have not placed any orders yet.</p>
+                            <a href="/">Start Shopping</a>
+                          </div>
+                        </td>
+                      </tr>
+                    <% } else { %>
+                      <% safeOrders.forEach((order) => { %>
+                    <tr
+                        class="ordersx-clickable-row"
+                        data-href="/customer/u/orders/<%= order.id %>"
+                        tabindex="0"
+                        role="link"
+                      >
+                        <td class="ordersx-order-cell">
+                          <span class="ordersx-order-number">
+                            #<%= orderText(order.order_number, order.id) %>
+                          </span>
+                        </td>
+
+                        <td class="ordersx-order-date">
+                          <%= fmtDate(order.created_at) %>
+                        </td>
+
+                        <td>
+                          AED <%= fmtMoney(order.grand_total) %>
+                        </td>
+
+                        <td>
+                          <span class="ordersx-payment-method">
+                            <%= orderText(order.payment_method) %>
+                          </span>
+
+                          <% if (order.payment_reference) { %>
+                            <span class="ordersx-payment-reference">
+                              Ref: <%= orderText(order.payment_reference) %>
+                            </span>
+                          <% } %>
+                        </td>
+
+                        <td>
+                          <span class="ordersx-badge <%= badgeClass(order.payment_status, 'ordersx-badge') %>">
+                            <%= orderText(order.payment_status) %>
+                          </span>
+                        </td>
+
+                        <td>
+                          <span class="ordersx-badge <%= badgeClass(order.order_status || order.status, 'ordersx-badge') %>">
+                            <%= orderText(order.order_status || order.status) %>
+                          </span>
+                        </td>
+
+                        <td>
+                          <div class="ordersx-order-meta" style="text-align:center;">
+                            <%= orderText(order.tracking_id) %>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <%- include('../includes/account-footer') %>
+  </div>
+</div>
+
+<div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+<script src="/customer/js/account.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script src="/customer/js/vendor/jquery-1.12.4.min.js"></script>
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/ajax-mail.js"></script>
+<script src="/customer/js/jquery.meanmenu.min.js"></script>
+<script src="/customer/js/wow.min.js"></script>
+<script src="/customer/js/slick.min.js"></script>
+<script src="/customer/js/owl.carousel.min.js"></script>
+<script src="/customer/js/jquery.magnific-popup.min.js"></script>
+<script src="/customer/js/isotope.pkgd.min.js"></script>
+<script src="/customer/js/imagesloaded.pkgd.min.js"></script>
+<script src="/customer/js/jquery.mixitup.min.js"></script>
+<script src="/customer/js/jquery.countdown.min.js"></script>
+<script src="/customer/js/jquery.counterup.min.js"></script>
+<script src="/customer/js/waypoints.min.js"></script>
+<script src="/customer/js/jquery.barrating.min.js"></script>
+<script src="/customer/js/jquery-ui.min.js"></script>
+<script src="/customer/js/venobox.min.js"></script>
+<script src="/customer/js/jquery.nice-select.min.js"></script>
+<script src="/customer/js/scrollUp.min.js"></script>
+<script src="/customer/js/main.js"></script>
+
+<script>
+  (function () {
+    "use strict";
+
+    function showToast(message) {
+      const toast = document.getElementById("toastMini");
+      if (!toast) return;
+
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      clearTimeout(window.__ordersToastTimer);
+      window.__ordersToastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const rows = document.querySelectorAll(".ordersx-table tbody tr");
+
+      if (!rows.length) {
+        showToast("No orders found");
+      }
+
+      // Make order rows clickable
+      document.querySelectorAll(".ordersx-clickable-row").forEach((row) => {
+        row.addEventListener("click", function () {
+          const href = this.dataset.href;
+          if (href) {
+            window.location.href = href;
+          }
+        });
+
+        row.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+
+            const href = this.dataset.href;
+            if (href) {
+              window.location.href = href;
+            }
+          }
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

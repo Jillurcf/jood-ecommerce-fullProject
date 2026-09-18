@@ -1,0 +1,3383 @@
+<%
+  // =========================================================
+  // SAFE HELPERS
+  // =========================================================
+  const safeDate = (v) => {
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const fmtDateTime = (v) => {
+    const d = safeDate(v);
+
+    return d
+      ? d.toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "Not available";
+  };
+
+  const fmtDate = (v) => {
+    const d = safeDate(v);
+
+    return d
+      ? d.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      : "Not available";
+  };
+
+  const safeJson = (v, fallback = {}) => {
+    try {
+      return JSON.stringify(v ?? fallback);
+    } catch (err) {
+      return JSON.stringify(fallback);
+    }
+  };
+
+  const normalizeRole = (role = "") => {
+    return String(role)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+  };
+
+  // =========================================================
+  // ADMIN DATA
+  // =========================================================
+  const adminData =
+    (typeof admin !== "undefined" && admin) ||
+    (typeof user !== "undefined" && user) ||
+    (typeof sessionAdmin !== "undefined" && sessionAdmin) ||
+    {};
+
+  // =========================================================
+  // BILLING DATA
+  // =========================================================
+  const overviewData =
+    typeof overview !== "undefined" && overview
+      ? overview
+      : {};
+
+  const chartDataSafe =
+    typeof chartData !== "undefined" && chartData
+      ? chartData
+      : {};
+
+  const billingRowsSafe = Array.isArray(billingRows)
+    ? billingRows
+    : [];
+
+  const paginationSafe =
+    typeof pagination !== "undefined" && pagination
+      ? pagination
+      : {};
+
+  const filtersSafe =
+    typeof filters !== "undefined" && filters
+      ? filters
+      : {};
+
+  // =========================================================
+  // ROUTES
+  // =========================================================
+  const currentBillingRouteSafe =
+    typeof currentBillingRoute !== "undefined" &&
+    currentBillingRoute
+      ? currentBillingRoute
+      : "/admin/a/account/billing";
+
+  const realtimeEndpointSafe =
+    typeof realtimeEndpoint !== "undefined" &&
+    realtimeEndpoint
+      ? realtimeEndpoint
+      : `${currentBillingRouteSafe}/realtime`;
+
+  const exportEndpointSafe =
+    typeof exportEndpoint !== "undefined" &&
+    exportEndpoint
+      ? exportEndpoint
+      : `${currentBillingRouteSafe}/export/pdf`;
+
+  // =========================================================
+  // CHART DATA
+  // =========================================================
+  const monthlySeries = Array.isArray(chartDataSafe.monthly)
+    ? chartDataSafe.monthly
+    : [];
+
+  const byStatus = Array.isArray(chartDataSafe.byStatus)
+    ? chartDataSafe.byStatus
+    : [];
+
+  const byMethod = Array.isArray(chartDataSafe.byMethod)
+    ? chartDataSafe.byMethod
+    : [];
+
+  // =========================================================
+  // OVERVIEW TOTALS
+  // =========================================================
+  const totalUsers = Number(overviewData.totalUsers || 0);
+
+  const usersWithOrders = Number(
+    overviewData.usersWithOrders || 0
+  );
+
+  const paidUsers = Number(
+    overviewData.paidUsers || 0
+  );
+
+  const totalRevenue = Number(
+    overviewData.totalRevenue || 0
+  );
+
+  const totalRefunds = Number(
+    overviewData.totalRefunds || 0
+  );
+
+  const pendingPayments = Number(
+    overviewData.pendingPayments || 0
+  );
+
+  const totalOrders = Number(
+    overviewData.totalOrders || 0
+  );
+
+  const totalAddresses = Number(
+    overviewData.totalAddresses || 0
+  );
+
+  const thisMonthRevenue = Number(
+    overviewData.thisMonthRevenue || 0
+  );
+
+  // =========================================================
+  // CURRENCY
+  // =========================================================
+  const currencyFallback = "AED";
+
+  const firstRow = billingRowsSafe[0] || {};
+
+  const currency =
+    firstRow.last_order_currency ||
+    currencyFallback;
+
+  // =========================================================
+  // PAGE INFO
+  // =========================================================
+  const adminName =
+    typeof adminUser !== "undefined" && adminUser
+      ? adminUser.full_name ||
+        adminUser.name ||
+        "Admin"
+      : "Admin";
+
+  const pageTitle =
+    typeof title !== "undefined"
+      ? title
+      : "Admin Billing";
+
+  // =========================================================
+  // INITIAL VALUES
+  // =========================================================
+  const initialRows = billingRowsSafe;
+  const initialFilters = filtersSafe;
+
+  // =========================================================
+  // ADMIN VALUES
+  // =========================================================
+  const fullNameValue =
+    adminData?.full_name || "Admin";
+
+  const emailValue =
+    adminData?.email || "—";
+
+  const phoneValue =
+    adminData?.phone || "";
+
+  const statusValue =
+    adminData?.status || "active";
+
+  const adminIdValue =
+    adminData?.admin_id || "—";
+
+  const sessionVersionValue =
+    adminData?.session_version || 1;
+
+  const isOnline = !!adminData?.is_online;
+
+  const roleValue = normalizeRole(
+  adminData?.role ||
+  (typeof user !== "undefined" ? user?.role : null) ||
+  (typeof sessionAdmin !== "undefined" ? sessionAdmin?.role : null) ||
+  (typeof currentAdmin !== "undefined" ? currentAdmin?.role : null) ||
+  (typeof locals !== "undefined" ? locals?.role : null) ||
+  "admin"
+);
+
+  // =========================================================
+  // DATES
+  // =========================================================
+  const lastAttemptText = fmtDateTime(
+    adminData?.last_attempt_time
+  );
+
+  const lastLoginText = fmtDateTime(
+    adminData?.last_login_at
+  );
+
+  const lastLogoutText = fmtDateTime(
+    adminData?.last_logout_at
+  );
+
+  const lastActivityText = fmtDateTime(
+    adminData?.last_activity_at
+  );
+
+  const createdText = fmtDate(
+    adminData?.created_at
+  );
+
+  const updatedText = fmtDate(
+    adminData?.updated_at
+  );
+
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>My Billing — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="Manage your JOOD billing details, review payment summary, and control account payment access securely." />
+  <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="My Billing — JOOD Account Dashboard" />
+  <meta property="og:description" content="Update billing details, review payment analytics, and manage account access securely." />
+  <meta property="og:url" content="https://jood.com/customer/u/account/billing" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="My Billing — JOOD" />
+  <meta name="twitter:description" content="Manage your JOOD billing details and payment access." />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --card: #ffffff;
+    --border: #e5eaf3;
+    --border-strong: #cfd8e3;
+    --text: #0f172a;
+    --muted: #64748b;
+    --primary: #f59e0b;
+    --primary-hover: #d97706;
+    --primary-soft: rgba(245, 158, 11, 0.12);
+    --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    --radius: 22px;
+    --radius-sm: 14px;
+    --sidebar-wide: 280px;
+    --sidebar-collapsed: 78px;
+    --topbar-height: 68px;
+    --green-bg: #ecfdf5;
+    --blue-bg: #eff6ff;
+    --amber-bg: #fffbeb;
+    --red-bg: #fef2f2;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --line-strong: var(--border-strong);
+
+    --billing-muted: #64748b;
+    --billing-soft: #f8fafc;
+    --billing-border: #e2e8f0;
+    --billing-text: #0f172a;
+  }
+
+  * { box-sizing: border-box; min-width: 0; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    background: var(--bg);
+  }
+
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      -webkit-text-size-adjust: 100%;
+      text-rendering: optimizeLegibility;
+      background: #fff;
+    }
+
+  a { text-decoration: none; color: inherit; }
+  img, svg, canvas, video { max-width: 100%; height: auto; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+
+  .billing-page { background: var(--bg); color: var(--text); }
+  .account-layout { width: 100%; max-width: 100%; min-height: 100vh; position: relative; display: block; background: #fff; overflow: hidden; }
+  .account-sidebar {
+      position: fixed; top: 0; left: 0; width: var(--sidebar-collapsed); height: 100vh;
+      background: #fff; border-right: 1px solid var(--border); z-index: 1040;
+      overflow-x: hidden; overflow-y: auto; transition: width 0.25s ease, transform 0.25s ease;
+  }
+  .account-layout.sidebar-collapsed .account-sidebar,
+  .account-sidebar.collapsed { width: var(--sidebar-collapsed); }
+  .account-layout.sidebar-expanded .account-sidebar,
+  .account-sidebar.expanded { width: var(--sidebar-wide); }
+
+
+ 
+  .account-brand-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+  }
+
+  .account-logo {
+    display: block;
+    width: 100%;
+    max-width: 150px;
+    height: auto;
+  }
+
+
+  .account-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .account-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .avatar-initials {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #2d6cdf;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .account-name {
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.3;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .account-email {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+    word-break: break-word;
+  }
+
+  .account-nav {
+    padding: 12px;
+  }
+
+  .account-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    margin-bottom: 4px;
+    min-width: 0;
+  }
+
+  .account-nav-link:hover {
+    background: rgba(245, 158, 11, 0.10);
+    transform: translateX(2px);
+    color: #000;
+  }
+
+  .account-nav-link.active {
+    background: var(--primary-soft);
+    color: var(--text);
+  }
+
+  .account-nav-link i {
+    width: 22px;
+    text-align: center;
+    color: var(--primary);
+    font-size: 16px;
+    flex: 0 0 auto;
+  }
+
+  .account-nav-link.logout i {
+    color: #ef4444;
+  }
+
+  .account-layout.sidebar-collapsed .account-name,
+  .account-layout.sidebar-collapsed .account-email,
+  .account-layout.sidebar-collapsed .link-text,
+  .account-sidebar.collapsed .account-name,
+  .account-sidebar.collapsed .account-email,
+  .account-sidebar.collapsed .link-text {
+    display: none;
+  }
+
+  .account-layout.sidebar-collapsed .account-profile,
+  .account-sidebar.collapsed .account-profile {
+    align-items: center;
+  }
+
+  .account-layout.sidebar-collapsed .account-nav-link,
+  .account-sidebar.collapsed .account-nav-link {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .account-layout.sidebar-collapsed .account-nav-link i,
+  .account-sidebar.collapsed .account-nav-link i {
+    width: auto;
+    min-width: 22px;
+    font-size: 18px;
+  }
+
+  .account-layout.sidebar-collapsed .account-sidebar-brand,
+  .account-sidebar.collapsed .account-sidebar-brand {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .account-right {
+    min-width: 0;
+    margin-left: var(--sidebar-collapsed);
+    width: calc(100% - var(--sidebar-collapsed));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    transition: margin-left 0.25s ease, width 0.25s ease;
+  }
+
+  .account-layout.sidebar-expanded .account-right {
+    margin-left: var(--sidebar-wide);
+    width: calc(100% - var(--sidebar-wide));
+  }
+  
+
+  .account-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-collapsed);
+    right: 0;
+    height: var(--topbar-height);
+    min-height: var(--topbar-height);
+    padding: 10px 18px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: auto;
+    transition: left 0.25s ease;
+  }
+
+  .account-layout.sidebar-expanded .account-topbar {
+    left: var(--sidebar-wide);
+  }
+
+  .account-topbar-left,
+  .account-topbar-right,
+  .topbar-left,
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .account-toggle-btn,
+  .btn-export-wide,
+  .btn-secure,
+  .btn-ghost {
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0 14px;
+    font-weight: 800;
+    transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .account-toggle-btn {
+    width: 44px;
+    padding: 0;
+    flex: 0 0 auto;
+  }
+
+  .btn-secure {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .btn-secure:hover {
+    background: var(--primary-hover);
+    color: #fff;
+  }
+
+  .btn-ghost:hover,
+  .btn-export-wide:hover,
+  .account-toggle-btn:hover {
+    border-color: var(--line-strong);
+  }
+
+  .account-toggle-btn i,
+  .btn-export-wide i,
+  .btn-secure i,
+  .btn-ghost i {
+    font-size: 16px;
+    flex: 0 0 auto;
+  }
+
+  .topbar-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .topbar-title .title {
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-title .sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .account-user-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .account-user-mini i {
+    font-size: 20px;
+    color: #475569;
+    flex: 0 0 auto;
+  }
+
+  .account-user-mini span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 90px;
+  }
+
+  .account-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.22);
+    z-index: 1035;
+  }
+
+  .account-backdrop.show {
+    display: block;
+  }
+
+  .account-content-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overflow-x: hidden;
+    padding: calc(var(--topbar-height) + 18px) 18px 18px;
+    background: var(--bg);
+    width: 100%;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .account-content-wrap::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .account-content-wrap::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+  }
+
+  .account-content-wrap:hover::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+  }
+
+  .account-content-wrap::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .billing-shell,
+  .billing-page-shell {
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  .billing-subsidebar,
+  .card-panel,
+  .profile-card,
+  .summary-box,
+  .chart-card,
+  .billing-results-card,
+  .billing-toolbar,
+  .billing-filter-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .billing-subsidebar {
+    position: sticky;
+    top: calc(var(--topbar-height) + 18px);
+    align-self: start;
+    padding: 14px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+
+  .billing-sidepanel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 100%;
+    min-width: 0;
+  }
+
+  .billing-sidepanel-header {
+    padding: 14px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+
+  .billing-sidepanel-subtitle {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .billing-sidepanel-body {
+    border-top: 1px solid var(--border);
+    background: #fff;
+    overflow: hidden;
+    text-align: left;
+    min-width: 0;
+    padding-top: 12px;
+  }
+
+  .billing-main {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .card-panel {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .card-panel.pad,
+  .profile-card,
+  .chart-card,
+  .billing-results-card,
+  .billing-toolbar {
+    padding: 20px;
+  }
+
+  .header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .section-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    word-break: break-word;
+  }
+
+  .section-subtitle {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .status-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.82rem;
+    color: #334155;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .saving-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #94a3b8;
+    flex: 0 0 auto;
+  }
+
+  .saving-dot.is-saving {
+    background: #0f172a;
+    animation: pulse 1.2s infinite;
+  }
+
+  .saving-dot.is-saved {
+    background: #16a34a;
+  }
+
+  .saving-dot.is-error {
+    background: #dc2626;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    line-height: 1;
+    max-width: 100%;
+  }
+
+  .pill-verified {
+    background: var(--green-bg);
+    color: var(--success);
+    border-color: #c7eed6;
+  }
+
+  .pill-unverified {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+  }
+
+  .pill-neutral {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .summary-box {
+    padding: 16px;
+    min-height: 132px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .summary-box .label {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--billing-muted);
+    margin-bottom: 8px;
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .summary-box .value {
+    font-size: 1.45rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--billing-text);
+    word-break: break-word;
+  }
+
+  .summary-box .hint {
+    color: var(--billing-muted);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin-top: 6px;
+    word-break: break-word;
+  }
+
+  .summary-income { background: var(--blue-bg); }
+  .summary-success { background: var(--green-bg); }
+  .summary-warning { background: var(--amber-bg); }
+  .summary-danger { background: var(--red-bg); }
+
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .chart-card {
+    padding: 20px;
+    min-height: 360px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .chart-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .mini-stat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .mini-stat {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .mini-stat .k {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .mini-stat .v {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--text);
+    text-align: right;
+    word-break: break-word;
+  }
+
+  .mini-stat .s {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: right;
+    word-break: break-word;
+  }
+
+  .billing-live-clock {
+    font-weight: 700;
+    color: #334155;
+  }
+
+  .billing-live-clock small {
+    color: var(--billing-muted);
+    font-weight: 600;
+  }
+
+  .billing-toolbar {
+    margin-top: 14px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .billing-toolbar-top {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .billing-search-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .billing-search-grid .form-control,
+  .billing-search-grid .form-select {
+    min-height: 44px;
+    border-radius: 14px;
+  }
+
+  .billing-search-grid .input-group-text {
+    border-radius: 14px 0 0 14px;
+  }
+
+  .billing-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .billing-chip {
+    background: var(--billing-soft);
+    border: 1px solid var(--billing-border);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 0.84rem;
+    color: #334155;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .billing-results-card {
+    margin-top: 14px;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .billing-results-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .billing-results-meta {
+    color: var(--billing-muted);
+    font-size: 0.9rem;
+  }
+
+  .billing-results-list {
+    margin-top: 12px;
+    border: 1px solid var(--billing-border);
+    border-radius: 18px;
+    overflow: auto;
+    max-height: 520px;
+    background: #fff;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .billing-results-list::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .billing-results-list::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+  }
+
+  .billing-results-list:hover::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+  }
+
+  .billing-results-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .billing-results-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--billing-muted);
+  }
+
+  .billing-results-table {
+    margin: 0;
+    min-width: 1080px;
+  }
+
+  .billing-results-table thead th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+  }
+
+  .billing-results-table td,
+  .billing-results-table th {
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .result-actions .btn {
+    border-radius: 12px;
+  }
+
+  .order-link {
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .order-link:hover {
+    text-decoration: underline;
+  }
+
+  .muted {
+    color: var(--muted);
+  }
+
+  .profile-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: 16px;
+    align-items: start;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 14px;
+  }
+
+  .profile-card {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .profile-card.fixed-card {
+    min-height: 100%;
+  }
+
+  .form-label {
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+    font-size: 0.86rem;
+    display: block;
+    word-break: break-word;
+  }
+
+  .form-control,
+  .form-select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 46px;
+    border-radius: 14px;
+    border: 1px solid #dbe3ec;
+    font-size: 0.92rem;
+    background: #fff;
+    color: var(--text);
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #b8c4d1;
+    outline: none;
+  }
+
+  textarea.form-control {
+    min-height: 118px;
+    resize: vertical;
+  }
+
+  .readonly-box {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    background: #f8fafc;
+    border-radius: 14px;
+    font-size: 0.92rem;
+    color: var(--text);
+    word-break: break-word;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .helper-text {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .otp-panel {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .otp-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .otp-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .account-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eef2f7;
+    min-width: 0;
+  }
+
+  .info-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .info-label {
+    color: var(--muted);
+    font-size: 0.85rem;
+    word-break: break-word;
+  }
+
+  .info-value {
+    color: var(--text);
+    font-weight: 800;
+    text-align: right;
+    word-break: break-word;
+    font-size: 0.85rem;
+    min-width: 0;
+  }
+
+  .detail-grid,
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .detail-box {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .detail-box .k {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .detail-box .v {
+    font-size: 0.92rem;
+    color: var(--text);
+    font-weight: 900;
+    word-break: break-word;
+  }
+
+  .orders-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #fff;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .orders-table-wrap::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .orders-table-wrap::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+  }
+
+  .orders-table-wrap:hover::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+  }
+
+  .orders-table-wrap::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .orders-table {
+    width: 100%;
+    margin: 0;
+    min-width: 760px;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 12px 14px;
+    vertical-align: top;
+    border-top: 1px solid #eef2f7;
+    font-size: 0.88rem;
+    word-break: break-word;
+  }
+
+  .orders-table thead th {
+    border-top: 0;
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .orders-table td {
+    color: #1f2937;
+  }
+
+  .orders-table .muted {
+    color: var(--muted);
+    word-break: break-word;
+  }
+
+  .orders-table .amount {
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .quick-action-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+    transition: 0.2s ease;
+    min-height: 54px;
+    font-weight: 700;
+    min-width: 0;
+  }
+
+  .quick-action-item:hover {
+    border-color: var(--line-strong);
+    color: var(--text);
+  }
+
+  .quick-action-item i {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    color: #0f172a;
+    flex: 0 0 auto;
+  }
+
+  .quick-action-item span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .empty-state {
+    border: 1px dashed #d8e0ea;
+    border-radius: 16px;
+    padding: 18px;
+    text-align: center;
+    color: var(--muted);
+    background: #fff;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .toast-mini {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1060;
+    min-width: 220px;
+    max-width: calc(100vw - 36px);
+    padding: 12px 14px;
+    border-radius: 13px;
+    background: #0f172a;
+    color: #fff;
+    font-size: 0.86rem;
+    transform: translateY(18px);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.25s ease;
+  }
+
+  .toast-mini.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .analytics-note {
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-top: 10px;
+    word-break: break-word;
+  }
+
+  .account-page-header .account-hero {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .account-footer-wrap {
+    padding: 0 18px 18px;
+    margin-top: auto;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .export-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1040;
+  }
+
+  .export-drawer-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .export-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(520px, 100%);
+    height: 100vh;
+    background: #fff;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .export-drawer.show {
+    transform: translateX(0);
+  }
+
+  .export-drawer-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .export-drawer-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .export-drawer-subtitle {
+    margin: 4px 0 0;
+    font-size: 0.92rem;
+    color: #64748b;
+    line-height: 1.45;
+  }
+
+  .export-drawer-body {
+    padding: 18px 20px 22px;
+    overflow: auto;
+    flex: 1;
+  }
+
+  .export-field {
+    margin-bottom: 14px;
+  }
+
+  .export-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  .export-preview {
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #f8fafc;
+    padding: 14px;
+    margin-top: 12px;
+  }
+
+  .export-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .export-preview-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .export-preview-count {
+    font-size: 0.85rem;
+    color: #475569;
+  }
+
+  .export-preview-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .export-preview-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .export-preview-item .k {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 2px;
+  }
+
+  .export-preview-item .v {
+    font-size: 0.92rem;
+    color: #0f172a;
+    font-weight: 600;
+    word-break: break-word;
+  }
+
+  .export-note {
+    margin-top: 12px;
+    font-size: 0.86rem;
+    color: #64748b;
+    line-height: 1.55;
+  }
+
+  .export-actions-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .export-actions-row .btn-export-wide {
+    flex: 1 1 50%;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .export-disabled {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .fixed-card {
+    min-height: 100%;
+  }
+
+  .fixed-scroll {
+    max-height: 340px;
+    overflow: auto;
+    padding-right: 4px;
+  }
+
+  .profile-card .account-info-list {
+    overflow: auto;
+    max-height: 220px;
+    padding-right: 6px;
+  }
+
+  .detail-grid.fixed-scroll {
+    max-height: 220px;
+  }
+
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    min-width: 0;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.15;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @media (max-width: 1199px) {
+    .billing-shell,
+    .billing-page-shell,
+    .profile-grid,
+    .analytics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .billing-subsidebar {
+      position: relative;
+      top: auto;
+    }
+
+    .account-user-mini span {
+      max-width: 180px;
+    }
+  }
+
+  @media (max-width: 991px) {
+    body {
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .account-layout {
+      display: block;
+      min-height: 100vh;
+    }
+    .account-right {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .account-topbar {
+      left: 0 !important;
+      width: 100%;
+    }
+
+    .account-sidebar.collapsed .account-name,
+    .account-sidebar.collapsed .account-email,
+    .account-sidebar.collapsed .link-text,
+    .account-layout.sidebar-collapsed .account-name,
+    .account-layout.sidebar-collapsed .account-email,
+    .account-layout.sidebar-collapsed .link-text {
+      display: block !important;
+    }
+
+    .account-sidebar.collapsed .account-nav-link,
+    .account-layout.sidebar-collapsed .account-nav-link {
+      justify-content: flex-start;
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .account-sidebar.collapsed .account-nav-link i,
+    .account-layout.sidebar-collapsed .account-nav-link i {
+      width: 22px;
+      min-width: 22px;
+      font-size: 16px;
+    }
+
+    .account-content-wrap {
+      padding: calc(var(--topbar-height) + 14px) 14px 14px;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .account-user-mini {
+      display: inline-flex;
+      max-width: 180px;
+    }
+
+    .account-user-mini span {
+      max-width: 120px;
+    }
+
+    .billing-shell,
+    .billing-page-shell {
+      gap: 12px;
+      grid-template-columns: 1fr;
+    }
+
+    .summary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .billing-search-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .detail-grid,
+    .details-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .actions-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .info-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .info-value {
+      text-align: left;
+    }
+
+    .billing-subsidebar {
+      position: relative !important;
+      top: auto !important;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .billing-sidepanel-header {
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      border-top: 0;
+      flex-wrap: wrap;
+    }
+
+    .billing-sidepanel-body {
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      border-radius: 0;
+    }
+
+    .btn-export-wide {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .topbar-right {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .topbar-left {
+      width: 100%;
+    }
+
+    .orders-table {
+      min-width: 680px;
+    }
+
+    .billing-results-table {
+      min-width: 920px;
+    }
+  }
+
+
+
+    .card-panel.pad,
+    .profile-card,
+    .chart-card,
+    .billing-results-card,
+    .billing-toolbar {
+      padding: 16px;
+    }
+
+    .chart-wrap {
+      height: 260px;
+    }
+
+    .status-line {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .account-footer-wrap {
+      padding: 0 14px 14px;
+    }
+
+    .account-topbar {
+      gap: 10px;
+      padding: 10px 12px;
+    }
+
+
+    .btn-export-wide {
+      padding: 0 12px;
+      font-size: 0.84rem;
+    }
+
+    .topbar-title .title {
+      font-size: 0.95rem;
+    }
+
+    .topbar-title .sub {
+      font-size: 0.75rem;
+    }
+
+    .export-actions-row {
+      flex-wrap: wrap;
+    }
+
+    .export-actions-row .btn-export-wide {
+      flex: 1 1 100%;
+    }
+
+    .billing-search-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 10px;
+    }
+
+    .billing-search-grid .form-control,
+    .billing-search-grid .form-select,
+    .billing-search-grid .btn-export-wide,
+    .billing-search-grid .input-group {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .billing-search-grid .input-group {
+      display: flex;
+    }
+
+    .billing-search-grid .input-group .form-control {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  @media (max-width: 575px) {
+    .account-content-wrap {
+      padding: calc(var(--topbar-height) + 12px) 12px 12px;
+    }
+
+    .account-topbar {
+      padding: 10px 10px;
+    }
+
+    .account-user-mini {
+      gap: 8px;
+    }
+
+    .account-user-mini i {
+      font-size: 18px;
+    }
+
+    .account-user-mini span {
+      max-width: 78px;
+      font-size: 0.85rem;
+    }
+
+    .summary-box .value {
+      font-size: 1.1rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.84rem;
+    }
+
+    .btn-export-wide {
+      padding: 0 10px;
+    }
+  }
+
+    @media (max-width: 991px) {
+      .account-sidebar { width: 290px !important; transform: translateX(-100%); height: 100vh; max-width: 100vw; }
+      .account-sidebar.open { transform: translateX(0); }
+      .account-right { margin-left: 0; width: 100%; }
+      .account-topbar { left: 0 !important; width: 100%; }
+      .account-content-wrap { padding: calc(var(--topbar-height) + 8px) 10px 10px; }
+      .subsidebar { border-radius: 18px; }
+      .subsidebar-mobilebar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 14px 12px; background: #fff; border-bottom: 1px solid var(--border); }
+      .subsidebar-inner { display: none; }
+      .subsidebar.open .subsidebar-inner { display: block; }
+      .drawer { width: 100vw; }
+    }
+    .stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+
+  .account-content-wrap,
+  .billing-results-list,
+  .orders-table-wrap {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+
+  .account-content-wrap::-webkit-scrollbar,
+  .billing-results-list::-webkit-scrollbar,
+  .orders-table-wrap::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+
+  .account-content-wrap::-webkit-scrollbar-thumb,
+  .billing-results-list::-webkit-scrollbar-thumb,
+  .orders-table-wrap::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+  }
+
+
+  .account-content-wrap:hover::-webkit-scrollbar-thumb,
+  .billing-results-list:hover::-webkit-scrollbar-thumb,
+  .orders-table-wrap:hover::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.5);
+  }
+
+
+  .account-content-wrap::-webkit-scrollbar-track,
+  .billing-results-list::-webkit-scrollbar-track,
+  .orders-table-wrap::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .details-grid {
+    margin-top: 0;
+  }
+</style>
+</head>
+<body class="billing-page">
+  <style>
+    .billing-subsidebar {
+      position: sticky;
+      top: calc(var(--topbar-height) + 18px);
+      align-self: start;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .billing-subsidebar-body {
+      display: block;
+    }
+
+    .billing-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .billing-nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      color: var(--text);
+      font-weight: 700;
+      transition: 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .billing-nav-link:hover {
+      background: rgba(245, 158, 11, 0.08);
+      border-color: rgba(245, 158, 11, 0.12);
+      transform: translateX(2px);
+    }
+
+    .billing-nav-link.active {
+      background: var(--primary-soft);
+      border-color: rgba(245, 158, 11, 0.18);
+    }
+
+    .billing-nav-link i {
+      width: 22px;
+      text-align: center;
+      color: var(--primary);
+      flex: 0 0 auto;
+    }
+
+    .billing-nav-link .txt {
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .billing-snapshot {
+      padding: 14px;
+      background: #fff;
+      display: grid;
+      gap: 10px;
+    }
+
+    .billing-snapshot .detail-box {
+      background: #fff;
+    }
+
+    .billing-subsidebar.mobile-closed .billing-subsidebar-body {
+      display: none;
+    }
+
+    .export-drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 1040;
+    }
+
+    .export-drawer-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .export-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(520px, 100%);
+      height: 100vh;
+      background: #fff;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      z-index: 1050;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .export-drawer.show {
+      transform: translateX(0);
+    }
+
+    .history-sidepanel-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 900;
+        color: var(--text);
+        line-height: 1.2;
+      }
+
+  </style>
+
+  <div class="account-layout sidebar-collapsed" id="accountLayout">
+      <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+        <%- include('../../includes/account-sidebar', { user: adminData, admin: adminData, activePage: 'billing' }) %>
+      </aside>
+
+    <div class="account-right">
+      <header class="account-topbar" aria-label="Account Topbar">
+        <div class="topbar-left">
+          <button
+            type="button"
+            class="account-toggle-btn"
+            id="accountToggleBtn"
+            aria-label="Toggle sidebar"
+            aria-controls="accountSidebar"
+            aria-expanded="false"
+          >
+            <i class="fa fa-bars"></i>
+          </button>
+
+          <div class="topbar-title">
+            <div class="title">JOOD Billing</div>
+            <div class="sub">Admin billing operations and live analytics</div>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="billing-live-clock" id="liveClockTopbar">
+            <small>Live time</small>
+            <span id="liveClockValue">--:--:--</span>
+          </div>
+
+          <button
+            type="button"
+            class="btn-export-wide"
+            id="openExportDrawerBtn"
+            aria-label="Open filter drawer"
+          >
+            <i class="fa fa-filter"></i> Filter
+          </button>
+
+          <button
+            type="button"
+            class="btn-export-wide"
+            id="exportPdfBtn"
+            aria-label="Export billing PDF"
+          >
+            <i class="fa fa-file-pdf-o"></i> PDF
+          </button>
+
+          <div class="account-user-mini">
+            <i class="fa fa-user-circle"></i>
+            <span><%= fullNameValue %></span>
+          </div>
+        </div>
+      </header>
+
+      <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+      <div class="account-content-wrap">
+        <div class="billing-page-shell">
+          <aside class="billing-subsidebar" id="billingSubsidebar">
+            <div class="billing-subsidebar-body" id="billingSubsidebarBody">
+              <h3 class="history-sidepanel-title">Transaction Navigation</h3>
+              <nav class="billing-nav" aria-label="Billing section navigation">
+                <a href="#billingSummarySection" class="billing-nav-link active">
+                  <i class="fa fa-bar-chart"></i>
+                  <span class="txt">Billing Summary</span>
+                </a>
+                <a href="/admin/a/account/transaction-history" class="billing-nav-link">
+                  <i class="fa fa-exchange"></i>
+                  <span class="txt">Transactions</span>
+                </a>
+              </nav>
+            </div>
+          </aside>
+
+          <main class="billing-main">
+            <section class="account-page-header" id="billingSummarySection">
+              <div class="card-panel pad account-hero">
+                <div class="header-row" style="margin-bottom:0; align-items:flex-start;">
+                  <div>
+                    <h3 class="section-title" style="font-size:1.25rem;">Admin Billing Overview</h3>
+                    <p class="section-subtitle">
+                      Complete billing visibility for customer accounts, payment activity, exports, and live reporting.
+                    </p>
+                  </div>
+
+                  <span class="pill pill-neutral">
+                    <i class="fa fa-shield"></i>
+                    Admin Access
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <section class="card-panel pad fixed-card mt-3">
+              <div class="header-row" style="align-items:flex-start;">
+                <div>
+                  <h3 class="section-title">Billing Summary & Analytics</h3>
+                  <p class="section-subtitle">
+                    Live revenue totals, payment insights, refunds, and system-wide activity.
+                  </p>
+                </div>
+
+                <div class="status-line">
+                  <span class="saving-dot" id="savingDot"></span>
+                  <span id="savingText">All data loaded</span>
+                </div>
+              </div>
+
+              <div class="summary-grid">
+                <div class="summary-box summary-income">
+                  <div class="label">Total Revenue</div>
+                  <div class="value" id="totalRevenueValue"><%= totalRevenue.toFixed(2) %> <%= currency %></div>
+                  <div class="hint">Paid revenue across all orders.</div>
+                </div>
+
+                <div class="summary-box summary-success">
+                  <div class="label">Total Orders</div>
+                  <div class="value" id="totalOrdersValue"><%= totalOrders %></div>
+                  <div class="hint">Total billing records available.</div>
+                </div>
+
+                <div class="summary-box summary-warning">
+                  <div class="label">Pending Payments</div>
+                  <div class="value" id="pendingPaymentsValue"><%= pendingPayments %></div>
+                  <div class="hint">Pending or initiated payment rows.</div>
+                </div>
+
+                <div class="summary-box summary-danger">
+                  <div class="label">Refunds</div>
+                  <div class="value" id="refundTotalValue"><%= totalRefunds.toFixed(2) %> <%= currency %></div>
+                  <div class="hint">Refunded and reversed totals.</div>
+                </div>
+              </div>
+
+              <div class="summary-grid mt-3">
+                <div class="summary-box">
+                  <div class="label">Users With Orders</div>
+                  <div class="value"><%= usersWithOrders %></div>
+                  <div class="hint">Accounts with billing history.</div>
+                </div>
+
+                <div class="summary-box">
+                  <div class="label">Paid Users</div>
+                  <div class="value"><%= paidUsers %></div>
+                  <div class="hint">Accounts with successful payments.</div>
+                </div>
+
+                <div class="summary-box">
+                  <div class="label">Addresses</div>
+                  <div class="value"><%= totalAddresses %></div>
+                  <div class="hint">Saved billing and shipping addresses.</div>
+                </div>
+
+                <div class="summary-box">
+                  <div class="label">This Month Revenue</div>
+                  <div class="value"><%= thisMonthRevenue.toFixed(2) %> <%= currency %></div>
+                  <div class="hint">Current monthly revenue snapshot.</div>
+                </div>
+              </div>
+            </section>
+
+            <div class="analytics-grid mt-3" id="billingAnalyticsSection">
+              <section class="card-panel chart-card fixed-card">
+                <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                  <div>
+                    <h4 class="section-title" style="font-size:1rem;">Revenue Trend</h4>
+                    <p class="section-subtitle mb-0">
+                      Monthly revenue and payment trend across live records.
+                    </p>
+                  </div>
+
+                  <div class="billing-badges">
+                    <span class="billing-chip">
+                      Last refresh:
+                      <strong id="lastRefreshLabel">Just now</strong>
+                    </span>
+
+                    <span class="billing-chip">
+                      Rows:
+                      <strong id="matchedCountLabel"><%= billingRowsSafe.length %></strong>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="billing-search-grid mb-2">
+                  <select class="form-select" id="graphRange">
+                    <option value="recent">Recent</option>
+                    <option value="1w">1 Week</option>
+                    <option value="2w">2 Weeks</option>
+                    <option value="3w">3 Weeks</option>
+                    <option value="month" selected>Monthly</option>
+                    <option value="year">Yearly</option>
+                    <option value="custom">Custom Range</option>
+                  </select>
+
+                  <button type="button" class="btn-export-wide" id="refreshLiveBtn">
+                    <i class="fa fa-refresh"></i> Refresh
+                  </button>
+                </div>
+
+                <div class="chart-wrap">
+                  <canvas id="billingTrendChart"></canvas>
+                </div>
+
+                <div class="analytics-note mt-2">
+                  Trend data refreshes automatically from the realtime endpoint.
+                </div>
+              </section>
+
+              <section class="card-panel chart-card fixed-card">
+                <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                  <div>
+                    <h4 class="section-title" style="font-size:1rem;">Payment Distribution</h4>
+                    <p class="section-subtitle mb-0">
+                      Current billing rows grouped by payment and status.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="chart-wrap" style="height:220px;">
+                  <canvas id="paymentMixChart"></canvas>
+                </div>
+
+                <div class="mini-stat-list mt-3">
+                  <div class="mini-stat">
+                    <div>
+                      <div class="k">Billing Snapshot</div>
+                      <div class="s">Revenue, orders, users</div>
+                    </div>
+
+                    <div>
+                      <div class="v"><%= totalUsers %> users</div>
+                      <div class="s">Live controller data</div>
+                    </div>
+                  </div>
+
+                  <div class="mini-stat">
+                    <div>
+                      <div class="k">Pagination</div>
+                      <div class="s">Current / total pages</div>
+                    </div>
+
+                    <div>
+                      <div class="v"><%= paginationSafe.page || 1 %> / <%= paginationSafe.totalPages || 1 %></div>
+                      <div class="s"><%= paginationSafe.total || billingRowsSafe.length %> records</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <section class="card-panel billing-results-card mt-3" id="billingRecordsSection">
+              <div class="billing-results-header">
+                <div>
+                  <h3 class="section-title">Billing Records</h3>
+                  <p class="billing-results-meta mb-0">
+                    Search results update instantly from the filter drawer.
+                  </p>
+                </div>
+
+                <div class="billing-badges">
+                  <span class="billing-chip">
+                    Visible:
+                    <strong id="visibleCountLabelBottom"><%= billingRowsSafe.length %></strong>
+                  </span>
+
+                  <span class="billing-chip">
+                    Total:
+                    <strong><%= billingRowsSafe.length %></strong>
+                  </span>
+                </div>
+              </div>
+
+              <div class="billing-results-list">
+                <div id="billingResultsEmpty" class="billing-results-empty d-none">
+                  No billing records found.
+                </div>
+
+                <table class="table billing-results-table d-none" id="billingResultsTable">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>City</th>
+                      <th>Revenue</th>
+                      <th>Last Order</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="billingResultsBody"></tbody>
+                </table>
+              </div>
+            </section>
+
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="export-drawer-overlay" id="exportDrawerOverlay" aria-hidden="true"></div>
+
+  <aside class="export-drawer" id="exportDrawer" aria-label="Filter drawer">
+    <div class="export-drawer-header">
+      <div>
+        <h3 class="export-drawer-title">Filter & Export</h3>
+        <p class="export-drawer-subtitle">
+          Configure the current report range and export the filtered billing data.
+        </p>
+      </div>
+
+      <button type="button" class="btn-ghost" id="closeExportDrawerBtn" aria-label="Close filter drawer">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+
+    <div class="export-drawer-body">
+      <div class="export-field">
+        <label for="searchQuery">Search</label>
+        <input
+          type="text"
+          id="searchQuery"
+          class="form-control"
+          placeholder="Search name, email, order, phone..."
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="export-field">
+        <label for="statusFilter">Payment Status</label>
+        <select id="statusFilter" class="form-select">
+          <option value="all">All Status</option>
+          <option value="paid">Paid</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+          <option value="refunded">Refunded</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div class="export-field">
+        <label for="typeFilter">Payment Type</label>
+        <select id="typeFilter" class="form-select">
+          <option value="all">All Methods</option>
+          <option value="card">Card</option>
+          <option value="cash">Cash</option>
+          <option value="bank">Bank Transfer</option>
+          <option value="wallet">Wallet</option>
+          <option value="online">Online</option>
+        </select>
+      </div>
+
+      <div class="export-field">
+        <label for="exportRange">Export Range</label>
+        <select id="exportRange" class="form-select">
+          <option value="all">All Data</option>
+          <option value="recent">Recent</option>
+          <option value="1w">1 Week</option>
+          <option value="2w">2 Weeks</option>
+          <option value="3w">3 Weeks</option>
+          <option value="month" selected>Monthly</option>
+          <option value="year">Yearly</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </div>
+
+      <div class="export-field">
+        <label for="exportFromDate">From Date</label>
+        <input id="exportFromDate" type="date" class="form-control" />
+      </div>
+
+      <div class="export-field">
+        <label for="exportToDate">To Date</label>
+        <input id="exportToDate" type="date" class="form-control" />
+      </div>
+
+      <div class="export-preview">
+        <div class="export-preview-head">
+          <div class="export-preview-title">Preview</div>
+          <div class="export-preview-count" id="exportPreviewCount">0 records</div>
+        </div>
+
+        <div class="export-preview-list" id="exportPreviewList">
+          <div class="export-preview-item">
+            <div class="k">Selected range</div>
+            <div class="v">Monthly</div>
+          </div>
+        </div>
+
+        <div class="export-note">
+          The PDF export uses the same current filters as the billing table.
+        </div>
+      </div>
+
+      <div class="export-actions-row mt-3">
+        <button type="button" class="btn-export-wide" id="applyExportFiltersBtn">
+          <i class="fa fa-filter"></i> Apply
+        </button>
+
+        <button type="button" class="btn-secure" id="exportDrawerPdfBtn">
+          <i class="fa fa-file-pdf-o"></i> Export PDF
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+
+
+  <script>
+    (function () {
+      "use strict";
+
+      const billingRoute = <%- JSON.stringify(typeof currentBillingRouteSafe !== "undefined" ? currentBillingRouteSafe : "/admin/a/account/billing") %>;
+      const realtimeEndpoint = <%- JSON.stringify(typeof realtimeEndpointSafe !== "undefined" ? realtimeEndpointSafe : "/admin/a/account/billing/realtime") %>;
+      const exportEndpoint = <%- JSON.stringify(typeof exportEndpointSafe !== "undefined" ? exportEndpointSafe : "/admin/a/account/billing/export/pdf") %>;
+      const initialRows = <%- JSON.stringify(typeof initialRows !== "undefined" ? initialRows : []) %>;
+      const initialOverview = {
+        totalUsers: <%= typeof totalUsers !== "undefined" ? totalUsers : 0 %>,
+        usersWithOrders: <%= typeof usersWithOrders !== "undefined" ? usersWithOrders : 0 %>,
+        paidUsers: <%= typeof paidUsers !== "undefined" ? paidUsers : 0 %>,
+        totalRevenue: <%= typeof totalRevenue !== "undefined" ? totalRevenue : 0 %>,
+        totalRefunds: <%= typeof totalRefunds !== "undefined" ? totalRefunds : 0 %>,
+        pendingPayments: <%= typeof pendingPayments !== "undefined" ? pendingPayments : 0 %>,
+        totalOrders: <%= typeof totalOrders !== "undefined" ? totalOrders : 0 %>,
+        totalAddresses: <%= typeof totalAddresses !== "undefined" ? totalAddresses : 0 %>,
+        thisMonthRevenue: <%= typeof thisMonthRevenue !== "undefined" ? thisMonthRevenue : 0 %>
+      };
+      const initialChartData = <%- JSON.stringify(typeof chartDataSafe !== "undefined" ? chartDataSafe : { monthly: [], byStatus: [], byMethod: [] }) %>;
+      const currencyFallback = "AED";
+
+      const layout = document.getElementById("accountLayout");
+      const sidebar = document.getElementById("accountSidebar");
+      const toggleBtn = document.getElementById("accountToggleBtn");
+      const closeBtn = document.getElementById("accountSidebarClose");
+      const backdrop = document.getElementById("accountBackdrop");
+
+      const savingDot = document.getElementById("savingDot");
+      const savingText = document.getElementById("savingText");
+      const liveClockValue = document.getElementById("liveClockValue");
+      const lastRefreshLabel = document.getElementById("lastRefreshLabel");
+
+      const billingResultsBody = document.getElementById("billingResultsBody");
+      const billingResultsEmpty = document.getElementById("billingResultsEmpty");
+      const billingResultsTable = document.getElementById("billingResultsTable");
+      const selectedBillingDetail = document.getElementById("selectedBillingDetail");
+
+      const searchQuery = document.getElementById("searchQuery");
+      const statusFilter = document.getElementById("statusFilter");
+      const typeFilter = document.getElementById("typeFilter");
+      const exportRange = document.getElementById("exportRange");
+      const exportFromDate = document.getElementById("exportFromDate");
+      const exportToDate = document.getElementById("exportToDate");
+
+      const clearLiveFiltersBtn = document.getElementById("clearLiveFiltersBtn");
+      const matchedCountLabel = document.getElementById("matchedCountLabel");
+      const visibleCountLabel = document.getElementById("visibleCountLabel");
+      const visibleCountLabelBottom = document.getElementById("visibleCountLabelBottom");
+      const graphRange = document.getElementById("graphRange");
+      const graphRangeLabel = document.getElementById("graphRangeLabel");
+      const refreshLiveBtn = document.getElementById("refreshLiveBtn");
+      const chartCanvas = document.getElementById("billingTrendChart");
+      const mixCanvas = document.getElementById("paymentMixChart");
+
+      const openExportDrawerBtn = document.getElementById("openExportDrawerBtn");
+      const exportPdfBtn = document.getElementById("exportPdfBtn");
+      const exportDrawerOverlay = document.getElementById("exportDrawerOverlay");
+      const exportDrawer = document.getElementById("exportDrawer");
+      const closeExportDrawerBtn = document.getElementById("closeExportDrawerBtn");
+      const applyExportFiltersBtn = document.getElementById("applyExportFiltersBtn");
+      const exportDrawerPdfBtn = document.getElementById("exportDrawerPdfBtn");
+      const exportPreviewCount = document.getElementById("exportPreviewCount");
+      const exportPreviewList = document.getElementById("exportPreviewList");
+
+      const billingSubsidebar = document.getElementById("billingSubsidebar");
+      const billingSubsidebarBody = document.getElementById("billingSubsidebarBody");
+      const billingSubsidebarToggle = document.getElementById("billingSubsidebarToggle");
+
+      if (!layout || !sidebar || !toggleBtn) return;
+
+      let currentRows = Array.isArray(initialRows) ? [...initialRows] : [];
+      let currentOverview = { ...initialOverview };
+      let currentChartData = { ...initialChartData };
+
+      let chartTrend = null;
+      let chartMix = null;
+      let clockTimer = null;
+      let refreshTimer = null;
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function money(value, currency = currencyFallback) {
+        return `${Number(value || 0).toFixed(2)} ${currency}`;
+      }
+
+      function formatDate(value) {
+        if (!value) return "—";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "—";
+        return d.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        });
+      }
+
+      function formatDateTime(value) {
+        if (!value) return "—";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "—";
+        return d.toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      function toDateKey(value) {
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "";
+        return d.toISOString().slice(0, 10);
+      }
+
+      function showToast(message) {
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(showToast._timer);
+        showToast._timer = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 2500);
+      }
+
+      function setSavingState(type, message) {
+        if (!savingDot || !savingText) return;
+
+        savingDot.classList.remove("is-saving", "is-saved", "is-error");
+
+        if (type === "saving") savingDot.classList.add("is-saving");
+        if (type === "saved") savingDot.classList.add("is-saved");
+        if (type === "error") savingDot.classList.add("is-error");
+
+        savingText.textContent = message || "";
+      }
+
+      function isMobile() {
+        return window.innerWidth <= 991;
+      }
+
+      function openSidebarMobile() {
+        sidebar.classList.add("open");
+        backdrop?.classList.add("show");
+        document.body.style.overflow = "hidden";
+        toggleBtn.setAttribute("aria-expanded", "true");
+      }
+
+      function closeSidebarMobile() {
+        sidebar.classList.remove("open");
+        backdrop?.classList.remove("show");
+        document.body.style.overflow = "";
+        toggleBtn.setAttribute("aria-expanded", "false");
+      }
+
+      function applySidebarMode() {
+        if (isMobile()) {
+          layout.classList.add("sidebar-collapsed");
+          layout.classList.remove("sidebar-expanded");
+          sidebar.classList.add("collapsed");
+          sidebar.classList.remove("expanded");
+          toggleBtn.setAttribute("aria-expanded", "false");
+          closeSidebarMobile();
+
+          if (billingSubsidebar) {
+            billingSubsidebar.classList.add("mobile-closed");
+            if (billingSubsidebarToggle) billingSubsidebarToggle.setAttribute("aria-expanded", "false");
+          }
+        } else {
+          layout.classList.add("sidebar-collapsed");
+          layout.classList.remove("sidebar-expanded");
+          sidebar.classList.add("collapsed");
+          sidebar.classList.remove("expanded");
+          toggleBtn.setAttribute("aria-expanded", "false");
+
+          if (billingSubsidebar) {
+            billingSubsidebar.classList.remove("mobile-closed");
+            if (billingSubsidebarToggle) billingSubsidebarToggle.setAttribute("aria-expanded", "true");
+          }
+        }
+      }
+
+      function startClock() {
+        function tick() {
+          if (!liveClockValue) return;
+          liveClockValue.textContent = new Date().toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+          });
+        }
+
+        tick();
+        clearInterval(clockTimer);
+        clockTimer = setInterval(tick, 1000);
+      }
+
+      function normalizeRows(rows) {
+        return (Array.isArray(rows) ? rows : []).map((row, index) => {
+          const searchBlob = [
+            row.id,
+            row.full_name,
+            row.email,
+            row.phone,
+            row.city,
+            row.country,
+            row.last_order_number,
+            row.last_payment_status,
+            row.last_payment_method
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+          return {
+            _key: `${row.id || index}-${index}`,
+            id: row.id || "",
+            full_name: row.full_name || "—",
+            email: row.email || "—",
+            phone: row.phone || "—",
+            city: row.city || "—",
+            country: row.country || "—",
+            total_spent: Number(row.total_spent || 0),
+            total_orders_paid: Number(row.total_orders_paid || 0),
+            pending_payments: Number(row.pending_payments || 0),
+            refund_total: Number(row.refund_total || 0),
+            this_month_spent: Number(row.this_month_spent || 0),
+            last_order_number: row.last_order_number || row.last_tracking_id || "—",
+            last_payment_status: row.last_payment_status || "—",
+            last_payment_method: row.last_payment_method || "—",
+            updated_at: row.updated_at || row.created_at || null,
+            created_at: row.created_at || null,
+            search_blob: searchBlob
+          };
+        });
+      }
+
+      function getRows() {
+        return normalizeRows(currentRows);
+      }
+
+      function getGraphCutoffDate() {
+        const range = String(graphRange?.value || "month");
+        const today = new Date();
+        const cutoff = new Date(today);
+
+        if (range === "recent" || range === "1w") cutoff.setDate(today.getDate() - 7);
+        else if (range === "2w") cutoff.setDate(today.getDate() - 14);
+        else if (range === "3w") cutoff.setDate(today.getDate() - 21);
+        else if (range === "year") cutoff.setFullYear(today.getFullYear() - 1);
+        else if (range === "month") cutoff.setMonth(today.getMonth() - 1);
+        else return null;
+
+        cutoff.setHours(0, 0, 0, 0);
+        return cutoff;
+      }
+
+      function filterRows() {
+        const rows = getRows();
+
+        const q = String(searchQuery?.value || "").trim().toLowerCase();
+        const status = String(statusFilter?.value || "all").toLowerCase();
+        const type = String(typeFilter?.value || "all").toLowerCase();
+        const from = exportFromDate?.value || "";
+        const to = exportToDate?.value || "";
+        const cutoff = getGraphCutoffDate();
+
+        return rows.filter((row) => {
+          const textMatch = !q || row.search_blob.includes(q);
+
+          const statusMatch =
+            status === "all" ||
+            String(row.last_payment_status).toLowerCase().includes(status);
+
+          const typeMatch =
+            type === "all" ||
+            String(row.last_payment_method).toLowerCase().includes(type);
+
+          const rowDate = toDateKey(row.updated_at || row.created_at);
+          const fromMatch = !from || rowDate >= from;
+          const toMatch = !to || rowDate <= to;
+          const graphMatch = !cutoff || (row.updated_at || row.created_at) >= cutoff.toISOString();
+
+          return textMatch && statusMatch && typeMatch && fromMatch && toMatch && graphMatch;
+        });
+      }
+
+      function updateOverview(filtered) {
+        const totalRevenue = filtered.reduce((sum, row) => sum + Number(row.total_spent || 0), 0);
+        const refundTotal = filtered.reduce((sum, row) => sum + Number(row.refund_total || 0), 0);
+        const pending = filtered.reduce((sum, row) => sum + Number(row.pending_payments || 0), 0);
+
+        const totalRevenueValue = document.getElementById("totalRevenueValue");
+        const refundTotalValue = document.getElementById("refundTotalValue");
+        const pendingPaymentsValue = document.getElementById("pendingPaymentsValue");
+        const totalOrdersValue = document.getElementById("totalOrdersValue");
+
+        if (totalRevenueValue) totalRevenueValue.textContent = money(totalRevenue);
+        if (refundTotalValue) refundTotalValue.textContent = money(refundTotal);
+        if (pendingPaymentsValue) pendingPaymentsValue.textContent = pending;
+        if (totalOrdersValue) totalOrdersValue.textContent = filtered.length;
+      }
+
+      function renderDetails(row) {
+        if (!selectedBillingDetail) return;
+
+        if (!row) {
+          selectedBillingDetail.innerHTML = `<div class="empty-state">Select a billing record.</div>`;
+          return;
+        }
+
+        selectedBillingDetail.innerHTML = `
+          <div class="details-grid">
+            <div class="detail-box">
+              <div class="k">User ID</div>
+              <div class="v">${escapeHtml(row.id)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Name</div>
+              <div class="v">${escapeHtml(row.full_name)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Email</div>
+              <div class="v">${escapeHtml(row.email)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Phone</div>
+              <div class="v">${escapeHtml(row.phone)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">City</div>
+              <div class="v">${escapeHtml(row.city)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Country</div>
+              <div class="v">${escapeHtml(row.country)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Revenue</div>
+              <div class="v">${escapeHtml(money(row.total_spent))}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Paid Orders</div>
+              <div class="v">${escapeHtml(row.total_orders_paid)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Pending</div>
+              <div class="v">${escapeHtml(row.pending_payments)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Refunds</div>
+              <div class="v">${escapeHtml(money(row.refund_total))}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Last Order</div>
+              <div class="v">${escapeHtml(row.last_order_number)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Payment Method</div>
+              <div class="v">${escapeHtml(row.last_payment_method)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Payment Status</div>
+              <div class="v">${escapeHtml(row.last_payment_status)}</div>
+            </div>
+
+            <div class="detail-box">
+              <div class="k">Updated</div>
+              <div class="v">${escapeHtml(formatDateTime(row.updated_at))}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function updatePreviewPanel(filtered) {
+        if (exportPreviewCount) {
+          exportPreviewCount.textContent = `${filtered.length} records`;
+        }
+
+        if (!exportPreviewList) return;
+
+        const rangeValue = String(graphRange?.value || "month");
+        const fromValue = exportFromDate?.value || "Any";
+        const toValue = exportToDate?.value || "Any";
+        const statusValue = String(statusFilter?.value || "all");
+        const typeValue = String(typeFilter?.value || "all");
+
+        exportPreviewList.innerHTML = `
+          <div class="export-preview-item">
+            <div class="k">Selected range</div>
+            <div class="v">${escapeHtml(rangeValue)}</div>
+          </div>
+          <div class="export-preview-item">
+            <div class="k">From date</div>
+            <div class="v">${escapeHtml(fromValue)}</div>
+          </div>
+          <div class="export-preview-item">
+            <div class="k">To date</div>
+            <div class="v">${escapeHtml(toValue)}</div>
+          </div>
+          <div class="export-preview-item">
+            <div class="k">Status</div>
+            <div class="v">${escapeHtml(statusValue)}</div>
+          </div>
+          <div class="export-preview-item">
+            <div class="k">Type</div>
+            <div class="v">${escapeHtml(typeValue)}</div>
+          </div>
+        `;
+      }
+
+      function renderResults() {
+        const filtered = filterRows();
+
+        if (matchedCountLabel) matchedCountLabel.textContent = filtered.length;
+        if (visibleCountLabel) visibleCountLabel.textContent = filtered.length;
+        if (visibleCountLabelBottom) visibleCountLabelBottom.textContent = filtered.length;
+
+        updateOverview(filtered);
+
+        if (!billingResultsBody || !billingResultsEmpty || !billingResultsTable) return;
+
+        if (!filtered.length) {
+          billingResultsTable.classList.add("d-none");
+          billingResultsEmpty.classList.remove("d-none");
+          billingResultsBody.innerHTML = "";
+          renderDetails(null);
+          updatePreviewPanel(filtered);
+          return;
+        }
+
+        billingResultsEmpty.classList.add("d-none");
+        billingResultsTable.classList.remove("d-none");
+
+        billingResultsBody.innerHTML = filtered
+          .map((row, index) => `
+            <tr>
+              <td><strong>${escapeHtml(row.full_name)}</strong></td>
+              <td>${escapeHtml(row.email)}</td>
+              <td>${escapeHtml(row.city)}</td>
+              <td>${escapeHtml(money(row.total_spent))}</td>
+              <td>${escapeHtml(row.last_order_number)}</td>
+              <td>${escapeHtml(row.last_payment_status)}</td>
+              <td>${escapeHtml(formatDate(row.updated_at))}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-dark js-view-row" data-index="${index}">
+                  View
+                </button>
+              </td>
+            </tr>
+          `)
+          .join("");
+
+        renderDetails(filtered[0]);
+        updatePreviewPanel(filtered);
+      }
+
+      function updateTrendChart() {
+        if (!chartCanvas || typeof Chart === "undefined") return;
+
+        const rows = filterRows();
+        const labels = rows.map((r) => formatDate(r.updated_at));
+        const values = rows.map((r) => Number(r.total_spent || 0));
+        const ctx = chartCanvas.getContext("2d");
+
+        if (chartTrend) chartTrend.destroy();
+
+        chartTrend = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Revenue",
+                data: values,
+                borderWidth: 3,
+                tension: 0.35,
+                fill: true
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false }
+            },
+            scales: {
+              x: { ticks: { maxRotation: 0, autoSkip: true } },
+              y: { beginAtZero: true }
+            }
+          }
+        });
+      }
+
+      function updateMixChart() {
+        if (!mixCanvas || typeof Chart === "undefined") return;
+
+        const rows = filterRows();
+        const paid = rows.filter((r) => String(r.last_payment_status).toLowerCase().includes("paid")).length;
+        const pending = rows.filter((r) => String(r.last_payment_status).toLowerCase().includes("pending")).length;
+        const failed = rows.filter((r) => String(r.last_payment_status).toLowerCase().includes("failed")).length;
+        const ctx = mixCanvas.getContext("2d");
+
+        if (chartMix) chartMix.destroy();
+
+        chartMix = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Paid", "Pending", "Failed"],
+            datasets: [
+              {
+                data: [paid, pending, failed]
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: "bottom" }
+            }
+          }
+        });
+      }
+
+      async function refreshLiveData(showMessage = true) {
+        try {
+          setSavingState("saving", "Refreshing...");
+
+          const response = await fetch(realtimeEndpoint, {
+            headers: {
+              Accept: "application/json",
+              "X-Requested-With": "XMLHttpRequest"
+            },
+            cache: "no-store"
+          });
+
+          if (!response.ok) {
+            throw new Error("Refresh failed");
+          }
+
+          const data = await response.json();
+          const payload = data.data || data;
+
+          if (Array.isArray(payload)) {
+            currentRows = payload;
+          } else {
+            if (Array.isArray(payload.data)) currentRows = payload.data;
+            if (payload.overview) currentOverview = payload.overview;
+            if (payload.chartData) currentChartData = payload.chartData;
+          }
+
+          renderResults();
+          updateTrendChart();
+          updateMixChart();
+
+          if (lastRefreshLabel) {
+            lastRefreshLabel.textContent = new Date().toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit"
+            });
+          }
+
+          setSavingState("saved", "Up to date");
+
+          if (showMessage) {
+            showToast("Billing data refreshed");
+          }
+        } catch (err) {
+          console.error(err);
+          setSavingState("error", "Refresh failed");
+
+          if (showMessage) {
+            showToast("Refresh failed");
+          }
+        }
+      }
+
+      function scheduleRefresh() {
+        clearInterval(refreshTimer);
+        refreshTimer = setInterval(() => {
+          refreshLiveData(false);
+        }, 20000);
+      }
+
+      function buildExportUrl() {
+        const url = new URL(exportEndpoint, window.location.origin);
+
+        if (graphRange?.value) url.searchParams.set("range", graphRange.value);
+        if (searchQuery?.value) url.searchParams.set("q", searchQuery.value.trim());
+        if (statusFilter?.value) url.searchParams.set("status", statusFilter.value);
+        if (typeFilter?.value) url.searchParams.set("type", typeFilter.value);
+        if (exportFromDate?.value) url.searchParams.set("from", exportFromDate.value);
+        if (exportToDate?.value) url.searchParams.set("to", exportToDate.value);
+
+        return url.toString();
+      }
+
+      function openExportDrawer() {
+        exportDrawer?.classList.add("show");
+        exportDrawerOverlay?.classList.add("show");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeExportDrawer() {
+        exportDrawer?.classList.remove("show");
+        exportDrawerOverlay?.classList.remove("show");
+        document.body.style.overflow = isMobile() && sidebar.classList.contains("open") ? "hidden" : "";
+      }
+
+      function applyExportFiltersToMainUI() {
+        renderResults();
+        updateTrendChart();
+        updateMixChart();
+      }
+
+      function syncExportDrawerFromCurrentFilters() {
+        if (exportRange && graphRange) exportRange.value = graphRange.value;
+        if (exportFromDate && graphRange && graphRange.value === "custom") exportFromDate.value = exportFromDate.value || "";
+        if (exportToDate && graphRange && graphRange.value === "custom") exportToDate.value = exportToDate.value || "";
+        if (exportPreviewCount) {
+          updatePreviewPanel(filterRows());
+        }
+      }
+
+      function setGraphRangePreset() {
+        const value = String(graphRange?.value || "month");
+        const now = new Date();
+
+        if (value === "custom" || value === "all") {
+          if (graphRangeLabel) graphRangeLabel.textContent = value;
+          return;
+        }
+
+        const from = new Date(now);
+        if (value === "recent" || value === "1w") from.setDate(now.getDate() - 7);
+        if (value === "2w") from.setDate(now.getDate() - 14);
+        if (value === "3w") from.setDate(now.getDate() - 21);
+        if (value === "month") from.setMonth(now.getMonth() - 1);
+        if (value === "year") from.setFullYear(now.getFullYear() - 1);
+
+        from.setHours(0, 0, 0, 0);
+
+        if (exportFromDate) exportFromDate.value = from.toISOString().slice(0, 10);
+        if (exportToDate) exportToDate.value = now.toISOString().slice(0, 10);
+
+        if (graphRangeLabel) graphRangeLabel.textContent = value;
+      }
+
+      function wireEvents() {
+        [
+          searchQuery,
+          statusFilter,
+          typeFilter,
+          exportFromDate,
+          exportToDate
+        ].forEach((el) => {
+          el?.addEventListener("input", handleFilter);
+          el?.addEventListener("change", handleFilter);
+        });
+
+        function handleFilter() {
+          renderResults();
+          updateTrendChart();
+          updateMixChart();
+          syncExportDrawerFromCurrentFilters();
+        }
+
+        clearLiveFiltersBtn?.addEventListener("click", () => {
+          if (searchQuery) searchQuery.value = "";
+          if (statusFilter) statusFilter.value = "all";
+          if (typeFilter) typeFilter.value = "all";
+          if (exportFromDate) exportFromDate.value = "";
+          if (exportToDate) exportToDate.value = "";
+          if (graphRange) graphRange.value = "month";
+          if (graphRangeLabel) graphRangeLabel.textContent = "month";
+
+          renderResults();
+          updateTrendChart();
+          updateMixChart();
+          syncExportDrawerFromCurrentFilters();
+        });
+
+        graphRange?.addEventListener("change", () => {
+          setGraphRangePreset();
+          handleFilter();
+        });
+
+        refreshLiveBtn?.addEventListener("click", () => {
+          refreshLiveData(true);
+        });
+
+        billingResultsBody?.addEventListener("click", (e) => {
+          const btn = e.target.closest(".js-view-row");
+          if (!btn) return;
+
+          const index = Number(btn.dataset.index);
+          const row = filterRows()[index];
+          if (!row) return;
+
+          renderDetails(row);
+          showToast(`Selected ${row.full_name}`);
+        });
+
+        toggleBtn.addEventListener("click", () => {
+          if (isMobile()) {
+            const open = sidebar.classList.contains("open");
+            if (open) closeSidebarMobile();
+            else openSidebarMobile();
+            return;
+          }
+
+          const expanded = layout.classList.toggle("sidebar-expanded");
+          layout.classList.toggle("sidebar-collapsed", !expanded);
+          sidebar.classList.toggle("collapsed", !expanded);
+          sidebar.classList.toggle("expanded", expanded);
+          toggleBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
+        });
+
+        backdrop?.addEventListener("click", closeSidebarMobile);
+        closeBtn?.addEventListener("click", closeSidebarMobile);
+
+        document.addEventListener("click", (e) => {
+          const link = e.target.closest(".account-nav-link");
+          if (link && isMobile()) closeSidebarMobile();
+        });
+
+        window.addEventListener("resize", applySidebarMode);
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            closeSidebarMobile();
+            closeExportDrawer();
+          }
+        });
+
+        openExportDrawerBtn?.addEventListener("click", () => {
+          openExportDrawer();
+        });
+
+        exportPdfBtn?.addEventListener("click", () => {
+          window.location.href = buildExportUrl();
+        });
+
+        exportDrawerOverlay?.addEventListener("click", closeExportDrawer);
+        closeExportDrawerBtn?.addEventListener("click", closeExportDrawer);
+
+        applyExportFiltersBtn?.addEventListener("click", () => {
+          applyExportFiltersToMainUI();
+          closeExportDrawer();
+          showToast("Filters applied");
+        });
+
+        exportDrawerPdfBtn?.addEventListener("click", () => {
+          applyExportFiltersToMainUI();
+          window.location.href = buildExportUrl();
+        });
+
+        billingSubsidebarToggle?.addEventListener("click", () => {
+          const mobile = isMobile();
+          const open = !billingSubsidebar?.classList.contains("mobile-closed");
+
+          if (mobile) {
+            billingSubsidebar.classList.toggle("mobile-closed", open);
+            billingSubsidebarToggle.setAttribute("aria-expanded", open ? "false" : "true");
+          } else {
+            billingSubsidebar.classList.toggle("mobile-closed", open);
+            billingSubsidebarToggle.setAttribute("aria-expanded", open ? "false" : "true");
+          }
+        });
+      }
+
+      function init() {
+        startClock();
+        applySidebarMode();
+        wireEvents();
+
+        setGraphRangePreset();
+        renderResults();
+        updateTrendChart();
+        updateMixChart();
+        syncExportDrawerFromCurrentFilters();
+
+        setSavingState("saved", "All data loaded");
+        scheduleRefresh();
+
+        if (graphRangeLabel) {
+          graphRangeLabel.textContent = graphRange?.value || "month";
+        }
+
+        if (typeof Chart === "undefined") {
+          console.warn("Chart.js is not loaded.");
+        }
+      }
+
+      init();
+    })();
+  </script>
+
+  <script src="/customer/js/vendor/popper.min.js"></script>
+  <script src="/customer/js/bootstrap.min.js"></script>
+  <script src="/customer/js/main.js"></script>
+</body>
+</html>
+

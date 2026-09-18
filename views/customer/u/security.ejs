@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Security — Issa GoodLife</title>
+  <meta name="description" content="Security settings for Issa GoodLife customers.">
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/customer/css/account.css">
+</head>
+<body>
+  <%- include('../includes/header') %>
+
+  <main class="account-page">
+    <div class="account-shell">
+      <%- include('../includes/account-sidebar', { user, activePage: 'security' }) %>
+
+      <section class="account-main">
+        <%- include('../includes/account-header', {
+          title: 'Security',
+          subtitle: 'Protect your account with password updates and session controls.',
+          primaryAction: { href: '/customer/account', label: 'Dashboard', icon: 'fa fa-th-large' },
+          secondaryAction: { href: '/customer/account/orders', label: 'Orders', icon: 'fa fa-shopping-bag' }
+        }) %>
+
+        <div class="account-grid">
+          <article class="account-card">
+            <div class="card-head">
+              <div>
+                <h2>Change Password</h2>
+                <div class="hint">Frontend form ready for backend integration.</div>
+              </div>
+              <span class="badge warning"><i class="fa fa-lock"></i> Protected</span>
+            </div>
+
+            <form class="profile-form">
+              <div class="field full">
+                <label>Current Password</label>
+                <input class="field-input" type="password" placeholder="Enter current password">
+              </div>
+              <div class="field full">
+                <label>New Password</label>
+                <input class="field-input" type="password" placeholder="Enter new password">
+              </div>
+              <div class="field full">
+                <label>Confirm New Password</label>
+                <input class="field-input" type="password" placeholder="Confirm new password">
+              </div>
+              <div class="field full">
+                <button type="button" class="btn-pill warning"><i class="fa fa-shield"></i> Update Password</button>
+              </div>
+            </form>
+          </article>
+
+          <aside class="account-card">
+            <div class="card-head">
+              <div>
+                <h2>Session Controls</h2>
+                <div class="hint">Extra security tools for future expansion.</div>
+              </div>
+            </div>
+
+            <div class="setting-list">
+              <div class="setting-item">
+                <div>
+                  <strong>Two-factor authentication</strong>
+                  <span>Recommended for stronger protection</span>
+                </div>
+                <div class="toggle" aria-hidden="true"></div>
+              </div>
+
+              <div class="setting-item">
+                <div>
+                  <strong>Login alerts</strong>
+                  <span>Email alerts for new device logins</span>
+                </div>
+                <div class="toggle on" aria-hidden="true"></div>
+              </div>
+
+              <div class="setting-item">
+                <div>
+                  <strong>Logout all sessions</strong>
+                  <span>Force sign-out from all devices</span>
+                </div>
+                <a href="#" class="small-btn danger"><i class="fa fa-sign-out"></i> Logout all</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <%- include('../includes/footer') %>
+  <script src="/customer/js/main.js"></script>
+</body>
+</html>

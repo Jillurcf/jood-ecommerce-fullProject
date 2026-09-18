@@ -1,0 +1,121 @@
+<div class="account-nav-wrapper">
+
+  <!-- HEADER (TOGGLE ONLY MOBILE) -->
+  <div class="account-nav-header" id="accountNavToggle">
+    <span>
+      <i class="fa fa-credit-card"></i> Billing Navigation
+    </span>
+
+    <i class="fa fa-chevron-down account-nav-arrow"></i>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="account-nav" aria-label="Billing navigation" id="accountNav">
+
+    <a href="/admin/a/account/billing"
+       class="account-nav-link <%= activePage === 'billing' ? 'active' : '' %>">
+      <i class="fa fa-credit-card"></i>
+      <span>Billing Overview</span>
+    </a>
+
+    <a href="/admin/a/account/transaction-history"
+       class="account-nav-link <%= activePage === 'transaction-history' ? 'active' : '' %>">
+      <i class="fa fa-history"></i>
+      <span>Transaction History</span>
+    </a>
+
+    <a href="/admin/a/account/payment-methods"
+       class="account-nav-link <%= activePage === 'payment-methods' ? 'active' : '' %>">
+      <i class="fa fa-money"></i>
+      <span>Payment Methods</span>
+    </a>
+
+  </nav>
+
+</div>
+
+<!-- STYLE -->
+<style>
+.account-nav-header {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+
+.account-nav-arrow {
+  transition: transform 0.3s ease;
+}
+
+/* NAV ALWAYS OPEN BY DEFAULT */
+.account-nav {
+  display: block;
+}
+
+/* MOBILE ONLY TOGGLE UI */
+@media (max-width: 991px) {
+  .account-nav-header {
+    display: flex;
+  }
+
+  /* collapsed state ONLY when user clicks */
+  .account-nav.collapsed {
+    display: none;
+  }
+
+  /* arrow rotation */
+  .account-nav-wrapper.closed .account-nav-arrow {
+    transform: rotate(-90deg);
+  }
+}
+</style>
+
+<!-- SCRIPT -->
+<script>
+(function () {
+  const toggleBtn = document.getElementById('accountNavToggle');
+  const nav = document.getElementById('accountNav');
+  const wrapper = document.querySelector('.account-nav-wrapper');
+
+  const MOBILE = 991;
+
+  function isMobile() {
+    return window.innerWidth <= MOBILE;
+  }
+
+  // Default state
+  function initState() {
+    if (isMobile()) {
+      nav.classList.add('collapsed'); // closed on mobile initially
+      wrapper.classList.add('closed');
+    } else {
+      nav.classList.remove('collapsed'); // always open on desktop
+      wrapper.classList.remove('closed');
+    }
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (!isMobile()) return; // ONLY mobile toggle
+
+    const isClosed = nav.classList.toggle('collapsed');
+    wrapper.classList.toggle('closed', isClosed);
+  });
+
+  // close on link click (mobile only)
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('.account-nav-link');
+    if (link && isMobile()) {
+      nav.classList.add('collapsed');
+      wrapper.classList.add('closed');
+    }
+  });
+
+  window.addEventListener('resize', initState);
+
+  initState();
+})();
+</script>

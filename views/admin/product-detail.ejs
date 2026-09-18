@@ -1,0 +1,1112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title><%= product && product.meta_title ? product.meta_title : (product && product.name ? product.name : 'Product') %> — Product Detail</title>
+
+  <% 
+    // ---------------------- Server-side helpers & init ----------------------
+    function safeArray(v){
+      if (!v) return [];
+      if (Array.isArray(v)) return v.filter(Boolean);
+      if (typeof v === 'string') {
+        var s = v.trim();
+        if (!s) return [];
+        try { if (s.startsWith('[')) { var p = JSON.parse(s); return Array.isArray(p) ? p.filter(Boolean) : [s]; } } catch(e){}
+        if (s.includes(',')) return s.split(',').map(function(x){ return x.trim(); }).filter(Boolean);
+        return [s];
+      }
+      return [String(v)];
+    }
+
+    function normalizeImage(i){
+      if (i === null || i === undefined) return null;
+      if (typeof i === 'object') i = i.url || i.image || i.path || i.filename || '';
+      i = String(i || '').trim();
+      if (!i) return null;
+      return (i.startsWith('/') || i.startsWith('http')) ? i : ('/uploads/products/' + i);
+    }
+
+    const selectionOptionsProvided = (typeof selectionOptions !== 'undefined' && Array.isArray(selectionOptions)) ? selectionOptions : [];
+    const variantsSafe = (typeof variants !== 'undefined' && Array.isArray(variants)) ? variants : [];
+
+    const galleryInput = safeArray(product && product.gallery);
+    const baseImagesRaw = [].concat((product && product.main_image) ? [product.main_image] : [], galleryInput || []);
+    const baseImages = baseImagesRaw.map(normalizeImage).filter(Boolean);
+
+    function cleanDescription(txt){ return (txt || '').replace(/<[^>]*>/g,'').trim(); }
+    const metaDesc = (product && product.meta_description) ? product.meta_description : ((product && product.short_description) ? cleanDescription(product.short_description) : '');
+
+    // numeric defaults (server-side fallback)
+    const baseSalePrice = (product && product.sale_price != null) ? Number(product.sale_price) : 0;
+    const baseDiscountPercent = (product && product.discount_percent != null) ? Number(product.discount_percent) : 0;
+    const baseVat = (product && product.vat_percent != null) ? Number(product.vat_percent) : 0;
+    const baseCost = (product && product.cost_price != null) ? Number(product.cost_price) : 0;
+
+    function computeBase(price, discount, vat, cost){
+      price = Number(price || 0);
+      discount = Number(discount || 0);
+      vat = Number(vat || 0);
+      cost = Number(cost || 0);
+      var discountAmount = +(price * (discount/100));
+      var priceAfterDiscount = +(price - discountAmount);
+      var vatAmount = +(priceAfterDiscount * (vat/100));
+      var final = +(priceAfterDiscount + vatAmount);
+      var profit = +(final - cost);
+      var margin = final ? ((profit / final) * 100) : 0;
+      return {
+        discountAmount: discountAmount.toFixed(2),
+        priceAfterDiscount: priceAfterDiscount.toFixed(2),
+        vatAmount: vatAmount.toFixed(2),
+        final: final.toFixed(2),
+        profit: profit.toFixed(2),
+        margin: margin.toFixed(2)
+      };
+    }
+    const baseComputed = computeBase(baseSalePrice, baseDiscountPercent, baseVat, baseCost);
+
+    function renderVal(obj, key){
+      if (!obj) return '';
+      var v = obj[key];
+      if (v === undefined || v === null) return '';
+      if (Array.isArray(v)) return v.length ? (v.length + ' item(s)') : '';
+      if (typeof v === 'object') {
+        try { var s = JSON.stringify(v); return s.length > 200 ? s.slice(0,200) + '…' : s; }
+        catch(e){ return String(v); }
+      }
+      return String(v);
+    }
+  %>
+
+  <meta name="description" content="<%= metaDesc %>">
+  <link rel="canonical" href="<%= (typeof canonicalUrl !== 'undefined' && canonicalUrl) ? canonicalUrl : (product && ('/product/' + (product.slug || product.id))) %>">
+
+  <!-- preserve external assets -->
+  <link href="https://fonts.googleapis.com/css?family=Inter:300,400,600,700,800" rel="stylesheet">
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+  <link href="/admin/assets/css/soft-ui-dashboard.css?v=1.0.3" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/customer/css/account.css" />
+
+
+<style>
+  :root {
+    --accent: #0ea5a4;
+    --muted: #6b7280;
+    --card: #fff;
+    --radius: 12px;
+    --thumb: 72px;
+    --main-h: 480px;
+    --success: #059669;
+    --table-stripe: #f7fdfc;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+    background: #f8fafc;
+    color: #0f172a;
+    line-height: 1.5;
+  }
+
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px;
+    width: 95%;
+  }
+
+  /* layout */
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media(min-width: 1024px) {
+    .top-grid {
+      grid-template-columns: 1fr minmax(280px, 420px);
+      align-items: start;
+    }
+  }
+
+  /* gallery */
+  .gallery-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 12px;
+    border: 1px solid #eef2f6;
+  }
+
+  .main-frame {
+    height: var(--main-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #fff;
+    cursor: zoom-in;
+  }
+
+  .main-frame img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .thumb-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-top: 12px;
+    align-items: center;
+  }
+
+  .thumb {
+    flex: 0 0 auto;
+    width: var(--thumb);
+    height: var(--thumb);
+    border-radius: 8px;
+    border: 1px solid #e6e9ee;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    background: #fff;
+    transition: transform 0.2s ease;
+  }
+
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    max-height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .thumb.active {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* summary */
+  .summary-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 12px;
+    border: 1px solid #eef2f6;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 120px;
+  }
+
+  .title {
+    font-weight: 700;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .overview {
+    color: #374151;
+    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+  }
+
+  /* variants */
+  .variant-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .variant-track {
+    overflow-x: auto;
+    flex: 1;
+  }
+
+  .variant-strip {
+    display: flex;
+    gap: 8px;
+    transition: transform 0.25s ease;
+    align-items: center;
+    padding: 8px 4px;
+  }
+
+  .variant-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid #e6e9ee;
+    background: #fff;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+
+  .variant-chip img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .variant-chip.active {
+    background: rgba(14,165,164,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .nav-btn {
+    background: #fff;
+    border: 1px solid #e6e9ee;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    min-width: 40px;
+    display: grid;
+    place-items: center;
+  }
+
+  /* price */
+  .price-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .old-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .original-price {
+    text-decoration: line-through;
+    color: #ef4444;
+    font-weight: 600;
+  }
+
+  .discount-badge {
+    background: rgba(14,165,164,0.12);
+    color: var(--accent);
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .final-price {
+    font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .save-row {
+    color: var(--success);
+    font-weight: 700;
+    font-size: clamp(0.8rem, 1.5vw, 0.95rem);
+  }
+
+  .mini-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .mini-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid #e6e9ee;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .detail-box {
+    margin-top: 20px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    border: 1px solid #eef2f6;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media(min-width:1024px) {
+    .detail-grid {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+
+  .section {
+    margin-bottom: 14px;
+  }
+
+  .section h3 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .tech-table th {
+    text-align: left;
+    padding: 0.5rem 0;
+    color: var(--muted);
+    font-weight: 600;
+    width: 40%;
+  }
+
+  .tech-table td {
+    padding: 0.5rem 0;
+    color: #0f172a;
+  }
+
+  .tech-row.hidden {
+    display: none;
+  }
+
+  .table-compact {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+
+  .table-compact th {
+    background: var(--table-stripe);
+    padding: 0.5rem;
+    border-bottom: 1px solid #eef2f6;
+    text-align: left;
+  }
+
+  .table-compact td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #f4f6f8;
+  }
+
+  .zoom-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1200;
+  }
+
+  .zoom-modal img {
+    max-width: 95%;
+    max-height: 95%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    cursor: zoom-out;
+  }
+
+  @media(max-width: 1024px) {
+    :root {
+      --thumb: 56px;
+      --main-h: 320px;
+    }
+    .title {
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+    }
+    .final-price {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+    }
+    .variant-chip img {
+      width: 32px;
+      height: 32px;
+    }
+    .thumb-row {
+      gap: 6px;
+    }
+  }
+
+  /* Smooth scrolling for thumb row */
+  .thumb-row, .variant-track {
+    scroll-behavior: smooth;
+  }
+</style>
+
+</head>
+<body>
+ <div class="account-layout" id="accountLayout">
+        <aside class="account-sidebar" id="accountSidebar" aria-label="Account Sidebar">
+          <%- include('includes/account-sidebar', { user, activePage: 'addresses' }) %>
+        </aside>
+
+        <div class="account-right">
+          <%- include('includes/account-topbar') %>
+
+            <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+             <section class="account-page-header">
+    <%- include('includes/account-header', {
+        title: 'Parent Category Management',
+        subtitle: 'Add new Parent categories, edit existing ones, and view all Parent categories in your inventory system. Well-structured Parent categories improve product organization, inventory management, reporting, and customer browsing experience.',
+        primaryAction: null,
+        secondaryAction: null
+    }) %>
+
+    <div class="status-line" aria-live="polite" style="float: inline-end;">
+        <span class="saving-dot" id="savingDot"></span>
+        <span id="savingText">Parent Categories are up to date</span>
+    </div>
+</section>
+
+    <main class="account-content">
+  <div class="wrap">
+    <nav class="text-gray-500 mb-2 text-bold" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-gray-700">Home</a>
+      <span class="mx-1">/</span>
+      <a href="/product" class="hover:text-gray-700">Product</a>
+      <span class="mx-1">/</span>
+      <a href="/product/product_detail" class="hover:text-gray-700">Product Detail</a>
+      <span class="mx-1">/</span>
+      <a href="/product/add/<%= product && product.parent_category_id ? product.parent_category_id : '' %>" class="hover:text-gray-700"><%= product && product.parent_category_id ? product.parent_category_id : 'Category' %></a>
+      <span class="mx-1">/</span>
+      <span class="text-gray-700"><%= product && product.name ? product.name : 'Product' %></span>
+    </nav>
+
+    <section class="top-grid" aria-labelledby="product-heading">
+      <!-- Gallery -->
+      <div class="gallery-card" aria-label="Product gallery">
+        <div id="mainFrame" class="main-frame" role="region" aria-label="Main product image" tabindex="0">
+          <img id="mainImage" src="<%= (baseImages && baseImages.length) ? baseImages[0] : '/assets/placeholder.png' %>" alt="<%= product && product.name ? product.name : 'Product' %>">
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-top:12px">
+          <div style="flex:1">
+            <div class="thumb-row" id="thumbStrip" aria-label="Product thumbnails">
+              <% (baseImages || []).forEach(function(img, idx){ %>
+                <div class="thumb <%= idx === 0 ? 'active' : '' %>" data-src="<%= img %>" data-index="<%= idx %>" role="button" aria-label="Thumbnail <%= idx+1 %>" tabindex="0">
+                  <img src="<%= img %>" alt="Product image <%= idx+1 %>" loading="lazy" style="max-height:60px" />
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <aside class="summary-card" id="productSummary">
+       <h4 id="product-heading" class="title">
+        <%= product && product.name ? product.name : 'Product' %>
+       
+      </h4>
+
+        <div class="price-block" aria-live="polite" aria-atomic="true">
+          <div class="old-row" id="priceRowTop">
+            <% if (baseDiscountPercent > 0) { %>
+              <div class="original-price" id="originalPriceTop">AED <%= baseSalePrice.toFixed(2) %></div>
+              <div class="discount-badge" id="discountPercentTop">-<%= baseDiscountPercent.toFixed(0) %>%</div>
+            <% } %>
+          </div>
+
+          <div class="final-price" id="finalPriceTop"><strong>AED <%= baseComputed.final %></strong></div>
+          <% if (baseDiscountPercent > 0) { %>
+            <div class="save-row" id="saveRowTop">You save AED <span id="saveAmountTop"><%= baseComputed.discountAmount %></span> (<span id="savePercentTop"><%= baseDiscountPercent.toFixed(0) %></span>%)</div>
+          <% } %>
+        </div>
+
+        <div class="meta">
+          <div>Stock: <strong id="stockValueTop"><%= product && product.stock != null ? product.stock : '0' %></strong></div>
+          <div>SKU: <span id="skuValueTop"><%= product && product.sku ? product.sku : '—' %></span></div>
+        </div>
+
+        <div style="margin-top:8px">
+          <div style="font-weight:600;margin-bottom:6px">Options</div>
+          <div class="variant-wrapper">
+            <button type="button" id="variantPrev" class="nav-btn" aria-label="Previous options">◀</button>
+            <div class="variant-track" role="region" aria-label="Variant options">
+              <div id="variantStrip" class="variant-strip" role="tablist" aria-label="Product options"></div>
+            </div>
+            <button type="button" id="variantNext" class="nav-btn" aria-label="Next options">▶</button>
+          </div>
+        </div>
+
+        <div style="font-weight:600;margin-top:10px">Description</div>
+        <div class="overview" id="shortDescTop">
+          <%= product && product.short_description ? product.short_description : (product && product.description ? (product.description.replace(/<[^>]*>/g,'').slice(0,240) + '...') : 'No summary available.') %>
+        </div>
+
+        <!-- <div class="mini-list" id="miniListTop"></div> -->
+      </aside>
+    </section>
+
+    <!-- Details -->
+    <section class="detail-box" aria-labelledby="details-heading">
+      <h2 id="details-heading" class="text-lg font-semibold">Product information</h2>
+
+      <div class="detail-grid" style="margin-top:12px">
+        <div>
+          <div class="section">
+            <h3>Description</h3>
+            <div class="prose" id="longDescription"><%- product && product.description ? product.description : '<p>No description available.</p>' %></div>
+          </div>
+
+          <div class="section">
+            <h3>Key Features</h3>
+            <div id="bulletsContainer"><%- product && product.bullets ? product.bullets : '<p>No Feature Mentioned</p>' %></div>
+          </div>
+
+          <div class="section">
+            <h3>Price Breakdown</h3>
+            <p>Discount is taken from the <strong>main product</strong> and applied to the option price. All values update with the selected variant.</p>
+            <ul>
+              <li>Price before discount: <strong id="detailOriginalPrice">AED <%= baseSalePrice.toFixed(2) %></strong></li>
+              <li>Discount (main product): <strong id="detailDiscountPercent"><%= baseDiscountPercent.toFixed(0) %>%</strong></li>
+              <li>Price after discount: <strong id="detailPriceAfterDiscount">AED <%= baseComputed.priceAfterDiscount %></strong></li>
+              <li>VAT amount: <strong id="detailVatAmount">AED <%= baseComputed.vatAmount %></strong></li>
+              <li>Price after VAT (final): <strong id="detailFinalPrice">AED <%= baseComputed.final %></strong></li>
+              <li>You save: <strong id="detailSaveAmount">AED <%= baseComputed.discountAmount %></strong></li>
+              <li>Profit: <strong id="detailProfitAmount">AED <%= baseComputed.profit %></strong></li>
+              <li>Gross margin: <strong id="detailMarginPercent"><%= baseComputed.margin %>%</strong></li>
+            </ul>
+          </div>
+
+          <div id="dimensionsShippingSection" class="section">
+            <h3>Shipping & Dimensions</h3>
+            <p>Variant-level dimensions & shipping override product-level values when provided. Values update on selection.</p>
+            <table class="w-full text-sm tech-table" id="dimensionsTable">
+              <tbody>
+                <tr class="tech-row" data-field="weight"><th>WEIGHT (kg)</th><td id="dimWeight"></td></tr>
+                <tr class="tech-row" data-field="length"><th>LENGTH (cm)</th><td id="dimLength"></td></tr>
+                <tr class="tech-row" data-field="width"><th>WIDTH (cm)</th><td id="dimWidth"></td></tr>
+                <tr class="tech-row" data-field="height"><th>HEIGHT (cm)</th><td id="dimHeight"></td></tr>
+                <tr class="tech-row" data-field="shipping_class"><th>SHIPPING CLASS</th><td id="dimShipping"></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h3>Meta Information</h3>
+            <p><strong>Title:</strong> <%- product && product.meta_title ? product.meta_title : '—' %></p>
+            <p><strong>Keywords:</strong> <%- product && product.meta_keywords ? product.meta_keywords : '—' %></p>
+            <p><strong>Description:</strong> <%- product && product.meta_description ? product.meta_description : '—' %></p>
+          </div>
+        </div>
+
+        <!-- Technical details panel: identifiers, pricing, stock (separate table layout + bold final price) -->
+        <aside>
+          <h3 class="font-medium">Technical Details</h3>
+
+          <!-- Identifiers Table -->
+          <div class="mt-3">
+            <strong class="d-block mb-2">Identifiers</strong>
+            <table class="table-compact" aria-live="polite">
+              <tbody>
+                <tr data-field="id"><th>ID</th><td id="techId"><%= renderVal(product,'id') %></td></tr>
+                <tr data-field="product_id"><th>PRODUCT ID</th><td id="techProductId"><%= renderVal(product,'product_id') %></td></tr>
+                <tr data-field="sku"><th>SKU</th><td id="techSku"><%= renderVal(product,'sku') %></td></tr>
+                <tr data-field="mpn"><th>MPN</th><td id="techMpn"><%= renderVal(product,'mpn') %></td></tr>
+                <tr data-field="gtin"><th>GTIN</th><td id="techGtin"><%= renderVal(product,'gtin') %></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pricing Table -->
+          <div class="mt-4">
+            <strong class="d-block mb-2">Pricing</strong>
+            <table class="table-compact" aria-live="polite">
+              <tbody>
+                <tr data-field="sale_price"><th>SALE PRICE</th><td id="techSalePrice"><%= renderVal(product,'sale_price') %></td></tr>
+                <tr data-field="cost_price"><th>COST PRICE</th><td id="techCostPrice"><%= renderVal(product,'cost_price') %></td></tr>
+                <tr data-field="discount_percent"><th>DISCOUNT %</th><td id="techDiscount"><%= renderVal(product,'discount_percent') %></td></tr>
+                <tr data-field="vat_percent"><th>VAT %</th><td id="techVat"><%= renderVal(product,'vat_percent') %></td></tr>
+
+                <tr data-field="computed_discount_amount"><th>DISCOUNT AMOUNT</th><td id="techComputedDiscount"><%= baseComputed.discountAmount %></td></tr>
+                <tr data-field="computed_price_after_discount"><th>PRICE AFTER DISCOUNT</th><td id="techComputedAfter"><strong><%= baseComputed.priceAfterDiscount %></strong></td></tr>
+                <tr data-field="computed_vat_amount"><th>VAT AMOUNT</th><td id="techComputedVAT"><%= baseComputed.vatAmount %></td></tr>
+                <tr data-field="computed_final_price"><th>FINAL PRICE (AFTER VAT)</th><td id="techComputedFinal"><strong><%= baseComputed.final %></strong></td></tr>
+                <tr data-field="computed_profit"><th>PROFIT</th><td id="techComputedProfit"><%= baseComputed.profit %></td></tr>
+                <tr data-field="computed_margin_percent"><th>GROSS MARGIN %</th><td id="techComputedMargin"><%= baseComputed.margin %></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Stock & Visibility Table -->
+          <div class="mt-4">
+            <strong class="d-block mb-2">Stock & Visibility</strong>
+            <table class="table-compact" aria-live="polite">
+              <tbody>
+                <tr data-field="stock"><th>STOCK</th><td id="techStock"><%= renderVal(product,'stock') %></td></tr>
+                <tr data-field="stock_status"><th>STOCK STATUS</th><td id="techStockStatus"><%= renderVal(product,'stock_status') %></td></tr>
+                <tr data-field="visibility"><th>VISIBILITY</th><td id="techVisibility"><%= renderVal(product,'visibility') %></td></tr>
+                <tr data-field="status"><th>STATUS</th><td id="techStatus"><%= renderVal(product,'status') %></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </aside>
+
+      </div>
+    </section>
+  </div>
+</main>
+            <%- include('includes/account-footer') %>
+        </div>
+      </div>
+
+      <div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+  <div id="zoomModal" class="zoom-modal" role="dialog" aria-hidden="true">
+    <img id="zoomImage" alt="Zoomed product image">
+  </div>
+
+  <!-- vendor scripts (kept) -->
+  <script src="/admin/assets/js/core/popper.min.js"></script>
+  <script src="/admin/assets/js/core/bootstrap.min.js"></script>
+ <script src="/customer/js/account.js"></script>
+
+
+  <!-- server -> client data -->
+  <script>
+    const PRODUCT = <%- JSON.stringify(product || {}) %>;
+    const VARIANTS = <%- JSON.stringify((variantsSafe || []).map(function(v){ var c = Object.assign({}, v || {}); if (c.media && Array.isArray(c.media)) c.media = c.media.map(function(m){ return (typeof m === 'string') ? m : (m.filename || m.url || ''); }); return c; })) %>;
+    const SELECTION_OPTIONS = <%- JSON.stringify(selectionOptionsProvided || []) %>;
+    const BASE_IMAGES = <%- JSON.stringify(baseImages || []) %>;
+  </script>
+
+  <script>
+  (function(){
+    'use strict';
+
+    // ---------- small helpers ----------
+    const safeNumber = v => (v === undefined || v === null || v === '') ? null : Number(v);
+    const fmtAED = v => 'AED ' + Number(v || 0).toFixed(2);
+    const fmtNum = v => (v === null || v === undefined || v === '') ? '' : String(v);
+    const fmtPct = v => (v === null || v === undefined || v === '') ? '' : Number(v).toFixed(0) + '%';
+    const safeUrl = s => { if (!s) return '/assets/placeholder.png'; s = String(s).trim(); return (s.startsWith('/') || s.startsWith('http')) ? s : ('/uploads/products/' + s); };
+
+    // ---------- DOM refs ----------
+    const mainImage = document.getElementById('mainImage');
+    const mainFrame = document.getElementById('mainFrame');
+    const thumbStrip = document.getElementById('thumbStrip');
+    const variantStrip = document.getElementById('variantStrip');
+    const variantPrev = document.getElementById('variantPrev');
+    const variantNext = document.getElementById('variantNext');
+    const miniListTop = document.getElementById('miniListTop');
+
+    const originalPriceTop = document.getElementById('originalPriceTop');
+    const discountPercentTop = document.getElementById('discountPercentTop');
+    const finalPriceTop = document.getElementById('finalPriceTop');
+    const saveAmountTop = document.getElementById('saveAmountTop');
+    const savePercentTop = document.getElementById('savePercentTop');
+
+    const detailOriginalPrice = document.getElementById('detailOriginalPrice');
+    const detailDiscountPercent = document.getElementById('detailDiscountPercent');
+    const detailPriceAfterDiscount = document.getElementById('detailPriceAfterDiscount');
+    const detailVatAmount = document.getElementById('detailVatAmount');
+    const detailFinalPrice = document.getElementById('detailFinalPrice');
+    const detailSaveAmount = document.getElementById('detailSaveAmount');
+    const detailProfitAmount = document.getElementById('detailProfitAmount');
+    const detailMarginPercent = document.getElementById('detailMarginPercent');
+
+    const skuValueTop = document.getElementById('skuValueTop');
+    const stockValueTop = document.getElementById('stockValueTop');
+
+    const dimWeight = document.getElementById('dimWeight');
+    const dimLength = document.getElementById('dimLength');
+    const dimWidth = document.getElementById('dimWidth');
+    const dimHeight = document.getElementById('dimHeight');
+    const dimShipping = document.getElementById('dimShipping');
+    const dimsSection = document.getElementById('dimensionsShippingSection');
+
+    const techSalePrice = document.getElementById('techSalePrice');
+    const techCostPrice = document.getElementById('techCostPrice');
+    const techDiscount = document.getElementById('techDiscount');
+    const techVat = document.getElementById('techVat');
+    const techComputedDiscount = document.getElementById('techComputedDiscount');
+    const techComputedAfter = document.getElementById('techComputedAfter');
+    const techComputedVAT = document.getElementById('techComputedVAT');
+    const techComputedFinal = document.getElementById('techComputedFinal');
+    const techComputedProfit = document.getElementById('techComputedProfit');
+    const techComputedMargin = document.getElementById('techComputedMargin');
+    const techSku = document.getElementById('techSku');
+    const techStock = document.getElementById('techStock');
+
+    // ---------- base values ----------
+    const baseSalePrice = Number(PRODUCT.sale_price || 0);
+    const baseDiscount = Number(PRODUCT.discount_percent || 0);
+    const baseVat = Number(PRODUCT.vat_percent || 0);
+    const baseCost = Number(PRODUCT.cost_price || 0);
+
+    // ---------- gallery & options ----------
+    let gallery = Array.isArray(BASE_IMAGES) && BASE_IMAGES.length ? BASE_IMAGES.slice() : (PRODUCT.main_image ? [safeUrl(PRODUCT.main_image)] : ['/assets/placeholder.png']);
+    let currentIndex = 0;
+
+    // Build options: base product + variants
+    let options = [];
+    if (Array.isArray(SELECTION_OPTIONS) && SELECTION_OPTIONS.length) {
+      options = SELECTION_OPTIONS.slice();
+    } else {
+      // base product option
+      const baseImgs = (Array.isArray(gallery) && gallery.length) ? gallery.slice() : ['/assets/placeholder.png'];
+      options.push({
+        type: 'base',
+        id: PRODUCT.id || null,
+        label: PRODUCT.name || 'Default',
+        sku: PRODUCT.sku || null,
+        price: PRODUCT.sale_price != null ? Number(PRODUCT.sale_price) : null,
+        cost_price: PRODUCT.cost_price != null ? Number(PRODUCT.cost_price) : null,
+        vat_percent: PRODUCT.vat_percent != null ? Number(PRODUCT.vat_percent) : null,
+        discount_percent: PRODUCT.discount_percent != null ? Number(PRODUCT.discount_percent) : null,
+        stock: PRODUCT.stock != null ? Number(PRODUCT.stock) : null,
+        images: baseImgs,
+        meta: PRODUCT
+      });
+
+      if (Array.isArray(VARIANTS)) {
+        VARIANTS.forEach(v => {
+          const imgs = (v.media && Array.isArray(v.media) && v.media.length) ? v.media.map(m => safeUrl(m)) : (v.image ? [safeUrl(v.image)] : []);
+          options.push({
+            type: 'variant',
+            id: v.id,
+            label: v.name || v.sku || ('Option ' + (v.id || '')),
+            sku: v.sku || null,
+            price: v.price != null ? Number(v.price) : (v.sale_price != null ? Number(v.sale_price) : null),
+            cost_price: v.cost_price != null ? Number(v.cost_price) : null,
+            vat_percent: v.vat_percent != null ? Number(v.vat_percent) : null,
+            discount_percent: v.discount_percent != null ? Number(v.discount_percent) : null,
+            stock: v.stock != null ? Number(v.stock) : null,
+            images: imgs,
+            meta: v
+          });
+        });
+      }
+    }
+
+    // ---------- compute numbers ----------
+    function computePrice(price, discountPercent, vatPercent, costOverride){
+      // ensure numeric types; all arithmetic done stepwise
+      const p = Number(price || 0);
+      const d = Number(discountPercent || 0);
+      const v = Number(vatPercent || 0);
+      const c = (typeof costOverride !== 'undefined' && costOverride !== null) ? Number(costOverride) : Number(baseCost || 0);
+
+      // 1) discount amount
+      const discountAmount = +(p * (d / 100)); // digit by digit: multiply p * d/100
+      // 2) price after discount
+      const priceAfterDiscount = +(p - discountAmount);
+      // 3) vat amount (applied to price after discount)
+      const vatAmount = +(priceAfterDiscount * (v / 100));
+      // 4) final price after VAT
+      const final = +(priceAfterDiscount + vatAmount);
+      // 5) profit = final - cost
+      const profit = +(final - c);
+      // 6) margin %
+      const margin = final ? ((profit / final) * 100) : 0;
+
+      return {
+        price: p,
+        discountPercent: d,
+        discountAmount: Number.isFinite(discountAmount) ? discountAmount : 0,
+        priceAfterDiscount: Number.isFinite(priceAfterDiscount) ? priceAfterDiscount : 0,
+        vatPercent: v,
+        vatAmount: Number.isFinite(vatAmount) ? vatAmount : 0,
+        final: Number.isFinite(final) ? final : 0,
+        profit: Number.isFinite(profit) ? profit : 0,
+        margin: Number.isFinite(margin) ? margin : 0
+      };
+    }
+
+    // ---------- render helpers ----------
+    function renderThumbs(){
+      if (!thumbStrip) return;
+      thumbStrip.innerHTML = '';
+      gallery.forEach((src, idx) => {
+        const div = document.createElement('div');
+        div.className = 'thumb' + (idx === currentIndex ? ' active' : '');
+        div.dataset.index = idx;
+        div.tabIndex = 0;
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'Product image ' + (idx+1);
+        div.appendChild(img);
+        div.addEventListener('click', () => { setMain(idx); });
+        div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMain(idx); }});
+        thumbStrip.appendChild(div);
+      });
+    }
+
+    function setMain(i){
+      if (!gallery.length) return;
+      i = Math.max(0, Math.min(gallery.length - 1, Number(i)));
+      currentIndex = i;
+      mainImage.src = gallery[i];
+      Array.from(thumbStrip.children).forEach(c => c.classList.toggle('active', Number(c.dataset.index) === currentIndex));
+      persistViewState();
+    }
+
+    function renderMini(list){
+      if (!miniListTop) return;
+      miniListTop.innerHTML = '';
+      (list || []).slice(0,4).forEach(src => {
+        const img = document.createElement('img');
+        img.className = 'mini-img';
+        img.src = src;
+        img.alt = 'Mini';
+        img.addEventListener('click', () => {
+          const i = gallery.indexOf(src);
+          if (i !== -1) setMain(i);
+        });
+        miniListTop.appendChild(img);
+      });
+    }
+
+    function renderVariants(){
+      if (!variantStrip) return;
+      variantStrip.innerHTML = '';
+      options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'variant-chip';
+        btn.dataset.idx = idx;
+        btn.title = opt.label || '';
+        btn.setAttribute('role','tab');
+
+        const img = document.createElement('img');
+        img.src = (opt.images && opt.images.length) ? opt.images[0] : (gallery[0] || '/assets/placeholder.png');
+        img.alt = opt.label || '';
+
+        const span = document.createElement('span');
+        span.textContent = opt.label || (opt.sku || 'Option');
+
+        btn.appendChild(img);
+        btn.appendChild(span);
+
+        btn.addEventListener('click', () => selectOption(idx, btn));
+        variantStrip.appendChild(btn);
+      });
+    }
+
+    // ---------- update UI values when an option is selected ----------
+    function updateVisibleFields(option){
+      // Choose numeric values: prefer variant-level values then product-level
+      const price = (option && option.price != null) ? Number(option.price) : (PRODUCT.sale_price != null ? Number(PRODUCT.sale_price) : 0);
+      // Discount ALWAYS taken from main product as per your requirement (but we still read variant.discount_percent if you later want variant-specific discount)
+      const discountPercent = (PRODUCT.discount_percent != null) ? Number(PRODUCT.discount_percent) : 0;
+      // VAT: variant.vat_percent -> product.vat_percent -> 0
+      const vatPercent = (option && option.vat_percent != null) ? Number(option.vat_percent) : (PRODUCT.vat_percent != null ? Number(PRODUCT.vat_percent) : 0);
+      // Cost: variant.cost_price -> product.cost_price -> 0
+      const costPrice = (option && option.cost_price != null) ? Number(option.cost_price) : (PRODUCT.cost_price != null ? Number(PRODUCT.cost_price) : 0);
+
+      const computed = computePrice(price, discountPercent, vatPercent, costPrice);
+
+      // Top summary
+      if (originalPriceTop) originalPriceTop.textContent = (discountPercent > 0) ? fmtAED(price) : '';
+      if (discountPercentTop) discountPercentTop.textContent = (discountPercent > 0) ? ('-' + Number(discountPercent).toFixed(0) + '%') : '';
+      if (finalPriceTop) finalPriceTop.innerHTML = '<strong>' + fmtAED(computed.final) + '</strong>';
+      if (saveAmountTop) saveAmountTop.textContent = Number(computed.discountAmount).toFixed(2);
+      if (savePercentTop) savePercentTop.textContent = Number(discountPercent).toFixed(0);
+
+      // Details block
+      if (detailOriginalPrice) detailOriginalPrice.textContent = fmtAED(price);
+      if (detailDiscountPercent) detailDiscountPercent.textContent = Number(discountPercent).toFixed(0) + '%';
+      if (detailPriceAfterDiscount) detailPriceAfterDiscount.textContent = fmtAED(computed.priceAfterDiscount);
+      if (detailVatAmount) detailVatAmount.textContent = fmtAED(computed.vatAmount);
+      if (detailFinalPrice) detailFinalPrice.textContent = fmtAED(computed.final);
+      if (detailSaveAmount) detailSaveAmount.textContent = fmtAED(computed.discountAmount);
+      if (detailProfitAmount) detailProfitAmount.textContent = fmtAED(computed.profit);
+      if (detailMarginPercent) detailMarginPercent.textContent = Number(computed.margin).toFixed(2) + '%';
+
+      // Technical panel updates (sale, cost, vat, computed)
+      if (techSalePrice) techSalePrice.textContent = (price !== null) ? fmtAED(price) : '';
+      if (techCostPrice) techCostPrice.textContent = (costPrice !== null) ? fmtAED(costPrice) : '';
+      if (techDiscount) techDiscount.textContent = Number(discountPercent).toFixed(0) + '%';
+      if (techVat) techVat.textContent = Number(vatPercent).toFixed(0) + '%';
+      if (techComputedDiscount) techComputedDiscount.textContent = Number(computed.discountAmount).toFixed(2);
+      if (techComputedAfter) techComputedAfter.textContent = Number(computed.priceAfterDiscount).toFixed(2);
+      if (techComputedVAT) techComputedVAT.textContent = Number(computed.vatAmount).toFixed(2);
+      if (techComputedFinal) techComputedFinal.textContent = Number(computed.final).toFixed(2);
+      if (techComputedProfit) techComputedProfit.textContent = Number(computed.profit).toFixed(2);
+      if (techComputedMargin) techComputedMargin.textContent = Number(computed.margin).toFixed(2);
+
+      // SKU & Stock (variant overrides product)
+      const sku = (option && option.sku) ? option.sku : (PRODUCT.sku || '—');
+      const stock = (option && option.stock != null) ? option.stock : (PRODUCT.stock != null ? PRODUCT.stock : '—');
+      if (skuValueTop) skuValueTop.textContent = sku;
+      if (stockValueTop) stockValueTop.textContent = stock;
+      if (techSku) techSku.textContent = sku;
+      if (techStock) techStock.textContent = (stock !== null && stock !== undefined) ? String(stock) : '';
+
+      // Description & bullets (variant may contain its own description/bullets)
+      const longDescHtml = (option && option.meta && option.meta.description) ? option.meta.description : (PRODUCT.description || '<p>No description available.</p>');
+      const bulletsHtml = (option && option.meta && option.meta.bullets) ? option.meta.bullets : (PRODUCT.bullets || '<p>No Feature Mentioned</p>');
+      const longDescriptionEl = document.getElementById('longDescription');
+      const bulletsEl = document.getElementById('bulletsContainer');
+      if (longDescriptionEl) longDescriptionEl.innerHTML = longDescHtml;
+      if (bulletsEl) bulletsEl.innerHTML = bulletsHtml;
+
+      // Dimensions & shipping: prefer variant meta -> product -> hide if missing
+      const getField = (field) => {
+        if (option && option.meta && option.meta[field] !== undefined && option.meta[field] !== null && String(option.meta[field]).trim() !== '') return option.meta[field];
+        if (PRODUCT && PRODUCT[field] !== undefined && PRODUCT[field] !== null && String(PRODUCT[field]).trim() !== '') return PRODUCT[field];
+        return null;
+      };
+
+      const weightVal = getField('weight');
+      const lengthVal = getField('length');
+      const widthVal = getField('width');
+      const heightVal = getField('height');
+      const shipClass = getField('shipping_class');
+
+      const setRow = (el, val) => {
+        if (!el) return;
+        if (val === null || val === undefined || (typeof val === 'string' && val.trim() === '') || (typeof val === 'number' && Number(val) === 0)) {
+          el.textContent = '';
+          const r = el.closest('tr');
+          if (r) r.classList.add('hidden');
+        } else {
+          el.textContent = String(val);
+          const r = el.closest('tr');
+          if (r) r.classList.remove('hidden');
+        }
+      };
+
+      setRow(dimWeight, weightVal);
+      setRow(dimLength, lengthVal);
+      setRow(dimWidth, widthVal);
+      setRow(dimHeight, heightVal);
+      setRow(dimShipping, shipClass);
+
+      // show/hide dims section
+      (function toggleDims(){
+        const rows = Array.from(document.querySelectorAll('#dimensionsTable tr.tech-row'));
+        const anyVisible = rows.some(r => !r.classList.contains('hidden'));
+        if (dimsSection) dimsSection.style.display = anyVisible ? '' : 'none';
+      })();
+    }
+
+    // ---------- select option handler ----------
+    function selectOption(idx, btn){
+      const opt = options[idx];
+      if (!opt) return;
+      Array.from(variantStrip.children).forEach(n => n.classList.toggle('active', n === btn));
+
+      // gallery update: prefer variant images, fallback to base
+      const imgs = (opt && Array.isArray(opt.images) && opt.images.length) ? opt.images.slice() : (Array.isArray(BASE_IMAGES) && BASE_IMAGES.length ? BASE_IMAGES.slice() : ['/assets/placeholder.png']);
+      gallery = imgs.length ? imgs : ['/assets/placeholder.png'];
+      currentIndex = 0;
+      renderThumbs();
+      setMain(0);
+      renderMini(gallery);
+
+      // update price / tech / dims / sku / stock
+      updateVisibleFields(opt);
+
+      // persist selection
+      try { localStorage.setItem('product_selected_variant_' + (PRODUCT.id || 'guest'), JSON.stringify({ variantId: opt.id, image: mainImage.src })); } catch(e){}
+    }
+
+    // ---------- restore -->
+    function restoreSelection(){
+      try {
+        const raw = localStorage.getItem('product_selected_variant_' + (PRODUCT.id || 'guest'));
+        if (!raw) return false;
+        const s = JSON.parse(raw);
+        if (s && s.variantId) {
+          const idx = options.findIndex(o => String(o.id) === String(s.variantId));
+          if (idx !== -1) {
+            const btn = variantStrip.querySelector('[data-idx="' + idx + '"]');
+            if (btn) { btn.click(); return true; }
+          }
+        }
+        return false;
+      } catch(e){ return false; }
+    }
+
+    // ---------- persist view state ----------
+    function persistViewState(){
+      try {
+        const key = 'product_view_state_' + (PRODUCT.id || 'guest');
+        const raw = localStorage.getItem(key) || null;
+        const state = raw ? JSON.parse(raw) : {};
+        state.image = mainImage.src;
+        localStorage.setItem(key, JSON.stringify(state));
+      } catch(e){}
+    }
+
+    // ---------- UI niceties ----------
+    let variantTranslateX = 0;
+    function variantScroll(amount){
+      const track = document.querySelector('.variant-track');
+      if (!track) return;
+      const strip = variantStrip;
+      const maxScroll = Math.max(0, strip.scrollWidth - track.clientWidth);
+      variantTranslateX = Math.min(0, Math.max(-maxScroll, variantTranslateX + amount));
+      strip.style.transform = 'translateX(' + variantTranslateX + 'px)';
+    }
+    if (variantPrev) variantPrev.addEventListener('click', () => variantScroll(150));
+    if (variantNext) variantNext.addEventListener('click', () => variantScroll(-150));
+
+    // zoom handlers
+    const zoomModal = document.getElementById('zoomModal');
+    const zoomImage = document.getElementById('zoomImage');
+    if (mainFrame) mainFrame.addEventListener('click', () => { zoomImage.src = mainImage.src; zoomModal.style.display = 'flex'; zoomModal.setAttribute('aria-hidden','false'); });
+    if (zoomModal) zoomModal.addEventListener('click', () => { zoomModal.style.display = 'none'; zoomModal.setAttribute('aria-hidden','true'); zoomImage.src = ''; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (zoomModal) { zoomModal.style.display = 'none'; zoomModal.setAttribute('aria-hidden','true'); zoomImage.src = ''; } } });
+
+    // touch for variant track
+    function setupTouch(){
+      const track = document.querySelector('.variant-track');
+      if (!track) return;
+      let startX=0, currentX=0, isDown=false;
+      track.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; isDown=true; }, {passive:true});
+      track.addEventListener('touchmove', function(e){ if (!isDown) return; currentX = e.touches[0].clientX; const dx = currentX - startX; variantScroll(dx); startX = currentX; }, {passive:true});
+      track.addEventListener('touchend', function(){ isDown = false; });
+    }
+
+    // responsive main height
+    function adjustMainHeight(){
+      const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+      const target = Math.min(520, Math.max(260, Math.floor(vh * 0.45)));
+      document.documentElement.style.setProperty('--main-h', target + 'px');
+    }
+
+    // ---------- init ----------
+    function init() {
+      gallery = Array.isArray(BASE_IMAGES) && BASE_IMAGES.length ? BASE_IMAGES.slice() : ['/assets/placeholder.png'];
+      renderThumbs();
+      renderMini(gallery);
+      renderVariants();
+
+      // try restore selection, else select first option
+      if (!restoreSelection()) {
+        const firstBtn = variantStrip.querySelector('[data-idx="0"]');
+        if (firstBtn) firstBtn.click();
+        else updateVisibleFields(options[0] || null);
+      }
+
+      window.addEventListener('resize', adjustMainHeight, { passive: true });
+      adjustMainHeight();
+      setupTouch();
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+
+  })();
+  </script>
+
+</body>
+</html>

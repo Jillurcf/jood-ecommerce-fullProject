@@ -1,0 +1,1225 @@
+<style>
+    .header-search-inline {
+        position: relative;
+        max-width: 600px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+
+    #search-query {
+        width: 100%;
+        /* padding: 8px 35px 8px 12px; */
+        /* padding-right for icon */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 10px;
+        color: #555;
+        pointer-events: none;
+        /* clicks go to input */
+        font-size: 16px;
+    }
+
+    .search-results-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #ccc;
+        max-height: 350px;
+        overflow-y: auto;
+        list-style: none;
+        margin: 5px 0 0 0;
+        padding: 0;
+        z-index: 999;
+        border-radius: 4px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-results-dropdown li {
+        padding: 8px 12px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+    }
+
+    .search-results-dropdown li:hover {
+        background: #f9f9f9;
+    }
+
+    .type-label {
+        font-weight: bold;
+        font-size: 0.75em;
+        text-transform: uppercase;
+        color: #555;
+        margin-right: 8px;
+    }
+
+    .product-brand {
+        font-size: 0.8em;
+        color: #999;
+        margin-left: 5px;
+    }
+
+    .search-results-empty {
+        cursor: default;
+        color: #999;
+        text-align: center;
+        /* padding: 10px; */
+    }
+    /* Default: hide scrollbar (Firefox) */
+body {
+  scrollbar-width: none;
+}
+
+/* Default: hide scrollbar (Chrome/Edge/Safari) */
+body::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+/* On hover: show thin scrollbar */
+body:hover {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
+}
+
+/* WebKit browsers */
+body:hover::-webkit-scrollbar {
+  width: 6px;
+}
+
+body:hover::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+}
+
+body:hover::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+</style>
+<header>
+    <!-- Begin Header Top Area -->
+    <div class="header-top">
+        <div class="container">
+            <div class="row">
+                <!-- Begin Header Top Left Area -->
+                <div class="col-lg-3 col-md-4">
+                    <div class="header-top-left">
+                        <ul class="phone-wrap">
+                            <li><span>Telephone Enquiry:</span><a href="tel:97143372440"> +97143372440</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Header Top Left Area End Here -->
+                <!-- Begin Header Top Right Area -->
+                <div class="col-lg-9 col-md-8">
+                    <div class="header-top-right">
+                        <ul class="ht-menu">
+                            <!-- Begin Setting Area -->
+
+                            <!-- Setting Area End Here -->
+                            <!-- Begin Currency Area -->
+                            <li>
+                                <span class="currency-selector-wrapper">Currency :</span>
+                                <div class="ht-currency-trigger"><span>AED </span></div>
+                                <!-- <div class="currency ht-currency">
+                                    <ul class="ht-setting-list">
+                                        <li><a href="#">EUR €</a></li>
+                                        <li class="active"><a href="#">USD $</a></li>
+                                    </ul>
+                                </div> -->
+                            </li>
+                            <!-- Currency Area End Here -->
+                            <!-- Begin Language Area -->
+                             <script>
+                                (function () {
+                                const lang = localStorage.getItem("site_lang") || "en";
+                                document.documentElement.lang = lang;
+                                document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+                                })();
+                            </script>
+                             <li>
+                                <meta name="csrf-token" content="<%= csrfToken %>">
+                                <select id="languageDropdown" class="btn btn-sm btn-light p-0" style="width:120px;border:0;">
+                                <option value="en">English</option>
+                                <option value="ar">العربية (Arabic)</option>
+                                </select>
+                            </li>
+                            <!-- Language Area End Here -->
+                        </ul>
+                    </div>
+                </div>
+                <!-- Header Top Right Area End Here -->
+            </div>
+        </div>
+    </div>
+    <!-- Header Top Area End Here -->
+    <!-- Begin Header Middle Area -->
+    <div class="header-middle pl-sm-0 pr-sm-0 pl-xs-0 pr-xs-0">
+        <div class="container">
+            <div class="row">
+                <!-- Begin Header Logo Area -->
+               <div class="col-6 col-sm-4 col-md-3 col-lg-2 d-flex align-items-center">
+                    <div class="logo w-100 text-center text-sm-start pb-3 pb-sm-4 pb-lg-0">
+                        <a href="/">
+                            <img 
+                                src="/customer/images/web-img-vid/logo.png" 
+                                alt="logo"
+                                class="img-fluid logo-img"
+                            >
+                        </a>
+                    </div>
+                </div>
+                <!-- Header Logo Area End Here -->
+                <!-- Begin Header Middle Right Area -->
+                <div class="col-lg-10">
+                    <!-- Search Input -->
+                    <style>
+                        /* Parent container (important) */
+                        .hm-searchbox {
+                            position: relative;
+                            width: 100%;
+                            max-width: 400px;
+                            /* control width */
+                            margin: 0 auto;
+                            /* centers horizontally */
+                        }
+
+                        /* Input styling */
+                        .hm-searchbox input {
+                            width: 100%;
+                            padding: 10px 40px 10px 15px;
+                            border-radius: 25px;
+                            border: 1px solid #ddd;
+                            outline: none;
+                        }
+
+                        /* Search icon */
+                        .hm-searchbox .search-icon {
+                            position: absolute;
+                            right: 15px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            color: #888;
+                        }
+
+                        /* Dropdown alignment */
+                        .search-results-dropdown {
+                            position: absolute;
+                            width: 100%;
+                            left: 0;
+                            top: 100%;
+                            background: #fff;
+                            border: 1px solid #eee;
+                            border-radius: 8px;
+                            margin-top: 5px;
+                            z-index: 999;
+                        }
+                    </style>
+                    <div class="hm-searchbox header-search-inline">
+                        <input type="text" id="search-query" placeholder="Search products, brands, categories..."
+                            autocomplete="off" />
+                        <span class="search-icon"><i class="fa fa-search"></i></span>
+                        <ul id="search-results" class="search-results-dropdown" style="display:none;"></ul>
+                    </div>
+                    <!-- Begin Header Middle Right Area -->
+                    <div class="header-middle-right">
+                        <ul class="hm-menu">
+                            <!-- Begin Header Middle Wishlist Area -->
+                           <li class="hm-wishlist">
+    <a href="/customer/wishlist/products">
+        <span class="cart-item-count wishlist-item-count">0</span>
+        <i class="fa fa-heart-o"></i>
+    </a>
+</li>
+
+<!-- Pass logged-in user -->
+<script>
+    window.CURRENT_USER_ID =
+        <%= (typeof user !== 'undefined' && user) ? JSON.stringify(user.id) : 'null' %>;
+</script>
+
+<!-- Socket.IO -->
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
+
+    const countEl = document.querySelector(".wishlist-item-count");
+    if (!countEl) return;
+
+    const CURRENT_USER_ID = window.CURRENT_USER_ID || null;
+
+    /* =========================================================
+       GUEST TOKEN
+    ========================================================= */
+    const GUEST_KEY = "guest_wishlist_token";
+
+    function generateGuestToken() {
+        return "guest_" +
+            Math.random().toString(36).substring(2) +
+            Date.now().toString(36);
+    }
+
+    const CURRENT_GUEST_ID = (() => {
+        try {
+            let token = localStorage.getItem(GUEST_KEY);
+
+            if (!token) {
+                token = generateGuestToken();
+                localStorage.setItem(GUEST_KEY, token);
+            }
+
+            return token;
+        } catch (err) {
+            console.error("Guest token error:", err);
+            return generateGuestToken();
+        }
+    })();
+
+    /* =========================================================
+       SOCKET
+    ========================================================= */
+    const socket = typeof io !== "undefined"
+        ? io({
+            transports: ["websocket"],
+            withCredentials: true
+        })
+        : null;
+
+    /* =========================================================
+       HELPERS
+    ========================================================= */
+    function setCount(count) {
+        countEl.textContent = Number(count || 0);
+    }
+
+    function updateWishlistCount(isFav) {
+        let current = Number(countEl.textContent || 0);
+
+        current = isFav
+            ? current + 1
+            : Math.max(0, current - 1);
+
+        setCount(current);
+    }
+
+    function getHeaders() {
+        const headers = {
+            "Content-Type": "application/json"
+        };
+
+        // Only send guest token for guests
+        if (!CURRENT_USER_ID) {
+            headers["x-guest-token"] = CURRENT_GUEST_ID;
+        }
+
+        return headers;
+    }
+
+    /* =========================================================
+       FETCH WISHLIST COUNT
+    ========================================================= */
+    async function fetchWishlistCount() {
+        try {
+            const response = await fetch("/wishlist/data", {
+                method: "GET",
+                credentials: "same-origin",
+                headers: getHeaders()
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch wishlist count");
+            }
+
+            const data = await response.json();
+
+            if (data && data.success) {
+                setCount(data.total || 0);
+            }
+        } catch (err) {
+            console.error("Wishlist count error:", err);
+        }
+    }
+
+    /* =========================================================
+       TOGGLE WISHLIST
+    ========================================================= */
+    async function toggleWishlist(variantId) {
+
+        if (!variantId) {
+            console.error("Variant ID missing");
+            return;
+        }
+
+        try {
+
+            const response = await fetch("/wishlist/toggle", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: getHeaders(),
+                body: JSON.stringify({
+                    variant_id: variantId
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Wishlist request failed");
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+
+                if (typeof data.total !== "undefined") {
+                    setCount(data.total);
+                } else if (typeof data.is_fav !== "undefined") {
+                    updateWishlistCount(data.is_fav);
+                }
+
+                // Optional: update button state
+                const btns = document.querySelectorAll(
+                    `[data-wishlist-variant="${variantId}"]`
+                );
+
+                btns.forEach(btn => {
+                    btn.classList.toggle("active", !!data.is_fav);
+                });
+
+            } else {
+                console.error(data.message || "Wishlist update failed");
+            }
+
+        } catch (err) {
+            console.error("Toggle wishlist error:", err);
+        }
+    }
+
+    /* =========================================================
+       SOCKET EVENTS
+    ========================================================= */
+    if (socket) {
+
+        socket.on("connect", () => {
+            console.log("Wishlist socket connected");
+        });
+
+        socket.on("wishlistUpdated", (payload = {}) => {
+
+            const {
+                userId,
+                guestId,
+                total,
+                is_fav
+            } = payload;
+
+            // Logged in user
+            if (
+                CURRENT_USER_ID &&
+                String(userId) === String(CURRENT_USER_ID)
+            ) {
+
+                if (typeof total !== "undefined") {
+                    setCount(total);
+                } else if (typeof is_fav !== "undefined") {
+                    updateWishlistCount(is_fav);
+                }
+            }
+
+            // Guest user
+            if (
+                !CURRENT_USER_ID &&
+                guestId === CURRENT_GUEST_ID
+            ) {
+
+                if (typeof total !== "undefined") {
+                    setCount(total);
+                } else if (typeof is_fav !== "undefined") {
+                    updateWishlistCount(is_fav);
+                }
+            }
+        });
+    }
+
+    /* =========================================================
+       AUTO MERGE AFTER LOGIN
+       Guest wishlist → user wishlist
+    ========================================================= */
+    async function mergeGuestWishlistAfterLogin() {
+
+        if (!CURRENT_USER_ID) return;
+
+        try {
+
+            const guestToken = localStorage.getItem(GUEST_KEY);
+
+            if (!guestToken) return;
+
+            const response = await fetch("/wishlist/merge", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-guest-token": guestToken
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+
+                // Remove old guest token
+                localStorage.removeItem(GUEST_KEY);
+
+                // Refresh count
+                fetchWishlistCount();
+
+                console.log("Wishlist merged successfully");
+            }
+
+        } catch (err) {
+            console.error("Wishlist merge error:", err);
+        }
+    }
+
+    /* =========================================================
+       INIT
+    ========================================================= */
+    fetchWishlistCount();
+    mergeGuestWishlistAfterLogin();
+
+    /* =========================================================
+       GLOBAL ACCESS
+    ========================================================= */
+    window.toggleWishlist = toggleWishlist;
+
+});
+</script>
+                            <!-- MINICART START -->
+                            <li class="hm-minicart">
+                                <div class="hm-minicart-trigger">
+                                    <span class="item-icon"></span>
+                                    <span class="item-text">
+                                        AED <span id="cart-total">0.00</span>
+                                        <span class="cart-item-count" id="cart-count">0</span>
+                                    </span>
+                                </div>
+
+                                <div class="minicart">
+                                    <ul class="minicart-product-list" id="cart-items">
+                                        <li style="text-align:center;padding:20px;">Loading cart...</li>
+                                    </ul>
+
+                                    <p class="minicart-total">
+                                        SUBTOTAL: AED <span id="cart-subtotal">0.00</span>
+                                    </p>
+
+                                    <div class="minicart-button">
+                                        <a href="/customer/cart"
+                                            class="li-button li-button-dark li-button-fullwidth li-button-sm">
+                                            <span>View Full Cart</span>
+                                        </a>
+                                        <a href="/customer/checkout" class="li-button li-button-fullwidth li-button-sm">
+                                            <span>Checkout</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <style>
+                                .hm-minicart {
+                                    position: relative;
+                                    z-index: 1040; /* parent layer */
+                                }
+
+                                .hm-minicart .minicart {
+                                    position: absolute;
+                                    top: 100%;
+                                    right: 0;
+                                    z-index: 1040; /* higher than everything */
+                                    background: #fff;
+                                    width: 300px;
+                                    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+                                }
+                                .minicart-product-list {
+                                    max-height: 300px;
+                                    overflow-y: auto;
+                                    padding: 0;
+                                    margin: 0;
+                                    list-style: none;
+                                }
+
+                                .minicart-product-list li {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    padding: 10px 5px;
+                                    border-bottom: 1px solid #eee;
+                                }
+
+                                .minicart-product-list li img {
+                                    width: 50px;
+                                    height: 50px;
+                                    object-fit: cover;
+                                    margin-right: 10px;
+                                }
+
+                                .minicart-product-list li a {
+                                    display: flex;
+                                    align-items: center;
+                                    text-decoration: none;
+                                    color: #333;
+                                    flex: 1;
+                                }
+
+                                .minicart-product-list li .item-info {
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: center;
+                                }
+
+                                .minicart-product-list li .item-qty-price {
+                                    white-space: nowrap;
+                                    margin-left: 10px;
+                                }
+                            </style>
+
+                            <script>
+                                (function () {
+                                    "use strict";
+
+                                    const API = "/customer/cart/api";
+                                    const GUEST_KEY = "guest_wishlist_token";
+                                    const DEFAULT_IMAGE = "/uploads/products/default.jpg";
+
+                                    function toNum(v) {
+                                        const n = Number(v);
+                                        return Number.isFinite(n) ? n : 0;
+                                    }
+
+                                    function escapeHtml(v) {
+                                        return v == null ? "" : String(v)
+                                            .replaceAll("&", "&amp;")
+                                            .replaceAll("<", "&lt;")
+                                            .replaceAll(">", "&gt;")
+                                            .replaceAll('"', "&quot;")
+                                            .replaceAll("'", "&#39;");
+                                    }
+
+                                    function getItems(cart) {
+                                        if (Array.isArray(cart?.items)) return cart.items;
+                                        if (Array.isArray(cart?.data)) return cart.data;
+                                        if (Array.isArray(cart?.cart)) return cart.cart;
+                                        if (Array.isArray(cart?.rows)) return cart.rows;
+                                        return [];
+                                    }
+
+                                    function normalizeImage(raw) {
+                                        if (!raw) return DEFAULT_IMAGE;
+
+                                        let img = String(raw).trim().replaceAll("\\", "/");
+
+                                        if (
+                                            img.startsWith("http://") ||
+                                            img.startsWith("https://") ||
+                                            img.startsWith("//")
+                                        ) {
+                                            return img;
+                                        }
+
+                                        if (img.startsWith("/")) {
+                                            return img;
+                                        }
+
+                                        img = img.replace(/^\/+/, "");
+
+                                        if (
+                                            img.startsWith("uploads/products/") ||
+                                            img.startsWith("uploads/")
+                                        ) {
+                                            return "/" + img;
+                                        }
+
+                                        return "/uploads/products/" + img;
+                                    }
+
+                                    function getImagePath(item) {
+                                        const raw = item?.variant_image || item?.image || item?.main_image || item?.product_image || "";
+                                        return normalizeImage(raw);
+                                    }
+
+                                    function getName(item) {
+                                        return item?.variant_name || item?.name || item?.product_name || "Unnamed Item";
+                                    }
+
+                                    function getProductId(item) {
+                                        return item?.product_id ?? item?.master_id ?? item?.id ?? "";
+                                    }
+
+                                    function getVariantId(item) {
+                                        return item?.variant_id ?? item?.id ?? "";
+                                    }
+
+                                    function getQty(item) {
+                                        return Number(item?.quantity ?? item?.qty ?? item?.in_cart_qty ?? 1) || 1;
+                                    }
+
+                                    function getPrice(item) {
+                                        return Number(item?.final_price ?? item?.sale_price ?? item?.price ?? 0) || 0;
+                                    }
+
+                                    function renderMiniCart(cart) {
+                                        const countEl = document.getElementById("cart-count");
+                                        const totalEl = document.getElementById("cart-total");
+                                        const subtotalEl = document.getElementById("cart-subtotal");
+                                        const itemsEl = document.getElementById("cart-items");
+
+                                        const items = getItems(cart);
+
+                                        const count = toNum(
+                                            cart?.count ??
+                                            cart?.total_items ??
+                                            items.reduce((s, x) => s + getQty(x), 0)
+                                        );
+
+                                        const subtotal = toNum(
+                                            cart?.subtotal ??
+                                            cart?.total ??
+                                            cart?.cart_total ??
+                                            items.reduce((s, x) => s + getPrice(x) * getQty(x), 0)
+                                        );
+
+                                        if (countEl) countEl.textContent = String(count);
+                                        if (totalEl) totalEl.textContent = subtotal.toFixed(2);
+                                        if (subtotalEl) subtotalEl.textContent = subtotal.toFixed(2);
+
+                                        if (!itemsEl) return;
+
+                                        if (!items.length) {
+                                            itemsEl.innerHTML = `<li style="text-align:center;padding:20px;">Cart is empty</li>`;
+                                            return;
+                                        }
+
+                                        itemsEl.innerHTML = items.map((item, index) => {
+                                            const productId = getProductId(item);
+                                            const variantId = getVariantId(item);
+                                            const name = getName(item);
+                                            const img = getImagePath(item);
+                                            const qty = getQty(item);
+                                            const price = getPrice(item).toFixed(2);
+
+                                            return `
+                                                <li ${index >= 5 ? 'style="display:none;"' : ''}>
+                                                    <a href="/customer/product/product-details/${productId}/${variantId}">
+                                                        <img src="${img}" alt="${escapeHtml(name)}">
+                                                        <div class="item-info">
+                                                            <span class="item-name">${escapeHtml(name)}</span>
+                                                            <span class="item-qty-price">AED ${price} × ${qty}</span>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            `;
+                                        }).join("");
+
+                                        if (items.length > 5) {
+                                            itemsEl.style.maxHeight = "300px";
+                                            itemsEl.style.overflowY = "auto";
+                                        } else {
+                                            itemsEl.style.maxHeight = "none";
+                                            itemsEl.style.overflowY = "visible";
+                                        }
+                                    }
+
+                                    async function loadMiniCart() {
+                                        try {
+                                            const guestToken = localStorage.getItem(GUEST_KEY) || "";
+
+                                            const res = await fetch(API, {
+                                                method: "GET",
+                                                credentials: "same-origin",
+                                                headers: {
+                                                    "x-guest-token": guestToken
+                                                }
+                                            });
+
+                                            const json = await res.json();
+                                            renderMiniCart(json);
+                                        } catch (error) {
+                                            console.error("Mini cart error:", error);
+                                            renderMiniCart({ items: [], count: 0, subtotal: 0 });
+                                        }
+                                    }
+
+                                    function initSocket() {
+                                        if (typeof io === "undefined") return null;
+
+                                        const socket = io({
+                                            transports: ["websocket"],
+                                            withCredentials: true
+                                        });
+
+                                        socket.on("connect", () => {
+                                            console.log("Mini cart socket connected:", socket.id);
+                                        });
+
+                                        socket.on("disconnect", () => {
+                                            console.log("Mini cart socket disconnected");
+                                        });
+
+                                        socket.on("connect_error", (err) => {
+                                            console.error("Mini cart socket error:", err?.message || err);
+                                        });
+
+                                        // Always refresh the mini cart when cart changes anywhere for this session.
+                                        // The cart API already scopes by session / guest token, so this stays safe.
+                                        socket.on("cartUpdated", () => {
+                                            loadMiniCart();
+                                        });
+
+                                        return socket;
+                                    }
+
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                        loadMiniCart();
+                                        initSocket();
+                                    });
+
+                                    window.loadMiniCart = loadMiniCart;
+                                })();
+                            </script>
+                            <!-- Header Mini Cart Area End Here -->
+                        </ul>
+                    </div>
+                </div>
+                <!-- Header Middle Right Area End Here -->
+            </div>
+        </div>
+    </div>
+    <!-- Header Middle Area End Here -->
+    <!-- Begin Header Bottom Area -->
+    <div class="header-bottom header-sticky stick d-none d-lg-block d-xl-block">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <!-- Begin Header Bottom Menu Area -->
+                    <div class="hb-menu hb-menu-2">
+                        <nav>
+                            <ul>
+                                <li class="dropdown-holder"><a href="/">Home</a>
+                                    <!-- <ul class="hb-dropdown">
+                                        <li><a href="index.html">Home One</a></li>
+                                        <li><a href="index-2.html">Home Two</a></li>
+                                        <li class="active"><a href="index-3.html">Home Three</a></li>
+                                        <li><a href="index-4.html">Home Four</a></li>
+                                    </ul> -->
+                                </li>
+                                <li class="megamenu-holder"><a href="/customer/shop">Shop</a>
+
+                                </li>
+
+                                <li><a href="/customer/company/about-us">About Us</a></li>
+                                <li><a href="/customer/support-and-help/contact-us">Contact</a></li>
+                                <!-- Begin Header Bottom Menu Information Area -->
+                                <li class="hb-info f-right p-0 d-sm-none d-lg-block dropdown">
+
+                                    <% if (user && user.id) { %>
+                                        <!-- Logged In -->
+                                        <a href="#" class="d-flex align-items-center gap-1 dropdown-toggle"
+                                            data-bs-toggle="dropdown">
+                                            <i class="fa fa-user-circle"></i>
+                                            <span>My Account</span>
+                                        </a>
+
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item" href="/customer/u/profile">
+                                                    <i class="fa fa-user"></i> My Account
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="/customer/logout">
+                                                    <i class="fa fa-sign-out-alt"></i> Logout
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                        <% } else { %>
+                                            <!-- Not Logged In -->
+                                            <a href="#" class="d-flex align-items-center gap-1 dropdown-toggle"
+                                                data-bs-toggle="dropdown">
+                                                <i class="fa fa-user-circle"></i>
+                                                <span>Account</span>
+                                            </a>
+
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a class="dropdown-item" href="/customer/sign/in">
+                                                        <i class="fa fa-sign-in-alt"></i> Sign In
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" href="/customer/sign/up">
+                                                        <i class="fa fa-user-plus"></i> Sign Up
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                            <% } %>
+
+                                </li>
+                                <script
+                                    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                                <!-- Header Bottom Menu Information Area End Here -->
+                            </ul>
+                        </nav>
+                    </div>
+                    <!-- Header Bottom Menu Area End Here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header Bottom Area End Here -->
+    <!-- Begin Mobile Menu Area -->
+    <div class="mobile-menu-area d-lg-none d-xl-none col-12">
+        <div class="container">
+            <div class="row">
+                <div class="mobile-menu">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Mobile Menu Area End Here -->
+</header>
+<!-- <style>
+    /* Lock scroll when splash is active */
+    body.splash-active,
+    html.splash-active {
+        overflow: hidden !important;
+        height: 100%;
+    }
+
+    /* Splash Screen Container */
+    #splash-screen {
+        position: fixed;
+        inset: 0;
+        background: #fed700;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        z-index: 2147483647;
+        /* 🔥 maximum */
+        pointer-events: all;
+    }
+
+    /* Video Styling */
+    #splash-screen video {
+        width: 60%;
+        max-width: 500px;
+        height: auto;
+        display: block;
+
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        background: transparent;
+    }
+
+    /* Hide main content initially */
+    #main-content {
+        display: none;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+        #splash-screen video {
+            width: 80%;
+            max-width: 300px;
+        }
+    }
+</style> -->
+
+<!-- SPLASH -->
+<!-- 
+ -->
+
+<script>
+    // const splash = document.getElementById("splash-screen");
+    // const main = document.getElementById("main-content");
+    // const video = document.getElementById("introVideo");
+
+    // // Lock page
+    // document.documentElement.classList.add("splash-active");
+    // document.body.classList.add("splash-active");
+
+    // // Slow down video
+    // video.addEventListener("loadedmetadata", () => {
+    //     video.playbackRate = 0.7;
+    // });
+
+    // // Function to reveal main site
+    // function showWebsite() {
+    //     splash.style.opacity = "0";
+    //     splash.style.transition = "opacity 0.8s ease";
+
+    //     setTimeout(() => {
+    //         splash.style.display = "none";
+    //         main.style.display = "block";
+
+    //         // Unlock scroll
+    //         document.documentElement.classList.remove("splash-active");
+    //         document.body.classList.remove("splash-active");
+
+    //     }, 800);
+    // }
+
+    // // When page fully loaded
+    // window.addEventListener("load", () => {
+
+    //     // If already played in this session
+    //     if (sessionStorage.getItem("introPlayed")) {
+    //         splash.style.display = "none";
+    //         main.style.display = "block";
+
+    //         document.documentElement.classList.remove("splash-active");
+    //         document.body.classList.remove("splash-active");
+    //         return;
+    //     }
+
+    //     sessionStorage.setItem("introPlayed", "true");
+
+    //     // When video ends
+    //     video.onended = showWebsite;
+
+    //     // Fallback (in case video fails)
+    //     setTimeout(showWebsite, 8000);
+    // });
+
+    (function () {
+        let activeIndex = -1;
+
+        function highlight(text, query) {
+            const safe = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return text.replace(new RegExp(`(${safe})`, 'gi'), '<mark>$1</mark>');
+        }
+
+        function renderResults(container, items, query) {
+            container.innerHTML = '';
+
+            if (!items.length) {
+                container.innerHTML = `<li class="search-results-empty">No results found</li>`;
+                container.style.display = 'block';
+                return;
+            }
+
+            items.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'search-item';
+                li.dataset.index = index;
+
+                const type = item.type === 'parent' ? 'Parent'
+                    : item.type === 'category' ? 'Category'
+                        : 'Product';
+
+                li.innerHTML = `
+        <div class="search-row">
+          <div class="search-left">
+            ${item.image ? `<img src="${item.image}" alt="">` : ''}
+          </div>
+          <div class="search-right">
+            <div class="search-top">
+              <span class="type-label">${type}</span>
+            </div>
+            <div class="search-name">
+              ${highlight(item.name, query)}
+            </div>
+            ${item.brand ? `<div class="search-meta">${item.brand}</div>` : ''}
+          </div>
+        </div>
+      `;
+
+                li.addEventListener('click', () => navigate(item));
+                container.appendChild(li);
+            });
+
+            activeIndex = -1;
+            container.style.display = 'block';
+        }
+
+        function navigate(item) {
+            const slug = item.slug || '';
+            const id = item.id || '';
+            if (!slug) return;
+
+            // ✅ SET INPUT VALUE
+            const queryEl = document.getElementById('search-query');
+            if (queryEl) {
+                queryEl.value = item.name;
+            }
+
+            // ✅ OPTIONAL: hide dropdown
+            const resultsEl = document.getElementById('search-results');
+            if (resultsEl) {
+                resultsEl.style.display = 'none';
+            }
+
+            // ✅ NAVIGATION
+            if (item.type === 'product') {
+                window.location.href = `/customer/shop/product/${encodeURIComponent(slug)}`;
+            } else if (item.type === 'parent') {
+                window.location.href = `/customer/shop?parent_category_id=${encodeURIComponent(id)}`;
+            } else {
+                window.location.href = `/customer/shop?category_id=${encodeURIComponent(slug)}`;
+            }
+        } function debounce(fn, delay) {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
+            };
+        }
+
+        const queryEl = document.getElementById('search-query');
+        const resultsEl = document.getElementById('search-results');
+
+        const triggerSearch = debounce(async () => {
+            const q = queryEl.value.trim();
+
+            if (!q) {
+                resultsEl.style.display = 'none';
+                return;
+            }
+
+            resultsEl.innerHTML = `<li class="search-loading">Searching...</li>`;
+            resultsEl.style.display = 'block';
+
+            try {
+                const res = await fetch(`/search/universal?q=${encodeURIComponent(q)}`);
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.items)) {
+                    renderResults(resultsEl, data.items, q);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }, 250);
+
+        // INPUT
+        queryEl.addEventListener('input', triggerSearch);
+
+        // KEYBOARD NAVIGATION
+        queryEl.addEventListener('keydown', (e) => {
+            const items = resultsEl.querySelectorAll('.search-item');
+
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                activeIndex = (activeIndex + 1) % items.length;
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+            } else if (e.key === 'Enter') {
+                if (activeIndex >= 0) {
+                    const selectedItem = items[activeIndex];
+
+                    // ✅ SET INPUT VALUE
+                    const name = selectedItem.querySelector('.search-name')?.innerText;
+                    if (name) queryEl.value = name;
+
+                    selectedItem.click();
+                }
+                return;
+            }
+
+            items.forEach(el => el.classList.remove('active'));
+            if (items[activeIndex]) {
+                items[activeIndex].classList.add('active');
+            }
+        });
+
+        // CLICK OUTSIDE
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header-search-inline')) {
+                resultsEl.style.display = 'none';
+            }
+        });
+
+    })();</script>
+<style>
+    /* SEARCH DROPDOWN */
+    #search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-height: 400px;
+        overflow-y: auto;
+        z-index: 999;
+        display: none;
+    }
+
+    .search-item {
+        padding: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .search-item:hover,
+    .search-item.active {
+        background: #fff8cc;
+    }
+
+    .search-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .search-left img {
+        width: 45px;
+        height: 45px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .search-name {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .search-meta {
+        font-size: 12px;
+        color: #777;
+    }
+
+    .type-label {
+        font-size: 10px;
+        background: #fddb00;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 700;
+    }
+
+    mark {
+        background: #fddb00;
+        padding: 0 2px;
+    }
+</style>

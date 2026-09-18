@@ -1,0 +1,129 @@
+
+<%
+  const fullName = (user?.full_name || 'My Account').trim();
+  const initials = fullName
+    ? fullName
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map(word => word[0]?.toUpperCase() || '')
+        .join('')
+    : 'M';
+
+  const active = (key) => activePage === key ? 'active' : '';
+%>
+
+<!-- <aside class="account-sidebar" id="accountSidebar" aria-label="Account Sidebar"> -->
+<button class="account-sidebar-close" id="accountSidebarClose" aria-label="Close sidebar">
+  <i class="fa fa-times"></i>
+</button>
+  <!-- BRAND / LOGO -->
+  <div class="account-sidebar-brand">
+    <a href="/" class="account-brand-link" aria-label="Home">
+      <img
+        src="/customer/images/web-img-vid/logo.png"
+        class="account-logo"
+        
+        alt="Logo"
+      >
+    </a>
+  </div>
+
+  <!-- SIDEBAR HEADER -->
+  <div class="account-sidebar-top">
+    <div class="account-profile">
+
+      <!-- AVATAR -->
+      <div class="account-avatar" aria-hidden="true">
+        <% if (user?.avatar) { %>
+          <img src="<%= user.avatar %>" alt="<%= fullName %> avatar">
+        <% } else { %>
+          <div class="avatar-initials">
+            <%= initials || 'M' %>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- USER INFO -->
+      <div class="account-user-info">
+        <div class="account-name"><%= fullName %></div>
+        <div class="account-email"><%= user?.email || '' %></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="account-nav" aria-label="Account navigation">
+
+  <a
+      href="/customer/u/profile"
+      class="account-nav-link <%= active('profile') %>"
+      data-title="Profile"
+      aria-current="<%= activePage === 'profile' ? 'page' : 'false' %>"
+    >
+      <i class="fa fa-id-card"></i>
+      <span class="link-text">Profile</span>
+    </a>
+    <a
+      href="/customer/u/orders"
+      class="account-nav-link <%= active('orders') %>"
+      data-title="Orders"
+      aria-current="<%= activePage === 'orders' ? 'page' : 'false' %>"
+    >
+      <i class="fa fa-shopping-bag"></i>
+      <span class="link-text">Orders</span>
+    </a>
+
+    <a
+      href="/customer/u/wishlist/products"
+      class="account-nav-link <%= active('wishlist') %>"
+      data-title="Wishlist"
+      aria-current="<%= activePage === 'wishlist' ? 'page' : 'false' %>"
+    >
+      <i class="fa fa-heart"></i>
+      <span class="link-text">Wishlist</span>
+    </a>
+
+    <a
+      href="/customer/u/account/billing"
+      class="account-nav-link <%= active('billing') %>"
+      data-title="Billing"
+      aria-current="<%= activePage === 'billing' ? 'page' : 'false' %>"
+    >
+      <i class="fa fa-credit-card"></i>
+      <span class="link-text">Billing Dashboard</span>
+    </a>
+
+    <a
+      href="/customer/u/addresses"
+      class="account-nav-link <%= active('addresses') %>"
+      data-title="Addresses"
+      aria-current="<%= activePage === 'addresses' ? 'page' : 'false' %>"
+    >
+      <i class="fa fa-map-marker"></i>
+      <span class="link-text">Addresses</span>
+    </a>
+
+    <a
+      href="/customer/u/security/updateEmail"
+      class="account-nav-link <%= active('security') %>"
+      data-title="Security"
+      aria-current="<%= activePage === 'security' ? 'page' : 'false' %>"
+    >
+      <i class="fa fa-lock"></i>
+      <span class="link-text">Security</span>
+    </a>
+
+    <a
+      href="/customer/logout"
+      class="account-nav-link logout"
+      data-title="Logout"
+    >
+      <i class="fa fa-sign-out"></i>
+      <span class="link-text">Logout</span>
+    </a>
+
+  </nav>
+<!-- </aside> -->
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

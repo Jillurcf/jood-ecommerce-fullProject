@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Master Admin List — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="Manage admins with live search, pagination, block, freeze, delete, restore, login state, and session timing." />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta property="og:title" content="Master Admin List — JOOD">
+<meta property="og:description" content="Manage admins with live search, pagination, block, freeze, delete, restore, login state, and session timing.">
+<meta property="og:image" content="/customer/images/web-img-vid/logo.png">
+<meta property="og:type" content="website">
+
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <link rel="stylesheet" href="/customer/css/material-design-iconic-font.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' && csrfToken ? csrfToken : '' %>">
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --border: #e6ebf2;
+      --border-strong: #cfd8e3;
+      --text: #222831;
+      --muted: #6b7280;
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --primary-soft: rgba(245, 158, 11, 0.10);
+      --success: #16a34a;
+      --danger: #dc2626;
+      --radius: 20px;
+      --sidebar-wide: 280px;
+      --sidebar-collapsed: 78px;
+      --topbar-height: 68px;
+      --drawer-width: 460px;
+      --shadow: 0 10px 25px rgba(15, 23, 42, .04);
+    }
+
+    * { box-sizing: border-box; min-width: 0; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; max-width: 100%; min-height: 100%; overflow-x: hidden; background: var(--bg);
+    }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      -webkit-text-size-adjust: 100%;
+      text-rendering: optimizeLegibility;
+      background: #fff;
+    }
+    a { color: inherit; text-decoration: none; }
+    img, svg { max-width: 100%; height: auto; }
+    button, input, select, textarea { font: inherit; }
+    * { scrollbar-width: none; }
+    *::-webkit-scrollbar { width: 0; height: 0; }
+    *:hover { scrollbar-width: thin; scrollbar-color: rgba(120,120,120,0.6) transparent; }
+    *:hover::-webkit-scrollbar { width: 6px; height: 6px; }
+    *:hover::-webkit-scrollbar-thumb { background-color: rgba(120,120,120,0.6); border-radius: 10px; }
+    *:hover::-webkit-scrollbar-track { background: transparent; }
+
+    .account-layout { width: 100%; min-height: 100vh; position: relative; background: #fff; }
+    .account-sidebar {
+      position: fixed; top: 0; left: 0; width: var(--sidebar-collapsed); height: 100vh;
+      background: #fff; border-right: 1px solid var(--border); z-index: 1040;
+      overflow-x: hidden; overflow-y: auto; transition: width 0.25s ease, transform 0.25s ease;
+    }
+    .account-sidebar.collapsed { width: var(--sidebar-collapsed); }
+    .account-sidebar.expanded { width: var(--sidebar-wide); }
+    .account-right {
+      margin-left: var(--sidebar-collapsed); width: calc(100% - var(--sidebar-collapsed));
+      min-height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+      transition: margin-left 0.25s ease, width 0.25s ease; background: #fff;
+    }
+    .account-layout.sidebar-expanded .account-right { margin-left: var(--sidebar-wide); width: calc(100% - var(--sidebar-wide)); }
+    .account-topbar {
+      position: fixed; top: 0; left: var(--sidebar-collapsed); right: 0; height: var(--topbar-height);
+      padding: 10px 18px; background: #fff; border-bottom: 1px solid var(--border); z-index: 1030;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: left 0.25s ease;
+    }
+    .account-layout.sidebar-expanded .account-topbar { left: var(--sidebar-wide); }
+    .account-topbar-left, .account-topbar-right { display: flex; align-items: center; gap: 12px; min-width: 0; flex-wrap: wrap; }
+
+    .account-toggle-btn,
+    .btn-secure,
+    .btn-ghost,
+    .subnav-toggle-btn,
+    .btn-outline-secure,
+    .btn-danger-secure,
+    .btn-soft {
+      height: 44px; border: 1px solid var(--border); border-radius: 12px; display: inline-flex;
+      align-items: center; justify-content: center; background: #fff; color: var(--text);
+      cursor: pointer; padding: 0 14px; font-weight: 700; transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      white-space: nowrap;
+    }
+    .account-toggle-btn { width: 44px; padding: 0; flex: 0 0 auto; }
+    .btn-secure { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .btn-secure:hover { background: var(--primary-hover); color: #fff; }
+    .btn-ghost { background: #fff; }
+
+    .topbar-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .topbar-title .title { font-size: 1rem; font-weight: 800; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-title .sub { font-size: 0.8rem; color: var(--muted); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .account-user-mini { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; white-space: nowrap; min-width: 0; }
+    .account-user-mini i { font-size: 20px; color: #475569; }
+    .account-user-mini span { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; }
+
+    .account-backdrop { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.22); z-index: 1035; }
+    .account-backdrop.show { display: block; }
+
+    .account-content-wrap {
+      flex: 1 1 auto; min-height: 0; overflow: auto; overflow-x: hidden;
+      padding: calc(var(--topbar-height) + 12px) 0 0; background: #fff; width: 100%; max-width: 100%; -webkit-overflow-scrolling: touch;
+    }
+
+    .page-shell { width: 100%; display: grid; grid-template-columns: minmax(235px, 270px) minmax(0, 1fr); gap: 12px; align-items: start; }
+    .subsidebar { position: sticky; top: calc(var(--topbar-height) + 12px); align-self: start; background: #fff; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+    .subsidebar-mobilebar { display: none; }
+    .subsidebar-inner { display: block; }
+    .sub-nav-head { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .sub-nav-head h4 { margin: 0; font-size: .88rem; font-weight: 800; }
+    .sub-nav-head span { font-size: .76rem; color: var(--muted); }
+    .sub-nav-list { display: flex; flex-direction: column; }
+    .sub-nav-link {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: var(--text); border-bottom: 1px solid #f1f5f9;
+      transition: background .2s ease, transform .2s ease; font-weight: 500;
+    }
+    .sub-nav-link:last-child { border-bottom: 0; }
+    .sub-nav-link:hover { background: rgba(245, 158, 11, 0.08); transform: translateX(2px); border-radius: 10px; font-weight: 600; }
+    .sub-nav-link.active { background: var(--primary-soft); border-radius: 10px; font-weight: 700; }
+    .sub-nav-link i { border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; color: var(--primary); flex: 0 0 auto; }
+    .sub-nav-link .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .86rem; }
+
+    .main-panel { min-width: 0; }
+    .panel-card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+    .section-title { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+    .section-subtitle { margin: 6px 0 0; color: var(--muted); font-size: 0.88rem; line-height: 1.5; }
+    .meta-line { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 18px; }
+    .meta-item { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 999px; border: 1px solid #e2e8f0; background: #f8fafc; color: #4b5563; font-size: .78rem; font-weight: 600; }
+
+    .table-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 10px 0 14px; }
+    .search-wrap { flex: 1 1 320px; max-width: 520px; position: relative; }
+    .search-wrap .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+    .search-input {
+      width: 100%; min-height: 46px; border-radius: 14px; border: 1px solid #dbe3ec; font-size: .92rem; background: #fff; color: var(--text); padding: 0 14px 0 40px; outline: none;
+    }
+    .search-input::placeholder { color: #9aa3af; }
+    .page-size { min-height: 46px; border-radius: 14px; border: 1px solid #dbe3ec; padding: 0 12px; background: #fff; color: var(--text); outline: none; font-weight: 600; }
+
+    .table-shell { border: 1px solid var(--border); border-radius: 18px; overflow: hidden; background: #fff; }
+    .table-responsive-custom { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .admins-table { width: 100%; border-collapse: collapse; min-width: 1320px; }
+    .admins-table thead th { background: #f8fafc; color: #334155; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; font-weight: 800; padding: 13px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .admins-table tbody td { padding: 14px 12px; border-bottom: 1px solid #eef2f7; vertical-align: middle; font-size: .88rem; color: var(--text); }
+    .admins-table tbody tr:hover { background: #fcfcfd; }
+    .admins-table tbody tr.is-hidden { display: none; }
+    .admin-id { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: .78rem; color: #475569; word-break: break-all; display: inline-flex; align-items: center; gap: 8px; }
+    .admin-name { font-weight: 700; margin-bottom: 2px; }
+    .admin-email, .admin-phone, .admin-role, .admin-datetime, .admin-session { color: #556172; font-size: .82rem; word-break: break-word; }
+
+    .login-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; flex: 0 0 auto; }
+    .login-dot.online { background: var(--success);  }
+    .login-dot.offline { background: var(--danger);  }
+
+    .login-pill {
+      display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 999px; font-size: .76rem; font-weight: 700; border: 1px solid transparent; white-space: nowrap;
+    }
+    .login-pill.online { background: rgba(22, 163, 74, 0.08); color: #166534; border-color: rgba(22, 163, 74, 0.2); }
+    .login-pill.offline { background: rgba(220, 38, 38, 0.08); color: #991b1b; border-color: rgba(220, 38, 38, 0.2); }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 999px; font-size: .76rem; font-weight: 700; border: 1px solid transparent; white-space: nowrap;
+    }
+    .status-pill.active { background: rgba(22, 163, 74, 0.08); color: #166534; border-color: rgba(22, 163, 74, 0.2); }
+    .status-pill.inactive { background: rgba(100, 116, 139, 0.08); color: #475569; border-color: rgba(100, 116, 139, 0.2); }
+    .status-pill.blocked { background: rgba(220, 38, 38, 0.08); color: #991b1b; border-color: rgba(220, 38, 38, 0.2); }
+    .status-pill.deleted { background: rgba(15, 23, 42, 0.08); color: #0f172a; border-color: rgba(15, 23, 42, 0.15); }
+    .status-pill.frozen { background: rgba(245, 158, 11, 0.10); color: #92400e; border-color: rgba(245, 158, 11, 0.2); }
+
+    .action-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .action-mini {
+      height: 36px; padding: 0 10px; font-size: .78rem; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); background: #fff; color: var(--text); cursor: pointer; font-weight: 600; transition: .2s ease; white-space: nowrap;
+    }
+    .action-mini:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+    .action-mini.block { border-color: rgba(220,38,38,.22); color: #991b1b; }
+    .action-mini.unblock { border-color: rgba(22,163,74,.22); color: #166534; }
+    .action-mini.freeze { border-color: rgba(245,158,11,.30); color: #92400e; }
+    .action-mini.delete { border-color: rgba(220,38,38,.22); color: #b91c1c; }
+    .action-mini.restore { border-color: rgba(22,163,74,.22); color: #166534; }
+    .action-mini.view { border-color: rgba(59,130,246,.22); color: #1d4ed8; }
+
+    .empty-state { padding: 40px 20px; text-align: center; color: var(--muted); font-size: .92rem; }
+    .empty-state i { font-size: 30px; color: #cbd5e1; display: block; margin-bottom: 10px; }
+    .table-footer { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; padding: 14px 0 0; }
+    .table-meta { font-size: .82rem; color: var(--muted); font-weight: 600; }
+    .pagination-wrap { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .page-btn {
+      min-width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: #fff; color: var(--text); font-weight: 700;
+      display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: .2s ease; padding: 0 10px;
+    }
+    .page-btn:hover:not(:disabled) { border-color: var(--border-strong); transform: translateY(-1px); }
+    .page-btn.active { background: var(--primary-soft); border-color: rgba(245, 158, 11, 0.35); }
+    .page-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    .saving-state { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: #556172; font-size: .82rem; white-space: nowrap; }
+    .saving-dot { width: 9px; height: 9px; border-radius: 50%; background: #94a3b8; flex: 0 0 auto; }
+    .saving-dot.is-saving { background: #0f172a; animation: pulse 1.2s infinite; }
+    .saving-dot.is-saved { background: #16a34a; }
+    .saving-dot.is-error { background: #dc2626; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.3); opacity: .6; } 100% { transform: scale(1); opacity: 1; } }
+
+    .toast-mini {
+      position: fixed; right: 18px; bottom: 18px; z-index: 1060; min-width: 220px; max-width: 90vw; padding: 12px 14px;
+      border-radius: 13px; background: #0f172a; color: #fff; font-size: .86rem; transform: translateY(18px); opacity: 0; pointer-events: none; transition: .25s ease; border: 1px solid rgba(255,255,255,.08);
+    }
+    .toast-mini.show { transform: translateY(0); opacity: 1; }
+    .toast-mini.error { background: #7f1d1d; }
+    .toast-mini.success { background: #14532d; }
+    .toast-mini.info { background: #0f172a; }
+
+    .issue-dock {
+      position: fixed; left: 18px; bottom: 18px; z-index: 1060; max-width: min(520px, calc(100vw - 36px)); display: none; padding: 12px 14px;
+      border-radius: 14px; background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; font-size: .84rem; line-height: 1.45;
+    }
+    .issue-dock.show { display: block; }
+    .issue-dock .issue-title { font-weight: 800; margin-bottom: 4px; }
+    .issue-dock .issue-body { word-break: break-word; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; height: 100vh; width: var(--drawer-width); max-width: 100vw; background: #fff; border-left: 1px solid var(--border); z-index: 1050;
+      transform: translateX(100%); transition: transform .28s ease; display: flex; flex-direction: column;
+    }
+    .drawer.show { transform: translateX(0); }
+    .drawer-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.42); z-index: 1045; display: none; }
+    .drawer-backdrop.show { display: block; }
+    .drawer-head { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .drawer-title { font-size: 1rem; font-weight: 700; margin: 0; line-height: 1.2; color: #111827; }
+    .drawer-subtitle { margin-top: 4px; color: var(--muted); font-size: .84rem; line-height: 1.45; }
+    .drawer-body { padding: 18px; overflow: auto; flex: 1 1 auto; }
+    .drawer-footer { padding: 16px 18px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+    .info-box { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 16px; background: #f8fafc; }
+    .info-box .label { font-size: .76rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .info-box .value { font-size: .95rem; font-weight: 600; color: #1f2937; word-break: break-word; }
+    .freeze-time-input, .form-control {
+      width: 100%; min-height: 46px; border-radius: 14px; border: 1px solid #dbe3ec; padding: 0 14px; background: #fff; color: var(--text); outline: none;
+    }
+    textarea.form-control { min-height: auto; padding-top: 12px; padding-bottom: 12px; }
+    .helper-text { display: inline-block; margin-top: 6px; color: var(--muted); font-size: .82rem; line-height: 1.4; }
+
+    @media (max-width: 1199px) {
+      .page-shell { grid-template-columns: 1fr; }
+      .subsidebar { position: relative; top: auto; }
+      .account-user-mini span { max-width: 180px; }
+    }
+    @media (max-width: 991px) {
+      .account-sidebar { width: 290px !important; transform: translateX(-100%); height: 100vh; max-width: 100vw; }
+      .account-sidebar.open { transform: translateX(0); }
+      .account-right { margin-left: 0; width: 100%; }
+      .account-topbar { left: 0 !important; width: 100%; }
+      .account-content-wrap { padding: calc(var(--topbar-height) + 8px) 10px 10px; }
+      .subsidebar { border-radius: 18px; }
+      .subsidebar-mobilebar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 14px 12px; background: #fff; border-bottom: 1px solid var(--border); }
+      .subsidebar-inner { display: none; }
+      .subsidebar.open .subsidebar-inner { display: block; }
+      .subnav-toggle-btn { display: inline-flex; width: 38px; height: 38px; padding: 0; border-radius: 10px; }
+      .drawer { width: 100vw; }
+    }
+    @media (max-width: 768px) {
+      .panel-card { padding: 16px; }
+      .section-title { font-size: .98rem; }
+      .section-subtitle { font-size: .84rem; }
+      .meta-line { gap: 6px; }
+      .meta-item { width: 100%; justify-content: center; }
+      .account-user-mini span { max-width: 100px; }
+      .table-toolbar { align-items: stretch; }
+      .search-wrap { max-width: 100%; flex-basis: 100%; }
+      .toolbar-actions { width: 100%; }
+      .page-size { width: 100%; }
+      .table-footer { justify-content: center; }
+      .pagination-wrap { justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      .panel-card { padding: 14px; }
+      .toast-mini { left: 12px; right: 12px; min-width: unset; }
+      .issue-dock { left: 12px; right: 12px; max-width: unset; }
+      .drawer-head, .drawer-body, .drawer-footer { padding-left: 14px; padding-right: 14px; }
+    }
+  </style>
+</head>
+<body>
+<%
+  const adminData =
+    (typeof admin !== 'undefined' && admin) ||
+    (typeof user !== 'undefined' && user) ||
+    (typeof sessionAdmin !== 'undefined' && sessionAdmin) ||
+    {};
+
+  const fullNameValue = adminData?.full_name || 'Admin';
+  const roleValue = String(adminData?.role || 'admin').trim().toLowerCase().replace(/\s+/g, '_');
+  const currentEmailValue = String(adminData?.email || '').trim().toLowerCase();
+
+  const SUPER_ACTION_EMAIL = 'razahasnain0300@gmail.com';
+
+  const rawAdmins =
+    (typeof admins !== 'undefined' && admins) ||
+    (typeof adminList !== 'undefined' && adminList) ||
+    (typeof dataAdmins !== 'undefined' && dataAdmins) ||
+    [];
+
+  const adminsList = Array.isArray(rawAdmins) ? rawAdmins : [];
+
+  function safeAttrJson(obj) {
+    try {
+      return JSON.stringify(obj || {})
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    } catch {
+      return '{}';
+    }
+  }
+
+  function formatDate(v) {
+    if (!v) return '—';
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
+  }
+
+  function normalizeRole(role) {
+    return String(role || '').trim().toLowerCase().replace(/\s+/g, '_');
+  }
+
+  function formatRoleLabel(role) {
+    const text = String(role || '');
+    if (!text) return '—';
+    return text.replace(/_/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase());
+  }
+
+  const isSuperViewer = normalizeRole(roleValue) === 'super_admin' || normalizeRole(roleValue) === 'super';
+  const isSpecialSuperViewer = isSuperViewer && currentEmailValue === SUPER_ACTION_EMAIL;
+  const isMasterViewer = normalizeRole(roleValue) === 'master_admin' || normalizeRole(roleValue) === 'master';
+  const isAdminViewer = normalizeRole(roleValue) === 'admin';
+
+  // This page is for super admins only.
+  const visibleAdmins = adminsList.filter((item) => normalizeRole(item?.role || '') === 'super_admin');
+
+  function canSeePresenceColumns() {
+    return isSuperViewer;
+  }
+
+  // Only the special super admin can take actions on super admin rows.
+  function canActOnRow(rowRole) {
+    const role = normalizeRole(rowRole || '');
+    if (role !== 'super_admin') return false;
+    return isSpecialSuperViewer;
+  }
+
+  function canViewRowActions(rowRole) {
+    return canActOnRow(rowRole);
+  }
+
+  function canViewSensitiveRow(rowRole) {
+    const role = normalizeRole(rowRole || '');
+    return role === 'super_admin';
+  }
+
+  function canShowProtectedLabel(rowRole) {
+    const role = normalizeRole(rowRole || '');
+    return role === 'super_admin' && isSpecialSuperViewer;
+  }
+
+  function canShowReadOnlyNotice(rowRole) {
+    const role = normalizeRole(rowRole || '');
+    return role === 'super_admin' && !isSpecialSuperViewer;
+  }
+%>
+
+<div class="account-layout sidebar-collapsed" id="accountLayout">
+  <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+    <%- include('../../includes/account-sidebar', { user: adminData, admin: adminData, activePage: 'profile' }) %>
+  </aside>
+
+  <div class="account-right">
+    <header class="account-topbar" aria-label="Account Topbar">
+      <div class="account-topbar-left">
+        <button type="button" class="account-toggle-btn" id="accountToggleBtn" aria-label="Toggle sidebar" aria-controls="accountSidebar" aria-expanded="false">
+          <i class="fa fa-bars"></i>
+        </button>
+        <div class="topbar-title d-none d-md-flex">
+          <div class="title">Super Admins</div>
+          <div class="sub">Only the approved super admin can manage super-admin records</div>
+        </div>
+      </div>
+      <div class="account-topbar-right">
+        <div class="account-user-mini">
+          <i class="fa fa-user-circle"></i>
+          <span id="topbarUserName"><%= fullNameValue %></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+    <main class="account-content">
+      <div class="account-content-wrap">
+        <div class="page-shell">
+          <aside class="subsidebar" id="subsidebar" aria-label="Admin Pages Sidebar">
+            <div class="subsidebar-mobilebar">
+              <div>
+                <div style="font-size:.75rem;font-weight:700;color:#64748b;">Admin Pages</div>
+                <h3 style="margin:0;font-size:.95rem;font-weight:800;">Administration</h3>
+              </div>
+              <button type="button" class="subnav-toggle-btn" id="subnavToggleBtn" aria-label="Toggle admin navigation">
+                <i class="fa fa-angle-down"></i>
+              </button>
+            </div>
+
+            <div class="subsidebar-inner" id="profileSubSidebarInner">
+              <div class="profile-sidepanel">
+                <div class="sub-nav-wrap">
+                  <div class="sub-nav-head">
+                    <div>
+                      <h4>Profile Navigation</h4>
+                      <span>Administrative sections</span>
+                    </div>
+                    <button type="button" class="subnav-toggle-btn" id="subnavToggleBtnDesktop" aria-label="Toggle profile navigation">
+                      <i class="fa fa-angle-down"></i>
+                    </button>
+                  </div>
+
+                  <div class="sub-nav-list" id="subnavList">
+                    <a href="/admin/a/profile/myprofile" class="sub-nav-link">
+                      <i class="fa fa-user"></i><span class="txt">My Profile</span>
+                    </a>
+
+                    <% if (isSuperViewer) { %>
+                      <a href="/admin/a/profile/add-admin" class="sub-nav-link"><i class="fa fa-user-plus"></i><span class="txt">Add Admin</span></a>
+                      <a href="/admin/a/profile/super-admins" class="sub-nav-link active"><i class="fa fa-shield"></i><span class="txt">Super Admin</span></a>
+                      <a href="/admin/a/profile/master-admins" class="sub-nav-link"><i class="fa fa-sitemap"></i><span class="txt">Master Admin</span></a>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link"><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                    <% } else if (isMasterViewer) { %>
+                      <a href="/admin/a/profile/add-admin" class="sub-nav-link"><i class="fa fa-user-plus"></i><span class="txt">Add Admin</span></a>
+                      <a href="/admin/a/profile/master-admins" class="sub-nav-link"><i class="fa fa-sitemap"></i><span class="txt">Master Admin</span></a>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link"><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                    <% } else if (isAdminViewer) { %>
+                      <a href="/admin/a/profile/admins" class="sub-nav-link active"><i class="fa fa-user-shield"></i><span class="txt">Admin</span></a>
+                      <a href="/admin/a/profile/users" class="sub-nav-link"><i class="fa fa-users"></i><span class="txt">User</span></a>
+                    <% } else { %>
+                      <a href="/admin/a/profile/super-admins" class="sub-nav-link active"><i class="fa fa-shield"></i><span class="txt">Super Admin</span></a>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <section class="main-panel">
+            <div class="panel-card">
+              <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-2">
+                <div>
+                  <h3 class="section-title">Super Admins</h3>
+                  <div class="section-subtitle">
+                    Super admins can view the list of super-admin accounts. Only <strong>razahasnain0300@gmail.com</strong> with role <strong>super_admin</strong> can take actions on other super-admin records.
+                  </div>
+                </div>
+                <div class="saving-state">
+                  <span class="saving-dot" id="savingDot"></span>
+                  <span id="savingText">Ready</span>
+                </div>
+              </div>
+
+              <div class="meta-line">
+                <span class="meta-item"><i class="fa fa-user-shield"></i> Current role: <%= formatRoleLabel(roleValue) %></span>
+                <span class="meta-item"><i class="fa fa-envelope"></i> Current email: <%= currentEmailValue || '—' %></span>
+                <span class="meta-item"><i class="fa fa-lock"></i> Special access: <%= isSpecialSuperViewer ? 'Enabled' : 'Read-only' %></span>
+                <span class="meta-item"><i class="fa fa-search"></i> Live search enabled</span>
+                <span class="meta-item"><i class="fa fa-table"></i> Pagination enabled</span>
+              </div>
+
+              <div class="table-toolbar">
+                <div class="search-wrap">
+                  <i class="fa fa-search search-icon"></i>
+                  <input type="search" id="adminSearchInput" class="search-input" placeholder="Search by ID, email, or name..." autocomplete="off">
+                </div>
+                <div class="toolbar-actions">
+                  <select id="pageSizeSelect" class="page-size" aria-label="Rows per page">
+                    <option value="5">5 per page</option>
+                    <option value="10" selected>10 per page</option>
+                    <option value="25">25 per page</option>
+                    <option value="50">50 per page</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-shell">
+                <div class="table-responsive-custom">
+                  <table class="admins-table" id="adminsTable">
+                    <thead>
+                      <tr>
+                        <th style="width:170px;">Admin ID</th>
+                        <th style="width:220px;">Admin</th>
+                        <th style="width:220px;">Email</th>
+                        <th style="width:150px;">Phone</th>
+                        <th style="width:130px;">Role</th>
+
+                        <% if (canSeePresenceColumns()) { %>
+                          <th style="width:130px;">Login</th>
+                          <th style="width:160px;">Screen Time</th>
+                          <th style="width:180px;">Last Login</th>
+                          <th style="width:180px;">Last Logout</th>
+                        <% } %>
+
+                        <th style="width:120px;">Status</th>
+                        <th style="width:320px;">Actions</th>
+                      </tr>
+                    </thead>
+
+                    <tbody id="adminsTbody">
+                      <% if (visibleAdmins.length) { %>
+                        <% visibleAdmins.forEach(function(item) {
+                          const rowRole = normalizeRole(item?.role || '');
+                          const rowStatus = String(item?.effective_status || item?.status || 'active').toLowerCase();
+                          const lockUntil = item?.lock_until ? new Date(item.lock_until) : null;
+                          const freezeRemaining = lockUntil && !Number.isNaN(lockUntil.getTime()) && lockUntil.getTime() > Date.now()
+                            ? Math.ceil((lockUntil.getTime() - Date.now()) / 60000)
+                            : 0;
+                          const online = String(item?.is_online ?? false) === 'true' || item?.is_online === true || item?.is_online === 1;
+                          const adminJson = safeAttrJson(item);
+                          const rowVisible = canViewSensitiveRow(rowRole);
+                          const rowCanAct = canViewRowActions(rowRole);
+                          const protectedRow = canShowProtectedLabel(rowRole);
+                          const readOnlyRow = canShowReadOnlyNotice(rowRole);
+                        %>
+                          <% if (rowVisible) { %>
+                            <tr
+                              data-id="<%= item?.admin_id || item?.id || '' %>"
+                              data-admin-id="<%= String(item?.admin_id || '') %>"
+                              data-name="<%= String(item?.full_name || '').toLowerCase() %>"
+                              data-email="<%= String(item?.email || '').toLowerCase() %>"
+                              data-status="<%= rowStatus %>"
+                              data-role="<%= rowRole %>"
+                              data-online="<%= online ? 'true' : 'false' %>"
+                              data-last-login-at="<%= item?.last_login_at || '' %>"
+                              data-last-logout-at="<%= item?.last_logout_at || '' %>"
+                              data-last-activity-at="<%= item?.last_activity_at || '' %>"
+                              data-created-at="<%= item?.created_at || '' %>"
+                              data-lock-until="<%= item?.lock_until || '' %>"
+                              data-admin="<%- adminJson %>"
+                              class="<%= protectedRow ? 'protected-row' : '' %>"
+                            >
+                              <td>
+                                <div class="admin-id">
+                                  <span class="login-dot <%= online ? 'online' : 'offline' %>" title="<%= online ? 'Online' : 'Offline' %>"></span>
+                                  <span><%= item?.admin_id || ('#' + (item?.id || '—')) %></span>
+                                </div>
+                              </td>
+
+                              <td>
+                                <div class="admin-name"><%= item?.full_name || '—' %></div>
+                                <div class="admin-email"><%= item?.email_verified ? 'Email verified' : 'Email not verified' %></div>
+                              </td>
+
+                              <td><div class="admin-email"><%= item?.email || '—' %></div></td>
+                              <td><div class="admin-phone"><%= item?.phone || '—' %></div></td>
+                              <td>
+                                <div class="admin-role">
+                                  <%= formatRoleLabel(item?.role || '') %>
+                                  <% if (protectedRow) { %>
+                                    <span class="ml-2 badge badge-light border text-uppercase">Protected</span>
+                                  <% } %>
+                                </div>
+                              </td>
+
+                              <% if (canSeePresenceColumns()) { %>
+                                <td>
+                                  <span class="login-pill <%= online ? 'online' : 'offline' %>" data-login-pill>
+                                    <i class="fa <%= online ? 'fa-circle-check' : 'fa-circle-xmark' %>"></i>
+                                    <span data-login-text><%= online ? 'Active' : 'Inactive' %></span>
+                                  </span>
+                                </td>
+                                <td><div class="admin-session" data-screen-time-cell><%= formatDate(item?.last_activity_at) %></div></td>
+                                <td><div class="admin-datetime" data-last-login-cell><%= formatDate(item?.last_login_at) %></div></td>
+                                <td><div class="admin-datetime" data-last-logout-cell><%= formatDate(item?.last_logout_at) %></div></td>
+                              <% } %>
+
+                              <td>
+                                <span class="status-pill <%= rowStatus %>" data-status-pill>
+                                  <i class="fa <%= rowStatus === 'active' ? 'fa-circle-check' : rowStatus === 'blocked' ? 'fa-ban' : rowStatus === 'deleted' ? 'fa-trash' : rowStatus === 'frozen' ? 'fa-snowflake' : 'fa-circle' %>"></i>
+                                  <span data-status-text><%= rowStatus %></span>
+                                  <% if (rowStatus === 'frozen' && freezeRemaining > 0) { %>
+                                    &nbsp;(<%= freezeRemaining %>m)
+                                  <% } %>
+                                </span>
+                              </td>
+
+                              <td>
+                                <div class="action-group" data-actions-cell>
+                                  <button type="button" class="action-mini view js-view-admin" data-admin="<%- adminJson %>">
+                                    <i class="fa fa-eye"></i>
+                                  </button>
+
+                                  <% if (rowCanAct) { %>
+                                    <% if (rowStatus === 'blocked') { %>
+                                      <button type="button" class="action-mini unblock js-action-btn"
+                                        data-action="unblock"
+                                        data-id="<%= item?.admin_id || item?.id || '' %>"
+                                        data-name="<%= item?.full_name || '' %>"
+                                        data-email="<%= item?.email || '' %>">
+                                        <i class="fa fa-unlock"></i>
+                                      </button>
+                                    <% } else { %>
+                                      <button type="button" class="action-mini block js-action-btn"
+                                        data-action="block"
+                                        data-id="<%= item?.admin_id || item?.id || '' %>"
+                                        data-name="<%= item?.full_name || '' %>"
+                                        data-email="<%= item?.email || '' %>">
+                                        <i class="fa fa-ban"></i>
+                                      </button>
+                                    <% } %>
+
+                                    <% if (rowStatus === 'frozen') { %>
+                                      <button type="button" class="action-mini unblock js-action-btn"
+                                        data-action="unfreeze"
+                                        data-id="<%= item?.admin_id || item?.id || '' %>"
+                                        data-name="<%= item?.full_name || '' %>"
+                                        data-email="<%= item?.email || '' %>">
+                                        <i class="fa fa-sun"></i>
+                                      </button>
+                                    <% } else { %>
+                                      <button type="button" class="action-mini freeze js-freeze-btn"
+                                        data-id="<%= item?.admin_id || item?.id || '' %>"
+                                        data-name="<%= item?.full_name || '' %>"
+                                        data-email="<%= item?.email || '' %>">
+                                        <i class="fa fa-snowflake"></i>
+                                      </button>
+                                    <% } %>
+
+                                    <button type="button" class="action-mini delete js-action-btn"
+                                      data-action="delete"
+                                      data-id="<%= item?.admin_id || item?.id || '' %>"
+                                      data-name="<%= item?.full_name || '' %>"
+                                      data-email="<%= item?.email || '' %>">
+                                      <i class="fa fa-trash"></i>
+                                    </button>
+                                  <% } else { %>
+                                    <span class="text-muted small ml-2">
+                                      <i class="fa fa-lock mr-1"></i>
+                                      <%= readOnlyRow ? 'Read-only for this super admin' : 'No actions available' %>
+                                    </span>
+                                  <% } %>
+                                </div>
+                              </td>
+                            </tr>
+                          <% } %>
+                        <% }) %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="<%= canSeePresenceColumns() ? 11 : 7 %>">
+                            <div class="empty-state">
+                              <i class="fa fa-shield"></i>
+                              No super admins found.
+                            </div>
+                          </td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="table-footer">
+                <div class="table-meta" id="tableMeta">Showing 0 admins</div>
+                <div class="pagination-wrap" id="paginationWrap"></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div style="padding-top: 12px;">
+          <%- include('../../includes/account-footer') %>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+<div class="issue-dock" id="issueDock" role="status" aria-live="polite">
+  <div class="issue-title">Runtime issue detected</div>
+  <div class="issue-body" id="issueDockText">—</div>
+</div>
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+<div class="drawer" id="freezeDrawer" aria-hidden="true" aria-labelledby="freezeDrawerTitle">
+  <div class="drawer-head">
+    <div>
+      <h5 class="drawer-title" id="freezeDrawerTitle">Freeze Super Admin</h5>
+      <div class="drawer-subtitle">Set a future date and time when this super admin should automatically unfreeze.</div>
+    </div>
+    <button type="button" class="btn-ghost" id="closeFreezeBtn" aria-label="Close"><i class="fa fa-times"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="info-box mb-3">
+      <div class="label">Admin</div>
+      <div class="value" id="freezeAdminLabel">—</div>
+    </div>
+    <div class="info-box mb-3">
+      <div class="label">Email</div>
+      <div class="value" id="freezeEmailLabel">—</div>
+    </div>
+
+    <form id="freezeForm" autocomplete="off">
+      <input type="hidden" name="_csrf" id="freezeCsrfToken" value="<%= typeof csrfToken !== 'undefined' && csrfToken ? csrfToken : '' %>">
+      <input type="hidden" id="freezeAdminId">
+      <div class="mb-3">
+        <label class="form-label" for="freezeUntil">Freeze until</label>
+        <input type="datetime-local" id="freezeUntil" class="freeze-time-input">
+        <span class="helper-text">The admin will be marked frozen until the selected time.</span>
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="freezeReason">Reason (optional)</label>
+        <textarea id="freezeReason" class="form-control" rows="4" maxlength="255" placeholder="Enter freeze reason"></textarea>
+      </div>
+    </form>
+  </div>
+  <div class="drawer-footer">
+    <button type="button" class="btn-ghost" id="cancelFreezeBtn">Cancel</button>
+    <button type="button" class="btn-secure" id="confirmFreezeBtn"><i class="fa fa-snowflake"></i>&nbsp;Freeze Admin</button>
+  </div>
+</div>
+
+<div class="drawer" id="confirmDrawer" aria-hidden="true" aria-labelledby="confirmDrawerTitle">
+  <div class="drawer-head">
+    <div>
+      <h5 class="drawer-title" id="confirmDrawerTitle">Confirm Action</h5>
+      <div class="drawer-subtitle">Review the selected super admin action before submitting.</div>
+    </div>
+    <button type="button" class="btn-ghost" id="closeConfirmBtn" aria-label="Close"><i class="fa fa-times"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="info-box mb-3"><div class="label">Action</div><div class="value" id="confirmActionLabel">—</div></div>
+    <div class="info-box mb-3"><div class="label">Admin</div><div class="value" id="confirmAdminLabel">—</div></div>
+    <div class="info-box mb-3"><div class="label">Email</div><div class="value" id="confirmEmailLabel">—</div></div>
+    <div class="mb-3">
+      <label class="form-label" for="confirmReason">Reason (optional)</label>
+      <textarea id="confirmReason" class="form-control" rows="4" maxlength="255" placeholder="Enter reason"></textarea>
+    </div>
+  </div>
+  <div class="drawer-footer">
+    <button type="button" class="btn-ghost" id="cancelConfirmBtn">Cancel</button>
+    <button type="button" class="btn-secure" id="submitConfirmBtn"><i class="fa fa-check"></i>&nbsp;Confirm</button>
+  </div>
+</div>
+
+<div class="drawer" id="viewDrawer" aria-hidden="true" aria-labelledby="viewDrawerTitle">
+  <div class="drawer-head">
+    <div>
+      <h5 class="drawer-title" id="viewDrawerTitle">Super Admin Details</h5>
+      <div class="drawer-subtitle">Quick preview of the selected super admin profile.</div>
+    </div>
+    <button type="button" class="btn-ghost" id="closeViewBtn" aria-label="Close"><i class="fa fa-times"></i></button>
+  </div>
+  <div class="drawer-body">
+    <div class="info-box mb-3"><div class="label">Name</div><div class="value" id="viewName">—</div></div>
+    <div class="info-box mb-3"><div class="label">Email</div><div class="value" id="viewEmail">—</div></div>
+    <div class="info-box mb-3"><div class="label">Phone</div><div class="value" id="viewPhone">—</div></div>
+    <div class="info-box mb-3"><div class="label">Role</div><div class="value" id="viewRole">—</div></div>
+    <div class="info-box mb-3"><div class="label">Status</div><div class="value" id="viewStatus">—</div></div>
+    <div class="info-box mb-3"><div class="label">Created</div><div class="value" id="viewCreated">—</div></div>
+    <% if (isSuperViewer) { %>
+      <div class="info-box mb-3"><div class="label">Login State</div><div class="value" id="viewLoginState">—</div></div>
+      <div class="info-box mb-3"><div class="label">Screen Time</div><div class="value" id="viewScreenTime">—</div></div>
+      <div class="info-box mb-3"><div class="label">Last Login</div><div class="value" id="viewLastLogin">—</div></div>
+      <div class="info-box mb-3"><div class="label">Last Logout</div><div class="value" id="viewLastLogout">—</div></div>
+    <% } else { %>
+      <div class="info-box mb-3"><div class="label">Login State</div><div class="value">Hidden</div></div>
+      <div class="info-box mb-3"><div class="label">Screen Time</div><div class="value">Hidden</div></div>
+      <div class="info-box mb-3"><div class="label">Last Login</div><div class="value">Hidden</div></div>
+      <div class="info-box mb-3"><div class="label">Last Logout</div><div class="value">Hidden</div></div>
+    <% } %>
+  </div>
+</div>
+
+<script src="/customer/js/vendor/jquery-1.12.4.min.js"></script>
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/main.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  const CURRENT_ROLE = <%- JSON.stringify(roleValue) %>;
+  const CURRENT_EMAIL = <%- JSON.stringify(currentEmailValue) %>;
+  const IS_SUPER_VIEWER = <%- JSON.stringify(isSuperViewer) %>;
+  const IS_SPECIAL_SUPER = <%- JSON.stringify(isSpecialSuperViewer) %>;
+  const CSRF_TOKEN = (document.querySelector('meta[name="csrf-token"]')?.content || '').trim();
+
+  const layout = document.getElementById('accountLayout');
+  const sidebar = document.getElementById('accountSidebar');
+  const toggleBtn = document.getElementById('accountToggleBtn');
+  const backdrop = document.getElementById('accountBackdrop');
+  const subSidebar = document.getElementById('subsidebar');
+  const subnavToggleBtn = document.getElementById('subnavToggleBtn');
+  const subnavToggleBtnDesktop = document.getElementById('subnavToggleBtnDesktop');
+  const subnavList = document.getElementById('subnavList');
+
+  const savingDot = document.getElementById('savingDot');
+  const savingText = document.getElementById('savingText');
+  const toast = document.getElementById('toastMini');
+  const issueDock = document.getElementById('issueDock');
+  const issueDockText = document.getElementById('issueDockText');
+
+  const tbody = document.getElementById('adminsTbody');
+  const searchInput = document.getElementById('adminSearchInput');
+  const pageSizeSelect = document.getElementById('pageSizeSelect');
+  const tableMeta = document.getElementById('tableMeta');
+  const paginationWrap = document.getElementById('paginationWrap');
+
+  const drawerBackdrop = document.getElementById('drawerBackdrop');
+  const freezeDrawer = document.getElementById('freezeDrawer');
+  const confirmDrawer = document.getElementById('confirmDrawer');
+  const viewDrawer = document.getElementById('viewDrawer');
+
+  const freezeAdminId = document.getElementById('freezeAdminId');
+  const freezeAdminLabel = document.getElementById('freezeAdminLabel');
+  const freezeEmailLabel = document.getElementById('freezeEmailLabel');
+  const freezeUntil = document.getElementById('freezeUntil');
+  const freezeReason = document.getElementById('freezeReason');
+  const confirmFreezeBtn = document.getElementById('confirmFreezeBtn');
+  const closeFreezeBtn = document.getElementById('closeFreezeBtn');
+  const cancelFreezeBtn = document.getElementById('cancelFreezeBtn');
+
+  const confirmActionLabel = document.getElementById('confirmActionLabel');
+  const confirmAdminLabel = document.getElementById('confirmAdminLabel');
+  const confirmEmailLabel = document.getElementById('confirmEmailLabel');
+  const confirmReason = document.getElementById('confirmReason');
+  const submitConfirmBtn = document.getElementById('submitConfirmBtn');
+  const closeConfirmBtn = document.getElementById('closeConfirmBtn');
+  const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
+
+  const viewName = document.getElementById('viewName');
+  const viewEmail = document.getElementById('viewEmail');
+  const viewPhone = document.getElementById('viewPhone');
+  const viewRole = document.getElementById('viewRole');
+  const viewLoginState = document.getElementById('viewLoginState');
+  const viewScreenTime = document.getElementById('viewScreenTime');
+  const viewLastLogin = document.getElementById('viewLastLogin');
+  const viewLastLogout = document.getElementById('viewLastLogout');
+  const viewStatus = document.getElementById('viewStatus');
+  const viewCreated = document.getElementById('viewCreated');
+  const closeViewBtn = document.getElementById('closeViewBtn');
+
+  let currentPage = 1;
+  let pageSize = parseInt(pageSizeSelect?.value || '10', 10) || 10;
+  let actionState = null;
+  let freezeState = null;
+  let liveTimer = null;
+
+  function isMobile() { return window.innerWidth <= 991; }
+  function normalize(value) { return String(value || '').trim().toLowerCase(); }
+
+  function setSavingState(state, message) {
+    if (!savingDot || !savingText) return;
+    savingDot.classList.remove('is-saving', 'is-saved', 'is-error');
+    if (state === 'saving') { savingDot.classList.add('is-saving'); savingText.textContent = message || 'Working...'; }
+    else if (state === 'saved') { savingDot.classList.add('is-saved'); savingText.textContent = message || 'Ready'; }
+    else if (state === 'error') { savingDot.classList.add('is-error'); savingText.textContent = message || 'Failed'; }
+    else { savingText.textContent = message || 'Ready'; }
+  }
+
+  function showToast(message, type = 'info') {
+    if (!toast) return;
+    toast.textContent = String(message || '');
+    toast.classList.remove('error', 'success', 'info');
+    toast.classList.add(type === 'error' ? 'error' : type === 'success' ? 'success' : 'info');
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  function showIssue(message) {
+    const text = String(message || 'Unknown issue detected.');
+    console.error('[super-admins.ejs issue]', text);
+    if (issueDockText) issueDockText.textContent = text;
+    if (issueDock) issueDock.classList.add('show');
+    showToast(text, 'error');
+  }
+
+  function hideIssueDock() { issueDock?.classList.remove('show'); }
+
+  function closeMobileSidebar() {
+    sidebar?.classList.remove('open');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    toggleBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  function applySidebarMode() {
+    if (!layout || !sidebar) return;
+    if (isMobile()) {
+      closeMobileSidebar();
+      layout.classList.remove('sidebar-expanded');
+      layout.classList.add('sidebar-collapsed');
+      sidebar.classList.add('collapsed');
+      sidebar.classList.remove('expanded');
+      if (subSidebar) subSidebar.classList.remove('open');
+      if (subnavList) subnavList.style.display = 'none';
+      return;
+    }
+    layout.classList.remove('sidebar-expanded');
+    layout.classList.add('sidebar-collapsed');
+    sidebar.classList.add('collapsed');
+    sidebar.classList.remove('expanded');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    if (subSidebar) subSidebar.classList.add('open');
+    if (subnavList) subnavList.style.display = 'flex';
+  }
+
+  function toggleSubnav() {
+    if (!subSidebar || !subnavList) return;
+    const isOpen = subSidebar.classList.toggle('open');
+    if (isMobile()) subnavList.style.display = isOpen ? 'flex' : 'none';
+    document.querySelectorAll('#subnavToggleBtn i, #subnavToggleBtnDesktop i').forEach(i => {
+      i.className = isOpen ? 'fa fa-angle-up' : 'fa fa-angle-down';
+    });
+  }
+
+  function openDrawer(drawerEl) {
+    if (!drawerEl) return;
+    drawerBackdrop?.classList.add('show');
+    drawerEl.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer(drawerEl) {
+    if (!drawerEl) return;
+    drawerEl.classList.remove('show');
+    const anyOpen = freezeDrawer?.classList.contains('show') || confirmDrawer?.classList.contains('show') || viewDrawer?.classList.contains('show');
+    if (!anyOpen) {
+      drawerBackdrop?.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function normalizeDateTimeLocalValue(date) {
+    const d = date instanceof Date ? date : new Date(date);
+    if (Number.isNaN(d.getTime())) return '';
+    const tz = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+    return tz.toISOString().slice(0, 16);
+  }
+
+  function csrfHeaders() {
+    const headers = { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' };
+    if (CSRF_TOKEN) headers['x-csrf-token'] = CSRF_TOKEN;
+    return headers;
+  }
+
+  function fetchJson(url, dataObj = null) {
+    const options = { method: dataObj ? 'POST' : 'GET', headers: csrfHeaders() };
+    if (dataObj) {
+      const body = new URLSearchParams();
+      if (CSRF_TOKEN) body.append('_csrf', CSRF_TOKEN);
+      Object.entries(dataObj).forEach(([key, value]) => body.append(key, value ?? ''));
+      options.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+      options.body = body.toString();
+    }
+    return fetch(url, options).then(async (response) => {
+      const text = await response.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : {}; } catch { data = null; }
+      if (!response.ok) throw new Error(data?.message || text || `Request failed (${response.status})`);
+      if (!data || data.ok === false) throw new Error(data?.message || 'Request failed.');
+      return data;
+    });
+  }
+
+  function parseDate(value) {
+    const d = value ? new Date(value) : null;
+    return d && !Number.isNaN(d.getTime()) ? d : null;
+  }
+
+  function formatDuration(ms) {
+    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    if (days > 0) return `${days}d ${hours}h`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    if (minutes > 0) return `${minutes}m ${seconds}s`;
+    return `${seconds}s`;
+  }
+
+  function formatSessionText(row) {
+    if (!IS_SUPER_VIEWER) return 'Restricted';
+    const isOnline = String(row.dataset.online || 'false') === 'true';
+    const lastLogin = parseDate(row.dataset.lastLoginAt);
+    const lastLogout = parseDate(row.dataset.lastLogoutAt);
+    if (isOnline && lastLogin) return `Online for ${formatDuration(Date.now() - lastLogin.getTime())}`;
+    if (lastLogin && lastLogout) return `Worked for ${formatDuration(lastLogout.getTime() - lastLogin.getTime())}`;
+    if (lastLogin) return `Since ${formatDuration(Date.now() - lastLogin.getTime())}`;
+    return '—';
+  }
+
+  function updateRowLoginUI(row) {
+    const role = normalize(row.dataset.role || '');
+    const online = String(row.dataset.online || 'false') === 'true';
+    const dot = row.querySelector('.login-dot');
+    const pill = row.querySelector('[data-login-pill]');
+    const text = row.querySelector('[data-login-text]');
+
+    if (dot) {
+      dot.classList.toggle('online', online);
+      dot.classList.toggle('offline', !online);
+    }
+    if (pill) {
+      pill.classList.toggle('online', online);
+      pill.classList.toggle('offline', !online);
+    }
+    if (text) text.textContent = online ? 'Active' : 'Inactive';
+
+    const screenCell = row.querySelector('[data-screen-time-cell]');
+    if (screenCell) screenCell.textContent = role === 'super_admin' ? formatSessionText(row) : 'Restricted';
+  }
+
+  function refreshLiveTimings() { getRows().forEach(updateRowLoginUI); }
+  function getRows() { return Array.from(tbody?.querySelectorAll('tr') || []).filter(row => row.dataset && row.dataset.id); }
+
+  function updateMeta(total, start, end) {
+    if (!tableMeta) return;
+    if (!total) { tableMeta.textContent = 'Showing 0 admins'; return; }
+    tableMeta.textContent = `Showing ${Math.min(start + 1, total)}-${Math.min(end, total)} of ${total} admins`;
+  }
+
+  function showEmptyState(show) {
+    const existing = tbody?.querySelector('.empty-state-row');
+    if (show) {
+      if (!existing && tbody) {
+        const tr = document.createElement('tr');
+        tr.className = 'empty-state-row';
+        tr.innerHTML = `<td colspan="${IS_SUPER_VIEWER ? 11 : 7}"><div class="empty-state"><i class="fa fa-shield"></i>No super admins found.</div></td>`;
+        tbody.appendChild(tr);
+      }
+    } else if (existing) existing.remove();
+  }
+
+  function updatePagination(totalPages) {
+    if (!paginationWrap) return;
+    paginationWrap.innerHTML = '';
+    if (totalPages <= 1) return;
+
+    const addBtn = (label, page, opts = {}) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = `page-btn${opts.active ? ' active' : ''}`;
+      btn.textContent = label;
+      btn.disabled = !!opts.disabled;
+      btn.addEventListener('click', () => { currentPage = page; filterRows(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+      paginationWrap.appendChild(btn);
+    };
+
+    addBtn('‹', Math.max(1, currentPage - 1), { disabled: currentPage === 1 });
+    const windowSize = 5;
+    let start = Math.max(1, currentPage - Math.floor(windowSize / 2));
+    let end = Math.min(totalPages, start + windowSize - 1);
+    start = Math.max(1, end - windowSize + 1);
+
+    if (start > 1) {
+      addBtn('1', 1, { active: currentPage === 1 });
+      if (start > 2) {
+        const dots = document.createElement('span'); dots.className = 'table-meta'; dots.textContent = '...'; paginationWrap.appendChild(dots);
+      }
+    }
+
+    for (let p = start; p <= end; p++) addBtn(String(p), p, { active: p === currentPage });
+
+    if (end < totalPages) {
+      if (end < totalPages - 1) {
+        const dots = document.createElement('span'); dots.className = 'table-meta'; dots.textContent = '...'; paginationWrap.appendChild(dots);
+      }
+      addBtn(String(totalPages), totalPages, { active: currentPage === totalPages });
+    }
+
+    addBtn('›', Math.min(totalPages, currentPage + 1), { disabled: currentPage === totalPages });
+  }
+
+  function filterRows() {
+    const query = normalize(searchInput?.value || '');
+    const rows = getRows();
+    const filtered = rows.filter(row => {
+      const haystack = [row.dataset.adminId, row.dataset.name, row.dataset.email, row.dataset.id, row.dataset.role, row.dataset.status].map(normalize).join(' ');
+      return !query || haystack.includes(query);
+    });
+
+    const total = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    rows.forEach(row => row.classList.add('is-hidden'));
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    filtered.slice(start, end).forEach(row => row.classList.remove('is-hidden'));
+
+    updatePagination(totalPages);
+    updateMeta(total, start, end);
+    showEmptyState(total === 0);
+    refreshLiveTimings();
+  }
+
+  function getRowDataFromButton(btn) {
+    return { id: btn.dataset.id, name: btn.dataset.name || '', email: btn.dataset.email || '', action: btn.dataset.action || '' };
+  }
+
+  function getStatusIcon(status) {
+    switch (String(status || '').toLowerCase()) {
+      case 'active': return 'fa-circle-check';
+      case 'blocked': return 'fa-ban';
+      case 'deleted': return 'fa-trash';
+      case 'frozen': return 'fa-snowflake';
+      default: return 'fa-circle';
+    }
+  }
+
+  function safeAttr(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function buildActionButtons(row) {
+    const status = String(row.dataset.status || 'active').toLowerCase();
+    const admin = row.dataset.admin || '{}';
+    const data = JSON.parse(admin || '{}');
+    const id = row.dataset.id || '';
+    const name = data.full_name || row.dataset.name || '';
+    const email = data.email || row.dataset.email || '';
+
+    if (!IS_SPECIAL_SUPER) {
+      return `
+        <button type="button" class="action-mini view js-view-admin" data-admin="${admin}"><i class="fa fa-eye"></i></button>
+        <span class="text-muted small ml-2"><i class="fa fa-lock mr-1"></i>Read-only for this super admin</span>
+      `;
+    }
+
+    if (status === 'deleted') {
+      return `
+        <button type="button" class="action-mini view js-view-admin" data-admin="${admin}"><i class="fa fa-eye"></i></button>
+        <button type="button" class="action-mini restore js-action-btn" data-action="restore" data-id="${safeAttr(id)}" data-name="${safeAttr(name)}" data-email="${safeAttr(email)}"><i class="fa fa-rotate-right"></i></button>
+      `;
+    }
+
+    const isBlocked = status === 'blocked';
+    const isFrozen = status === 'frozen';
+    return `
+      <button type="button" class="action-mini view js-view-admin" data-admin="${admin}"><i class="fa fa-eye"></i></button>
+      ${isBlocked
+        ? `<button type="button" class="action-mini unblock js-action-btn" data-action="unblock" data-id="${safeAttr(id)}" data-name="${safeAttr(name)}" data-email="${safeAttr(email)}"><i class="fa fa-unlock"></i></button>`
+        : `<button type="button" class="action-mini block js-action-btn" data-action="block" data-id="${safeAttr(id)}" data-name="${safeAttr(name)}" data-email="${safeAttr(email)}"><i class="fa fa-ban"></i></button>`}
+      ${isFrozen
+        ? `<button type="button" class="action-mini unblock js-action-btn" data-action="unfreeze" data-id="${safeAttr(id)}" data-name="${safeAttr(name)}" data-email="${safeAttr(email)}"><i class="fa fa-sun"></i></button>`
+        : `<button type="button" class="action-mini freeze js-freeze-btn" data-id="${safeAttr(id)}" data-name="${safeAttr(name)}" data-email="${safeAttr(email)}"><i class="fa fa-snowflake"></i></button>`}
+      <button type="button" class="action-mini delete js-action-btn" data-action="delete" data-id="${safeAttr(id)}" data-name="${safeAttr(name)}" data-email="${safeAttr(email)}"><i class="fa fa-trash"></i></button>
+    `;
+  }
+
+  function refreshRowFromAdmin(updatedAdmin) {
+    const id = String(updatedAdmin?.admin_id || updatedAdmin?.id || '');
+    if (!id) return;
+    const row = tbody?.querySelector(`tr[data-id="${CSS.escape(id)}"]`);
+    if (!row) return;
+
+    const nextStatus = String(updatedAdmin.effective_status || updatedAdmin.status || 'active').toLowerCase();
+    const online = String(updatedAdmin.is_online ?? row.dataset.online ?? 'false') === 'true' || updatedAdmin.is_online === true || updatedAdmin.is_online === 1;
+    row.dataset.status = nextStatus;
+    row.dataset.name = String(updatedAdmin.full_name || '').toLowerCase();
+    row.dataset.email = String(updatedAdmin.email || '').toLowerCase();
+    row.dataset.adminId = String(updatedAdmin.admin_id || '');
+    row.dataset.role = String(updatedAdmin.role || '').toLowerCase();
+    row.dataset.online = online ? 'true' : 'false';
+    row.dataset.lastLoginAt = updatedAdmin.last_login_at || '';
+    row.dataset.lastLogoutAt = updatedAdmin.last_logout_at || '';
+    row.dataset.lastActivityAt = updatedAdmin.last_activity_at || '';
+    row.dataset.createdAt = updatedAdmin.created_at || '';
+    row.dataset.admin = JSON.stringify(updatedAdmin || {}).replace(/</g, '\u003c').replace(/>/g, '\u003e').replace(/&/g, '\u0026');
+
+    const statusPill = row.querySelector('[data-status-pill]');
+    if (statusPill) {
+      const icon = getStatusIcon(nextStatus);
+      const minutes = updatedAdmin.freeze_remaining_minutes ? `&nbsp;(${updatedAdmin.freeze_remaining_minutes}m)` : '';
+      statusPill.className = `status-pill ${nextStatus}`;
+      statusPill.innerHTML = `<i class="fa ${icon}"></i> <span data-status-text>${nextStatus}</span>${nextStatus === 'frozen' ? minutes : ''}`;
+    }
+
+    const roleCell = row.querySelector('.admin-role');
+    if (roleCell) roleCell.textContent = updatedAdmin.role ? String(updatedAdmin.role).replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase()) : 'Admin';
+
+    const actionsCell = row.querySelector('[data-actions-cell]');
+    if (actionsCell) actionsCell.innerHTML = buildActionButtons(row);
+
+    updateRowLoginUI(row);
+  }
+
+  function refreshListAfterAction(updatedAdmin, action) {
+    if (updatedAdmin) refreshRowFromAdmin(updatedAdmin);
+    filterRows();
+    showToast(`Admin ${action} complete.`, 'success');
+  }
+
+  function openConfirm(action, rowData) {
+    actionState = { action, ...rowData };
+    if (confirmActionLabel) confirmActionLabel.textContent = action ? action.charAt(0).toUpperCase() + action.slice(1) : 'Action';
+    if (confirmAdminLabel) confirmAdminLabel.textContent = rowData.name || '—';
+    if (confirmEmailLabel) confirmEmailLabel.textContent = rowData.email || '—';
+    if (confirmReason) confirmReason.value = '';
+    openDrawer(confirmDrawer);
+  }
+
+  function openFreeze(rowData) {
+    freezeState = rowData;
+    if (freezeAdminId) freezeAdminId.value = rowData.id || '';
+    if (freezeAdminLabel) freezeAdminLabel.textContent = rowData.name || '—';
+    if (freezeEmailLabel) freezeEmailLabel.textContent = rowData.email || '—';
+    if (freezeReason) freezeReason.value = '';
+    if (freezeUntil) freezeUntil.value = normalizeDateTimeLocalValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
+    openDrawer(freezeDrawer);
+  }
+
+  function openView(admin) {
+    if (viewName) viewName.textContent = admin?.full_name || '—';
+    if (viewEmail) viewEmail.textContent = admin?.email || '—';
+    if (viewPhone) viewPhone.textContent = admin?.phone || '—';
+    if (viewRole) viewRole.textContent = admin?.role ? String(admin.role).replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase()) : '—';
+    if (viewStatus) viewStatus.textContent = admin?.effective_status || admin?.status || '—';
+    if (viewCreated) viewCreated.textContent = admin?.created_at ? new Date(admin.created_at).toLocaleString() : '—';
+
+    if (IS_SUPER_VIEWER) {
+      if (viewLoginState) viewLoginState.textContent = String(admin?.is_online ?? false) === 'true' || admin?.is_online === true || admin?.is_online === 1 ? 'Active' : 'Inactive';
+      if (viewScreenTime) {
+        const tempRow = { dataset: { online: String(admin?.is_online ?? false), lastLoginAt: admin?.last_login_at || '', lastLogoutAt: admin?.last_logout_at || '' } };
+        viewScreenTime.textContent = formatSessionText(tempRow);
+      }
+      if (viewLastLogin) viewLastLogin.textContent = admin?.last_login_at ? new Date(admin.last_login_at).toLocaleString() : '—';
+      if (viewLastLogout) viewLastLogout.textContent = admin?.last_logout_at ? new Date(admin.last_logout_at).toLocaleString() : '—';
+    } else {
+      if (viewLoginState) viewLoginState.textContent = 'Hidden';
+      if (viewScreenTime) viewScreenTime.textContent = 'Hidden';
+      if (viewLastLogin) viewLastLogin.textContent = 'Hidden';
+      if (viewLastLogout) viewLastLogout.textContent = 'Hidden';
+    }
+
+    openDrawer(viewDrawer);
+  }
+
+  async function submitAction() {
+    if (!IS_SPECIAL_SUPER) { showIssue('Only razahasnain0300@gmail.com (super_admin) can take actions on super-admin records.'); return; }
+    if (!actionState?.id || !actionState?.action) { showIssue('No action selected for submission.'); return; }
+    const reason = String(confirmReason?.value || '').trim();
+    const url = `/admin/a/profile/super-admins/${actionState.action}/${actionState.id}`;
+    try {
+      setSavingState('saving', 'Submitting action...');
+      submitConfirmBtn?.setAttribute('disabled', 'disabled');
+      const result = await fetchJson(url, { reason });
+      setSavingState('saved', 'Action completed');
+      closeDrawer(confirmDrawer);
+      refreshListAfterAction(result.admin, actionState.action);
+    } catch (error) {
+      setSavingState('error', 'Failed');
+      showIssue(error.message || 'Action failed');
+    } finally {
+      submitConfirmBtn?.removeAttribute('disabled');
+    }
+  }
+
+  async function submitFreeze() {
+    if (!IS_SPECIAL_SUPER) { showIssue('Only razahasnain0300@gmail.com (super_admin) can take actions on super-admin records.'); return; }
+    if (!freezeState?.id) { showIssue('No admin selected for freeze action.'); return; }
+    const freezeValue = String(freezeUntil?.value || '').trim();
+    const reason = String(freezeReason?.value || '').trim();
+    if (!freezeValue) { showIssue('Please choose freeze date and time.'); freezeUntil?.focus(); return; }
+    try {
+      setSavingState('saving', 'Freezing admin...');
+      confirmFreezeBtn?.setAttribute('disabled', 'disabled');
+      const result = await fetchJson(`/admin/a/profile/super-admins/freeze/${freezeState.id}`, { freeze_until: freezeValue, until: freezeValue, reason });
+      setSavingState('saved', 'Admin frozen');
+      closeDrawer(freezeDrawer);
+      refreshListAfterAction(result.admin, 'freeze');
+    } catch (error) {
+      setSavingState('error', 'Failed');
+      showIssue(error.message || 'Freeze failed');
+    } finally {
+      confirmFreezeBtn?.removeAttribute('disabled');
+    }
+  }
+
+  function parseAdminFromRowOrButton(el) {
+    const row = el.closest('tr[data-id]');
+    const raw = el.dataset.admin || row?.dataset.admin || '{}';
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
+
+  tbody?.addEventListener('click', (e) => {
+    const actionBtn = e.target.closest('.js-action-btn');
+    const freezeBtn = e.target.closest('.js-freeze-btn');
+    const viewBtn = e.target.closest('.js-view-admin');
+
+    if (viewBtn) {
+      openView(parseAdminFromRowOrButton(viewBtn));
+      return;
+    }
+    if (freezeBtn) return openFreeze(getRowDataFromButton(freezeBtn));
+    if (actionBtn) return openConfirm(actionBtn.dataset.action, getRowDataFromButton(actionBtn));
+  });
+
+  searchInput?.addEventListener('input', () => { currentPage = 1; filterRows(); });
+  pageSizeSelect?.addEventListener('change', () => { pageSize = parseInt(pageSizeSelect.value, 10) || 10; currentPage = 1; filterRows(); });
+
+  toggleBtn?.addEventListener('click', () => {
+    if (isMobile()) {
+      const isOpen = sidebar.classList.contains('open');
+      if (isOpen) closeMobileSidebar();
+      else { sidebar.classList.add('open'); backdrop?.classList.add('show'); document.body.style.overflow = 'hidden'; toggleBtn.setAttribute('aria-expanded', 'true'); }
+      return;
+    }
+    const expanded = layout.classList.toggle('sidebar-expanded');
+    layout.classList.toggle('sidebar-collapsed', !expanded);
+    sidebar.classList.toggle('collapsed', !expanded);
+    sidebar.classList.toggle('expanded', expanded);
+  });
+
+  [subnavToggleBtn, subnavToggleBtnDesktop].forEach(btn => btn?.addEventListener('click', toggleSubnav));
+  backdrop?.addEventListener('click', closeMobileSidebar);
+  drawerBackdrop?.addEventListener('click', () => { closeDrawer(freezeDrawer); closeDrawer(confirmDrawer); closeDrawer(viewDrawer); });
+  confirmFreezeBtn?.addEventListener('click', submitFreeze);
+  closeFreezeBtn?.addEventListener('click', () => closeDrawer(freezeDrawer));
+  cancelFreezeBtn?.addEventListener('click', () => closeDrawer(freezeDrawer));
+  submitConfirmBtn?.addEventListener('click', submitAction);
+  closeConfirmBtn?.addEventListener('click', () => closeDrawer(confirmDrawer));
+  cancelConfirmBtn?.addEventListener('click', () => closeDrawer(confirmDrawer));
+  closeViewBtn?.addEventListener('click', () => closeDrawer(viewDrawer));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMobileSidebar();
+      closeDrawer(freezeDrawer);
+      closeDrawer(confirmDrawer);
+      closeDrawer(viewDrawer);
+      hideIssueDock();
+    }
+  });
+  window.addEventListener('resize', applySidebarMode);
+  window.addEventListener('error', (event) => showIssue(event?.error?.message || event?.message || 'Unexpected script error.'));
+  window.addEventListener('unhandledrejection', (event) => {
+    const reason = event?.reason;
+    showIssue(typeof reason === 'string' ? reason : reason?.message || 'Unhandled promise rejection detected.');
+  });
+
+  function init() {
+    setSavingState('saved', 'Ready');
+    applySidebarMode();
+    const topbar = document.getElementById('topbarUserName');
+    if (topbar) topbar.textContent = '<%= fullNameValue %>';
+    filterRows();
+    clearInterval(liveTimer);
+    liveTimer = setInterval(refreshLiveTimings, 5000);
+  }
+
+  init();
+})();
+</script>
+</body>
+
+
+
+</html>

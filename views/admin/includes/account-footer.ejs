@@ -1,0 +1,135 @@
+<footer class="site-footer" id="top">
+  <div class="footer-inner">
+    
+    <div class="footer-text">
+      <span>© <%= new Date().getFullYear() %> JOOD</span>
+      <span class="divider">|</span>
+      <span>
+        Developed by
+        <a href="https://syedhasnain-portfolio.netlify.app/" target="_blank" class="dev-link">
+          Syed Hasnain Raza
+          <i class="fa fa-external-link"></i>
+        </a>
+      </span>
+    </div>
+
+  </div>
+</footer>
+<!-- Back to Top -->
+<a href="#top" class="fab top-btn" aria-label="Back to top">
+  <i class="fa fa-chevron-up"></i>
+</a>
+
+<style>
+/* FOOTER */
+.site-footer {
+  background: #fff;
+  border-top: 1px solid #e7ecf3;
+  padding: 18px 12px;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-text {
+  font-size: 14px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+}
+
+.footer-text span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.divider {
+  color: #cbd5e1;
+}
+
+.site-footer a {
+  color: #f59e0b;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+/* FLOATING ACTION BUTTONS */
+.fab {
+  position: fixed;
+  right: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 9999;
+  font-size: 20px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* WhatsApp */
+.whatsapp {
+  bottom: 18px;
+  background: #25D366;
+  color: #fff;
+}
+
+.whatsapp:hover {
+  transform: scale(1.08);
+}
+
+/* Back to Top */
+.top-btn {
+  bottom: 78px;
+  background: #0f172a;
+  color: #fff;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.top-btn.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.top-btn:hover {
+  transform: translateY(-3px);
+}
+</style>
+
+<script>
+const topBtn = document.querySelector('.top-btn');
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 250) {
+    topBtn.classList.add('show');
+  } else {
+    topBtn.classList.remove('show');
+  }
+});
+
+topBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
+</script>

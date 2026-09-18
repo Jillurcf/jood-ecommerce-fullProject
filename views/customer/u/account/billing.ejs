@@ -1,0 +1,3235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>My Billing — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="Manage your JOOD billing details, review payment summary, and control account payment access securely." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="My Billing — JOOD Account Dashboard" />
+  <meta property="og:description" content="Update billing details, review payment analytics, and manage account access securely." />
+  <meta property="og:url" content="https://jood.com/customer/u/account/billing" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="My Billing — JOOD" />
+  <meta name="twitter:description" content="Manage your JOOD billing details and payment access." />
+
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+  :root {
+    --bg: #ffffff;
+    --card: #ffffff;
+    --border: #e5eaf3;
+    --border-strong: #cfd8e3;
+    --text: #0f172a;
+    --muted: #64748b;
+    --primary: #f59e0b;
+    --primary-hover: #d97706;
+    --primary-soft: rgba(245, 158, 11, 0.12);
+    --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    --radius: 22px;
+    --radius-sm: 14px;
+    --sidebar-wide: 280px;
+    --sidebar-collapsed: 78px;
+    --topbar-height: 68px;
+    --green-bg: #ecfdf5;
+    --blue-bg: #eff6ff;
+    --amber-bg: #fffbeb;
+    --red-bg: #fef2f2;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --line-strong: var(--border-strong);
+  }
+
+  * {
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    background: var(--bg);
+  }
+
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    color: var(--text);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  img,
+  svg,
+  canvas,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .billing-page {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  .account-layout {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+    display: block;
+    position: relative;
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .account-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-collapsed);
+    height: 100vh;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    z-index: 1040;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: width 0.25s ease, transform 0.25s ease;
+  }
+
+  .account-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .account-sidebar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .account-sidebar:hover::-webkit-scrollbar-thumb {
+    background: rgba(17, 24, 39, 0.25);
+  }
+
+  .account-sidebar-brand {
+    padding: 14px 16px 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .account-brand-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+  }
+
+  .account-logo {
+    display: block;
+    width: 100%;
+    max-width: 150px;
+    height: auto;
+  }
+
+  .account-sidebar-top {
+    padding: 18px 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .account-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .account-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+
+  .account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .avatar-initials {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #2d6cdf;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .account-name {
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.3;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  .account-email {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+    word-break: break-word;
+  }
+
+  .account-nav {
+    padding: 12px;
+  }
+
+  .account-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    margin-bottom: 4px;
+    min-width: 0;
+  }
+
+  .account-nav-link:hover {
+    background: rgba(245, 158, 11, 0.10);
+    transform: translateX(2px);
+    color: #000;
+  }
+
+  .account-nav-link.active {
+    background: var(--primary-soft);
+    color: var(--text);
+  }
+
+  .account-nav-link i {
+    width: 22px;
+    text-align: center;
+    color: var(--primary);
+    font-size: 16px;
+    flex: 0 0 auto;
+  }
+
+  .account-nav-link.logout i {
+    color: #ef4444;
+  }
+
+  .account-layout.sidebar-collapsed .account-sidebar,
+  .account-sidebar.collapsed {
+    width: var(--sidebar-collapsed);
+  }
+
+  .account-layout.sidebar-expanded .account-sidebar,
+  .account-sidebar.expanded {
+    width: var(--sidebar-wide);
+  }
+
+  .account-layout.sidebar-collapsed .account-name,
+  .account-layout.sidebar-collapsed .account-email,
+  .account-layout.sidebar-collapsed .link-text,
+  .account-sidebar.collapsed .account-name,
+  .account-sidebar.collapsed .account-email,
+  .account-sidebar.collapsed .link-text {
+    display: none;
+  }
+
+  .account-layout.sidebar-collapsed .account-profile,
+  .account-sidebar.collapsed .account-profile {
+    align-items: center;
+  }
+
+  .account-layout.sidebar-collapsed .account-nav-link,
+  .account-sidebar.collapsed .account-nav-link {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .account-layout.sidebar-collapsed .account-nav-link i,
+  .account-sidebar.collapsed .account-nav-link i {
+    width: auto;
+    min-width: 22px;
+    font-size: 18px;
+  }
+
+  .account-layout.sidebar-collapsed .account-sidebar-brand,
+  .account-sidebar.collapsed .account-sidebar-brand {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .account-right {
+    min-width: 0;
+    margin-left: var(--sidebar-collapsed);
+    width: calc(100% - var(--sidebar-collapsed));
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #fff;
+    transition: margin-left 0.25s ease, width 0.25s ease;
+  }
+
+  .account-layout.sidebar-expanded .account-right {
+    margin-left: var(--sidebar-wide);
+    width: calc(100% - var(--sidebar-wide));
+  }
+
+  .account-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-collapsed);
+    right: 0;
+    height: var(--topbar-height);
+    min-height: var(--topbar-height);
+    padding: 10px 18px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: auto;
+    transition: left 0.25s ease;
+  }
+
+  .account-layout.sidebar-expanded .account-topbar {
+    left: var(--sidebar-wide);
+  }
+
+  .account-topbar-left,
+  .account-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .account-toggle-btn,
+  .btn-export-wide,
+  .btn-secure,
+  .btn-ghost {
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0 14px;
+    font-weight: 800;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+    white-space: nowrap;
+    max-width: 100%;
+    gap:10px;
+  }
+
+  .account-toggle-btn {
+    width: 44px;
+    padding: 0;
+    flex: 0 0 auto;
+  }
+
+  .account-toggle-btn:hover,
+  .btn-export-wide:hover,
+  .btn-ghost:hover {
+    border-color: var(--line-strong);
+  }
+
+  .btn-secure {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .btn-secure:hover {
+    background: var(--primary-hover);
+    color: #fff;
+  }
+
+  .account-toggle-btn i,
+  .btn-export-wide i,
+  .btn-secure i,
+  .btn-ghost i {
+    font-size: 16px;
+    flex: 0 0 auto;
+  }
+
+  .topbar-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .topbar-title .title {
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-title .sub {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .account-user-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .account-user-mini i {
+    font-size: 20px;
+    color: #475569;
+    flex: 0 0 auto;
+  }
+
+  .account-user-mini span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    max-width: 220px;
+  }
+
+  .account-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.22);
+    z-index: 1035;
+  }
+
+  .account-backdrop.show {
+    display: block;
+  }
+
+  .account-content-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overflow-x: hidden;
+    padding: calc(var(--topbar-height) + 18px) 18px 18px;
+    background: #fff;
+    width: 100%;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .billing-page-shell {
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  .billing-subsidebar {
+    position: sticky;
+    top: calc(var(--topbar-height) + 18px);
+    align-self: start;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .billing-subsidebar-mobilebar {
+    display: none;
+  }
+
+  .billing-sidepanel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 100%;
+    min-width: 0;
+  }
+
+  .billing-sidepanel-header {
+    padding: 14px;
+    border-radius: 16px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .billing-sidepanel-label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .billing-sidepanel-title {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .billing-sidepanel-subtitle {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .billing-sidepanel-body {
+    flex: 1 1 auto;
+    border-top: 1px solid var(--border);
+    background: #fff;
+    overflow: hidden;
+    text-align: left;
+    min-width: 0;
+  }
+
+  .billing-main {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .card-panel,
+  .profile-card,
+  .summary-box,
+  .chart-card,
+  .billing-results-card,
+  .billing-toolbar,
+  .billing-filter-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .card-panel {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .card-panel.pad {
+    padding: 20px;
+  }
+
+  .header-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .section-title {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--text);
+    letter-spacing: -.01em;
+    word-break: break-word;
+  }
+
+  .section-subtitle {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    word-break: break-word;
+  }
+
+  .status-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.82rem;
+    color: #334155;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .saving-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #94a3b8;
+    flex: 0 0 auto;
+  }
+
+  .saving-dot.is-saving {
+    background: #0f172a;
+    animation: pulse 1.2s infinite;
+  }
+
+  .saving-dot.is-saved {
+    background: #16a34a;
+  }
+
+  .saving-dot.is-error {
+    background: #dc2626;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    line-height: 1;
+    max-width: 100%;
+  }
+
+  .pill-verified {
+    background: var(--green-bg);
+    color: var(--success);
+    border-color: #c7eed6;
+  }
+
+  .pill-unverified {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+  }
+
+  .pill-neutral {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .summary-box {
+    padding: 16px;
+    min-height: 132px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .summary-box .label {
+    font-size: 0.82rem;
+    color: var(--dark);
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .summary-box .value {
+    line-height: 1.1;
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 6px;
+    color: #111827;
+  }
+
+  .summary-box .hint {
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    margin-top: 6px;
+    word-break: break-word;
+  }
+
+
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.95fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .chart-card {
+    padding: 20px;
+    min-height: 360px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .chart-wrap canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .mini-stat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .mini-stat {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .mini-stat .k {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .mini-stat .v {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--text);
+    text-align: right;
+    word-break: break-word;
+  }
+
+  .mini-stat .s {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: right;
+    word-break: break-word;
+  }
+
+
+  .profile-card {
+    padding: 20px;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .profile-card.fixed-card {
+    min-height: 100%;
+  }
+
+  .form-label {
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+    font-size: 0.86rem;
+    display: block;
+    word-break: break-word;
+  }
+
+  .form-control,
+  .form-select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 46px;
+    border-radius: 14px;
+    border: 1px solid #dbe3ec;
+    font-size: 0.92rem;
+    background: #fff;
+    color: var(--text);
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #b8c4d1;
+    outline: none;
+  }
+
+  textarea.form-control {
+    min-height: 118px;
+    resize: vertical;
+  }
+
+  .readonly-box {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    background: #f8fafc;
+    border-radius: 14px;
+    color: var(--muted);
+    word-break: break-word;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .helper-text {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .otp-panel {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .otp-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .otp-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .account-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eef2f7;
+    min-width: 0;
+  }
+
+  .info-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .info-label {
+    color: var(--muted);
+    font-size: 0.85rem;
+    word-break: break-word;
+  }
+
+  .info-value {
+    color: var(--text);
+    font-weight: 800;
+    text-align: right;
+    word-break: break-word;
+    font-size: 0.85rem;
+    min-width: 0;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .detail-box {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px;
+    background: #fff;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .detail-box .k {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .detail-box .v {
+    font-size: 0.92rem;
+    color: var(--text);
+    font-weight: 900;
+    word-break: break-word;
+  }
+
+  .orders-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #fff;
+  }
+
+  .orders-table {
+    width: 100%;
+    margin: 0;
+    min-width: 760px;
+  }
+
+  .orders-table th,
+  .orders-table td {
+    padding: 12px 14px;
+    vertical-align: top;
+    border-top: 1px solid #eef2f7;
+    font-size: 0.88rem;
+    word-break: break-word;
+  }
+
+  .orders-table thead th {
+    border-top: 0;
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .orders-table td {
+    color: #1f2937;
+  }
+
+  .orders-table .muted {
+    color: var(--muted);
+    word-break: break-word;
+  }
+
+  .orders-table .amount {
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .orders-table .order-link {
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .orders-table .order-link:hover {
+    text-decoration: underline;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .quick-action-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+    transition: 0.2s ease;
+    min-height: 54px;
+    font-weight: 700;
+    min-width: 0;
+  }
+
+  .quick-action-item:hover {
+    border-color: var(--line-strong);
+    color: var(--text);
+  }
+
+  .quick-action-item i {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+    color: #0f172a;
+    flex: 0 0 auto;
+  }
+
+  .quick-action-item span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .empty-state {
+    border: 1px dashed #d8e0ea;
+    border-radius: 16px;
+    padding: 18px;
+    text-align: center;
+    color: var(--muted);
+    background: #fff;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .toast-mini {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 1060;
+    min-width: 220px;
+    max-width: calc(100vw - 36px);
+    padding: 12px 14px;
+    border-radius: 13px;
+    background: #0f172a;
+    color: #fff;
+    font-size: 0.86rem;
+    transform: translateY(18px);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.25s ease;
+  }
+
+  .toast-mini.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .analytics-note {
+    color: var(--muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-top: 10px;
+    word-break: break-word;
+  }
+
+  .account-page-header .account-hero {
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .account-footer-wrap {
+    padding: 0 18px 18px;
+    margin-top: auto;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .billing-toolbar {
+    margin-top: 14px;
+    padding: 14px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .billing-toolbar-top {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+.billing-search-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  gap: 12px;
+  width: 100%;
+}
+
+  .billing-search-grid .form-control,
+  .billing-search-grid .form-select {
+    min-height: 44px;
+    border-radius: 14px;
+  }
+
+  .billing-search-grid .input-group-text {
+    border-radius: 14px 0 0 14px;
+  }
+
+  .billing-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .billing-chip {
+    background: var(--billing-soft);
+    border: 1px solid var(--billing-border);
+    border-radius: 999px;
+    padding: 7px 12px;
+    font-size: 0.84rem;
+    color: #334155;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .billing-results-card {
+    margin-top: 14px;
+    padding: 16px;
+    min-height: 420px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .billing-results-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .billing-results-meta {
+    color: var(--billing-muted);
+    font-size: 0.9rem;
+  }
+
+  .billing-results-list {
+    margin-top: 12px;
+    border: 1px solid var(--billing-border);
+    border-radius: 18px;
+    overflow: auto;
+    max-height: 520px;
+  }
+
+  .billing-results-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--billing-muted);
+  }
+
+  .billing-results-table {
+    margin: 0;
+    min-width: 920px;
+  }
+
+  .billing-results-table thead th {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+  }
+
+  .billing-results-table td,
+  .billing-results-table th {
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .result-actions .btn {
+    border-radius: 12px;
+  }
+
+  .billing-section-title {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .billing-section-subtitle {
+    color: var(--billing-muted);
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .billing-live-clock {
+    font-weight: 700;
+    color: #334155;
+  }
+
+  .billing-live-clock small {
+    color: var(--billing-muted);
+    font-weight: 600;
+  }
+
+  .export-actions-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .export-actions-row .btn-export-wide {
+    flex: 1 1 50%;
+    min-width: 0;
+    justify-content: center;
+    gap:10px;
+  }
+
+  .export-disabled {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .export-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1040;
+  }
+
+  .export-drawer-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .export-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(520px, 100%);
+    height: 100vh;
+    background: #fff;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .export-drawer.show {
+    transform: translateX(0);
+  }
+
+  .export-drawer-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .export-drawer-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .export-drawer-subtitle {
+    margin: 4px 0 0;
+    font-size: 0.92rem;
+    color: #64748b;
+    line-height: 1.45;
+  }
+
+  .export-drawer-body {
+    padding: 18px 20px 22px;
+    overflow: auto;
+    flex: 1;
+  }
+
+  .export-field {
+    margin-bottom: 14px;
+  }
+
+  .export-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+  }
+
+  .export-field .form-control,
+  .export-field .form-select {
+    width: 100%;
+  }
+
+  .export-preview {
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #f8fafc;
+    padding: 14px;
+    margin-top: 12px;
+  }
+
+  .export-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .export-preview-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .export-preview-count {
+    font-size: 0.85rem;
+    color: #475569;
+  }
+
+  .export-preview-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .export-preview-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .export-preview-item .k {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 2px;
+  }
+
+  .export-preview-item .v {
+    font-size: 0.92rem;
+    color: #0f172a;
+    font-weight: 600;
+    word-break: break-word;
+  }
+
+  .export-note {
+    margin-top: 12px;
+    font-size: 0.86rem;
+    color: #64748b;
+    line-height: 1.55;
+  }
+
+  .fixed-card {
+    min-height: 100%;
+  }
+
+  .fixed-scroll {
+    max-height: 340px;
+    overflow: auto;
+    padding-right: 4px;
+  }
+
+  .profile-card .account-info-list {
+    overflow: auto;
+    max-height: 220px;
+    padding-right: 6px;
+  }
+
+  .detail-grid.fixed-scroll {
+    max-height: 220px;
+  }
+
+  .account-sidebar-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #ffffff;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: 0.2s;
+  }
+
+  .account-sidebar-close:hover {
+    background: #e5e7eb;
+  }
+
+  .account-sidebar-close i {
+    font-size: 16px;
+    color: #111827;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    min-width: 0;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.15;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.6; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @media (max-width: 1199px) {
+    .profile-grid,
+    .analytics-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .billing-page-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .billing-subsidebar {
+      position: relative;
+      top: auto;
+    }
+
+    .account-user-mini span {
+      max-width: 180px;
+    }
+  }
+
+  @media (max-width: 991px) {
+    body {
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    .account-layout {
+      display: block;
+      min-height: 100vh;
+    }
+
+    .account-sidebar {
+      width: 290px !important;
+      transform: translateX(-100%);
+      height: 100vh;
+      max-width: 100vw;
+    }
+
+    .account-sidebar.open {
+      transform: translateX(0);
+    }
+
+    .account-sidebar.collapsed {
+      width: 290px !important;
+    }
+
+    .account-right {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .account-topbar {
+      left: 0 !important;
+      width: 100%;
+    }
+
+    .account-content-wrap {
+      padding: calc(var(--topbar-height) + 14px) 14px 14px;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .account-user-mini {
+      display: inline-flex;
+      max-width: 180px;
+    }
+
+    .account-user-mini span {
+      max-width: 120px;
+    }
+
+    .profile-grid,
+    .analytics-grid,
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .actions-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .info-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .info-value {
+      text-align: left;
+    }
+
+    .summary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .billing-page-shell {
+      gap: 12px;
+      grid-template-columns: 1fr;
+    }
+
+    .billing-subsidebar {
+      position: relative !important;
+      top: auto !important;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .billing-subsidebar-mobilebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 14px 12px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .billing-subsidebar-inner {
+      display: block;
+      border: 0;
+      border-radius: 0;
+    }
+
+    .billing-sidepanel-header {
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      border-top: 0;
+      flex-wrap: wrap;
+    }
+
+    .billing-sidepanel-body {
+      border-left: 0;
+      border-right: 0;
+      border-bottom: 0;
+      border-radius: 0;
+    }
+
+    .btn-export-wide {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .topbar-right {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .topbar-left {
+      width: 100%;
+    }
+
+    .orders-table {
+      min-width: 680px;
+    }
+
+    .billing-results-table {
+      min-width: 760px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .account-sidebar {
+      width: 290px;
+    }
+
+    .card-panel.pad,
+    .profile-card,
+    .chart-card {
+      padding: 16px;
+    }
+
+    .chart-wrap {
+      height: 260px;
+    }
+
+    .status-line {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .account-footer-wrap {
+      padding: 0 14px 14px;
+    }
+
+    .account-topbar {
+      gap: 10px;
+      padding: 10px 12px;
+    }
+
+    .account-user-mini {
+      max-width: 100%;
+    }
+
+    .account-user-mini span {
+      max-width: 90px;
+    }
+
+    .btn-export-wide {
+      padding: 0 12px;
+      font-size: 0.84rem;
+    }
+
+    .topbar-title .title {
+      font-size: 0.95rem;
+    }
+
+    .topbar-title .sub {
+      font-size: 0.75rem;
+    }
+
+    .export-actions-row {
+      flex-wrap: wrap;
+    }
+
+    .export-actions-row .btn-export-wide {
+      flex: 1 1 100%;
+    }
+  }
+  @media (max-width: 768px) {
+  .billing-search-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
+
+  /* make inputs behave nicely inside grid */
+  .billing-search-grid .form-control,
+  .billing-search-grid .form-select,
+  .billing-search-grid .btn-export-wide,
+  .billing-search-grid .input-group {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* fix input-group overflow in grid */
+  .billing-search-grid .input-group {
+    display: flex;
+  }
+
+  .billing-search-grid .input-group .form-control {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+  @media (max-width: 575px) {
+    .account-content-wrap {
+      padding: calc(var(--topbar-height) + 12px) 12px 12px;
+    }
+
+    .account-topbar {
+      padding: 10px 10px;
+    }
+
+    .account-user-mini {
+      gap: 8px;
+    }
+
+    .account-user-mini i {
+      font-size: 18px;
+    }
+
+    .account-user-mini span {
+      max-width: 78px;
+      font-size: 0.85rem;
+    }
+
+    .summary-box .value {
+      font-size: 1.1rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.84rem;
+    }
+
+    .btn-export-wide {
+      padding: 0 10px;
+    }
+  }
+
+  @media (min-width: 992px) and (max-width: 1200px) {
+    .account-layout.sidebar-collapsed .account-sidebar,
+    .account-sidebar.collapsed {
+      width: var(--sidebar-collapsed);
+    }
+
+    .account-layout.sidebar-collapsed .account-name,
+    .account-layout.sidebar-collapsed .account-email,
+    .account-layout.sidebar-collapsed .link-text,
+    .account-sidebar.collapsed .account-name,
+    .account-sidebar.collapsed .account-email,
+    .account-sidebar.collapsed .link-text {
+      display: none;
+    }
+
+    .account-layout.sidebar-collapsed .account-nav-link,
+    .account-sidebar.collapsed .account-nav-link {
+      justify-content: center;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  /* Default: hidden scrollbar */
+.account-sidebar,
+.account-content-wrap,
+.billing-results-list,
+.orders-table-wrap {
+  scrollbar-width: thin;              /* Firefox */
+  scrollbar-color: transparent transparent;
+}
+
+/* Chrome, Edge, Safari */
+.account-sidebar::-webkit-scrollbar,
+.account-content-wrap::-webkit-scrollbar,
+.billing-results-list::-webkit-scrollbar,
+.orders-table-wrap::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* Hidden by default */
+.account-sidebar::-webkit-scrollbar-thumb,
+.account-content-wrap::-webkit-scrollbar-thumb,
+.billing-results-list::-webkit-scrollbar-thumb,
+.orders-table-wrap::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+/* 👇 SHOW ONLY ON HOVER */
+.account-sidebar:hover::-webkit-scrollbar-thumb,
+.account-content-wrap:hover::-webkit-scrollbar-thumb,
+.billing-results-list:hover::-webkit-scrollbar-thumb,
+.orders-table-wrap:hover::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5); /* soft gray */
+}
+
+/* Track stays invisible */
+.account-sidebar::-webkit-scrollbar-track,
+.account-content-wrap::-webkit-scrollbar-track,
+.billing-results-list::-webkit-scrollbar-track,
+.orders-table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+  }
+  @media (max-width: 768px) {
+    .export-actions-row {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      gap: 10px;
+    }
+
+    .export-actions-row .btn-export-wide {
+      flex: 1 1 50%;
+      min-width: 0;
+      font-size: 13px;
+      padding: 10px 8px;
+      white-space: nowrap;
+    }
+  }
+</style>
+</head>
+
+<body class="billing-page">
+<%
+  const safeDate = (v) => {
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+  const fmtDateTime = (v) => {
+    const d = safeDate(v);
+    return d ? d.toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : 'Not available';
+  };
+  const fmtDate = (v) => {
+    const d = safeDate(v);
+    return d ? d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : 'Not available';
+  };
+  const fmtDayKey = (v) => {
+    const d = safeDate(v);
+    return d ? d.toISOString().slice(0, 10) : '';
+  };
+
+  const summary = typeof paymentSummary !== 'undefined' && paymentSummary ? paymentSummary : {};
+  const totalSpent = Number(summary.totalSpent || 0);
+  const totalOrdersPaid = Number(summary.totalOrdersPaid || 0);
+  const pendingPayments = Number(summary.pendingPayments || 0);
+  const thisMonthSpent = Number(summary.thisMonthSpent || 0);
+  const refundTotal = Number(summary.refundTotal || 0);
+  const lastOrder = summary.lastOrder || null;
+  const recentOrders = Array.isArray(summary.recentOrders) ? summary.recentOrders : [];
+  const monthlySeries = Array.isArray(summary.monthlySeries) ? summary.monthlySeries : [];
+  const paymentMethodStats = Array.isArray(summary.paymentMethodStats) ? summary.paymentMethodStats : [];
+
+  const allOrders = Array.isArray(summary.allOrders)
+    ? summary.allOrders
+    : (Array.isArray(summary.orders) ? summary.orders : recentOrders);
+
+  const totalOrdersLabel = totalOrdersPaid > 0 ? totalOrdersPaid : 0;
+  const lastOrderLabel = lastOrder?.order_number || lastOrder?.tracking_id || 'Not available';
+  const lastOrderDateLabel = lastOrder?.created_at ? fmtDateTime(lastOrder.created_at) : 'Not available';
+  const lastOrderStatus = lastOrder?.order_status || 'Not available';
+  const lastPaymentStatus = lastOrder?.payment_status || 'Not available';
+  const currency = user?.currency || lastOrder?.currency || 'AED';
+  const chartLabels = monthlySeries.length ? monthlySeries.map(x => x.label || x.month || '') : ['Jan','Feb','Mar','Apr','May','Jun'];
+  const chartValues = monthlySeries.length ? monthlySeries.map(x => Number(x.amount || x.total || 0)) : [0,0,0,0,0,0];
+  const methodLabels = paymentMethodStats.length ? paymentMethodStats.map(x => x.label || x.method || 'Other') : ['Paid', 'Pending'];
+  const methodValues = paymentMethodStats.length ? paymentMethodStats.map(x => Number(x.value || x.amount || 0)) : [totalSpent, pendingPayments];
+  const userName = user?.full_name || user?.name || 'Customer';
+  const customerId = user?.user_id || user?.id || '—';
+%>
+
+
+
+<div class="account-layout sidebar-collapsed" id="accountLayout">
+  <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+    <%- include('../../includes/account-sidebar', { user, activePage: 'billing' }) %>
+  </aside>
+
+  <div class="account-right">
+    <header class="account-topbar" aria-label="Account Topbar">
+      <div class="topbar-left" style="display:flex; align-items:center; gap:10px;">
+        <button type="button" class="account-toggle-btn" id="accountToggleBtn" aria-label="Toggle account sidebar" aria-controls="accountSidebar" aria-expanded="false" style="display:flex; align-items:center; justify-content:center;">
+          <i class="fa fa-bars"></i>
+        </button>
+        <div class="topbar-title" style="display:flex; flex-direction:column; justify-content:center; gap:2px;">
+          <div class="title">JOOD Billing</div>
+          <div class="sub">Payments, details, and billing controls</div>
+        </div>
+      </div>
+      <style>
+        @media (max-width: 768px) {
+          #openExportDrawerBtn,
+          #exportPdfBtn {
+            display: none !important;
+          }
+        }
+      </style>
+      <div class="topbar-right" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+        <div class="billing-live-clock" id="liveClockTopbar"><small>Live time</small> <span id="liveClockValue">--:--:--</span></div>
+        <button type="button" class="btn-export-wide" id="openExportDrawerBtn" aria-label="Open export filter"><i class="fa fa-filter"></i> Filter</button>
+        <button type="button" class="btn-export-wide" id="exportPdfBtn" aria-label="Export billing report as PDF"><i class="fa fa-file-pdf-o"></i> PDF</button>
+        <div class="account-user-mini" id="topbarUserWrap"><i class="fa fa-user-circle"></i><span id="topbarUserName"><%= userName %></span></div>
+      </div>
+    </header>
+
+    <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+    <div class="account-content-wrap">
+      <div class="billing-page-shell">
+        <aside class="billing-subsidebar" id="billingSubSidebar" aria-label="Billing Sidebar" >
+          <div class="billing-subsidebar-mobilebar">
+            <div>
+              <div class="billing-sidepanel-label">Account Pages</div>
+              <h3 class="billing-sidepanel-title">Billing Navigation</h3>
+            </div>
+          </div>
+          <div class="billing-subsidebar-inner" id="billingSubSidebarInner">
+            <div class="billing-sidepanel">
+              <div class="billing-sidepanel-header">
+                <div>
+                  <div class="billing-sidepanel-label">Account Pages</div>
+                  <h3 class="billing-sidepanel-title">Billing Navigation</h3>
+                  <p class="billing-sidepanel-subtitle">Billing-related sections and account shortcuts.</p>
+                </div>
+              </div>
+              <div class="billing-sidepanel-body">
+                <%- include('../../includes/account/account-billing-sidebar', { user, activePage: 'billing' }) %>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="billing-main">
+          <section class="account-page-header">
+            <div class="card-panel pad account-hero">
+              <div class="header-row" style="margin-bottom:0; align-items:flex-start;">
+                <div>
+                  <h3 class="section-title" style="font-size:1.25rem;">Hello, <%= userName %></h3>
+                  <p class="section-subtitle">Manage billing contact details, review payment insights, and secure account access.</p>
+                </div>
+                <span class="pill pill-neutral"><i class="fa fa-id-card-o"></i> Billing Account</span>
+              </div>
+            </div>
+          </section>
+
+          <div class="billing-shell">
+            <section class="card-panel pad fixed-card">
+              <div class="header-row" style="align-items:flex-start;">
+                <div>
+                  <h3 class="section-title">Payment Summary & Analytics</h3>
+                </div>
+                <div class="status-line">
+                  <span class="saving-dot" id="savingDot"></span>
+                  <span id="savingText">All changes saved</span>
+                </div>
+              </div>
+
+              <div class="summary-grid">
+                <div class="summary-box summary-income">
+                  <div class="label">Total Spent</div>
+                  <div class="value" id="totalSpentValue"><%= totalSpent.toFixed(2) %> <%= currency %></div>
+                  <div class="hint">All paid orders combined.</div>
+                </div>
+                <div class="summary-box summary-success">
+                  <div class="label">Total Orders Paid</div>
+                  <div class="value" id="totalOrdersPaidValue"><%= totalOrdersLabel %></div>
+                  <div class="hint">Orders with completed payment status.</div>
+                </div>
+                <div class="summary-box summary-warning">
+                  <div class="label">Pending Payments</div>
+                  <div class="value" id="pendingPaymentsValue"><%= pendingPayments %></div>
+                  <div class="hint">Pending or initiated orders.</div>
+                </div>
+                <div class="summary-box summary-danger">
+                  <div class="label">Refunds</div>
+                  <div class="value" id="refundTotalValue"><%= refundTotal.toFixed(2) %> <%= currency %></div>
+                  <div class="hint">Refund total, if available.</div>
+                </div>
+              </div>
+             
+            </section>
+             
+
+       
+
+            <div class="profile-grid">
+              <section class="profile-card fixed-card mt-3">
+                <div class="header-row">
+                  <div>
+                    <h3 class="section-title">Billing Details</h3>
+                    <p class="section-subtitle">Use OTP verification before sensitive updates are saved.</p>
+                  </div>
+                </div>
+
+                <form action="/customer/u/account/billing/update" method="POST" id="billingForm" class="profile-form" autocomplete="off">
+                  <% if (csrfToken) { %><input type="hidden" name="_csrf" value="<%= csrfToken %>"><% } %>
+                  <input type="hidden" name="stepup_token" id="stepupToken" value="<%= stepupToken || '' %>">
+
+                  <div class="row g-3" style="gap:15px 0;">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">User ID</label>
+                      <div class="readonly-box"><%= user?.user_id || user?.id || '—' %></div>
+                      <span class="helper-text">This identifier cannot be changed.</span>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Billing Name</label>
+                      <div class="readonly-box"><%= userName %></div>
+                      <span class="helper-text">The name shown in billing and invoice reports.</span>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label" for="email">Billing Email</label>
+                      <input type="email" name="email" id="email" class="form-control js-autosave" value="<%= user?.email || '' %>" placeholder="Enter your billing email" autocomplete="email" maxlength="150">
+                      <span class="helper-text">Used for receipts, OTP delivery, and billing notices.</span>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label" for="phone">Billing Phone</label>
+                      <input type="text" name="phone" id="phone" class="form-control js-autosave" value="<%= user?.phone || '' %>" placeholder="Enter your billing phone number" autocomplete="tel" maxlength="20">
+                      <span class="helper-text">Keep this number active for order confirmations.</span>
+                    </div>
+                    
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Email Verification</label>
+                      <div class="otp-panel"><div class="otp-row"><div><span class="pill <%= user?.email_verified ? 'pill-verified' : 'pill-unverified' %>"><i class="fa <%= user?.email_verified ? 'fa-check-circle' : 'fa-clock-o' %>"></i> <%= user?.email_verified ? 'Verified' : 'Not Verified' %></span></div><div class="section-subtitle mb-0"><strong>Email:</strong> <%= user?.email || 'No email added' %></div><% if (!user?.email_verified && (user?.email || '').trim()) { %><div class="otp-actions"><button type="button" class="btn-secure js-request-otp" data-channel="email" data-purpose="billing_update"><i class="fa fa-envelope-open"></i> Send OTP</button></div><% } %></div></div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Phone Verification</label>
+                      <div class="otp-panel"><div class="otp-row"><div><span class="pill <%= user?.phone_verified ? 'pill-verified' : 'pill-unverified' %>"><i class="fa <%= user?.phone_verified ? 'fa-check-circle' : 'fa-clock-o' %>"></i> <%= user?.phone_verified ? 'Verified' : 'Not Verified' %></span></div><div class="section-subtitle mb-0"><strong>Phone:</strong> <%= user?.phone || 'No phone added' %></div><% if (!user?.phone_verified && (user?.phone || '').trim()) { %><div class="otp-actions"><button type="button" class="btn-ghost js-request-otp" data-channel="phone" data-purpose="billing_update"><i class="fa fa-mobile"></i> Send OTP</button></div><% } %></div></div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label" for="address">Billing Address</label>
+                      <input type="text" name="address" id="address" class="form-control js-autosave" value="<%= user?.address || '' %>" placeholder="Enter billing address" autocomplete="street-address" maxlength="255">
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label" for="city">City</label>
+                      <input type="text" name="city" id="city" class="form-control js-autosave" value="<%= user?.city || '' %>" placeholder="City" autocomplete="address-level2" maxlength="100">
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label" for="country">Country</label>
+                      <input type="text" name="country" id="country" class="form-control js-autosave" value="<%= user?.country || '' %>" placeholder="Country" autocomplete="country-name" maxlength="100">
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label" for="bio">Billing Notes</label>
+                      <textarea name="bio" id="bio" class="form-control js-autosave" rows="4" placeholder="Add billing notes" maxlength="1000"><%= user?.bio || '' %></textarea>
+                    </div>
+                  </div>
+                </form>
+              </section>
+
+              
+            </div>
+
+            <section class="profile-card fixed-card mt-3">
+              <div class="header-row">
+                <div>
+                  <h3 class="section-title">Quick Actions</h3>
+                  <p class="section-subtitle">Fast navigation for the most used account areas.</p>
+                </div>
+              </div>
+              <div class="actions-grid">
+                <a href="/customer/u/orders" class="quick-action-item"><i class="fa fa-shopping-bag"></i><span>View Orders</span></a>
+                <a href="/customer/u/account/payment-methods" class="quick-action-item"><i class="fa fa-credit-card"></i><span>Payment Methods</span></a>
+              </div>
+            </section>
+          </div>
+
+          <div class="account-footer-wrap">
+            <%- include('../../includes/account-footer') %>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+<div class="export-drawer-overlay" id="exportDrawerOverlay" aria-hidden="true"></div>
+<aside class="export-drawer" id="exportDrawer" aria-label="Export filter drawer">
+  <div class="export-drawer-header">
+    <div>
+      <h3 class="export-drawer-title">JOOD Billing Export</h3>
+      <p class="export-drawer-subtitle">Choose one export condition. The PDF stays simple and includes the applied filter summary.</p>
+    </div>
+    <button type="button" class="account-toggle-btn" id="closeExportDrawerBtn" aria-label="Close export drawer"><i class="fa fa-times"></i></button>
+  </div>
+
+  <div class="export-drawer-body">
+    <div class="export-field">
+      <label for="exportMode">Export Condition</label>
+      <select class="form-control form-select" id="exportMode">
+        <option value="all_orders">All Orders</option>
+        <option value="recent_orders">Recent Orders</option>
+        <option value="per_order">Per Order</option>
+        <option value="per_product">Per Product</option>
+        <option value="date_range">Date Range</option>
+      </select>
+    </div>
+
+    <div class="export-field" id="recentLimitWrap">
+      <label for="recentLimit">Recent Orders Limit</label>
+      <input type="number" class="form-control" id="recentLimit" min="1" max="100" value="10" placeholder="10">
+    </div>
+
+    <div class="export-field" id="orderQueryWrap" style="display:none;">
+      <label for="orderQuery">Order Number / Tracking ID</label>
+      <input type="text" class="form-control" id="orderQuery" placeholder="Enter order number or tracking ID">
+    </div>
+
+    <div class="export-field" id="productQueryWrap" style="display:none;">
+      <label for="productQuery">Product ID / Product Name</label>
+      <input type="text" class="form-control" id="productQuery" placeholder="Enter product ID or product name">
+    </div>
+
+    <div class="export-field" id="dateRangeWrap" style="display:none;">
+      <label>Date Range</label>
+      <div class="d-flex gap-2">
+        <input type="date" class="form-control" id="exportFromDate">
+        <input type="date" class="form-control" id="exportToDate">
+      </div>
+    </div>
+
+    <div class="export-actions-row mt-2">
+      <button type="button" class="btn-export-wide" id="applyExportFilterBtn"><i class="fa fa-sliders"></i> Apply Filter</button>
+      <button type="button" class="btn-export-wide" id="exportPdfDrawerBtn"><i class="fa fa-file-pdf-o"></i> Export PDF</button>
+    </div>
+
+    <div class="export-preview mt-3">
+      <div class="export-preview-head d-flex justify-content-between align-items-center">
+        <div class="export-preview-title">Filter Output</div>
+        <div class="export-preview-count" id="exportPreviewCount">0 result(s)</div>
+      </div>
+      <div class="export-preview-list" id="exportPreviewList">
+        <div class="export-preview-item"><div class="k">Status</div><div class="v">Choose a filter and apply it to view export-ready results.</div></div>
+      </div>
+    </div>
+
+    <div class="export-note">Export becomes available only when the filter returns at least one matching record. The report title always includes the applied date range or search terms.</div>
+  </div>
+</aside>
+
+<script src="/customer/js/account.js"></script>
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/main.js"></script>
+
+<script>
+(function () {
+  const form = document.getElementById('billingForm');
+  const layout = document.getElementById('accountLayout');
+  const sidebar = document.getElementsByClassName('account-sidebar');
+  const toggleBtn = document.getElementById('accountToggleBtn');
+  const backdrop = document.getElementById('accountBackdrop');
+  const billingSubSidebarInner = document.getElementById('billingSubSidebarInner');
+  const toast = document.getElementById('toastMini');
+  const savingDot = document.getElementById('savingDot');
+  const savingText = document.getElementById('savingText');
+  const lastUpdatedValue = document.getElementById('lastUpdatedValue');
+  const lastLoginValue = document.getElementById('lastLoginValue');
+  const lastAttemptValueRow = document.getElementById('lastAttemptValueRow');
+  const topbarUserName = document.getElementById('topbarUserName');
+  const inputs = form ? form.querySelectorAll('.js-autosave') : [];
+  const otpButtons = document.querySelectorAll('.js-request-otp');
+  const chartCanvas = document.getElementById('billingTrendChart');
+  const mixCanvas = document.getElementById('paymentMixChart');
+
+  const liveClockValue = document.getElementById('liveClockValue');
+  const lastRefreshLabel = document.getElementById('lastRefreshLabel');
+  const graphRange = document.getElementById('graphRange');
+  const graphFromDate = document.getElementById('graphFromDate');
+  const graphToDate = document.getElementById('graphToDate');
+  const graphRangeLabel = document.getElementById('graphRangeLabel');
+  const refreshLiveBtn = document.getElementById('refreshLiveBtn');
+
+  const searchQuery = document.getElementById('searchQuery');
+  const fromDate = document.getElementById('fromDate');
+  const toDate = document.getElementById('toDate');
+  const statusFilter = document.getElementById('statusFilter');
+  const typeFilter = document.getElementById('typeFilter');
+  const clearLiveFiltersBtn = document.getElementById('clearLiveFiltersBtn');
+  const appliedFilterLabel = document.getElementById('appliedFilterLabel');
+  const matchedCountLabel = document.getElementById('matchedCountLabel');
+  const visibleCountLabel = document.getElementById('visibleCountLabel');
+  const filterSummaryText = document.getElementById('filterSummaryText');
+  const rangeLabelText = document.getElementById('rangeLabelText');
+  const billingResultsWrap = document.getElementById('billingResultsWrap');
+  const billingResultsEmpty = document.getElementById('billingResultsEmpty');
+  const billingResultsTable = document.getElementById('billingResultsTable');
+  const billingResultsBody = document.getElementById('billingResultsBody');
+  const exportVisibleOrdersBtn = document.getElementById('exportVisibleOrdersBtn');
+  const exportVisibleProductsBtn = document.getElementById('exportVisibleProductsBtn');
+  const exportSingleSelectionBtn = document.getElementById('exportSingleSelectionBtn');
+
+  const exportDrawer = document.getElementById('exportDrawer');
+  const exportDrawerOverlay = document.getElementById('exportDrawerOverlay');
+  const openExportDrawerBtn = document.getElementById('openExportDrawerBtn');
+  const openExportDrawerBtn2 = document.getElementById('openExportDrawerBtn2');
+  const closeExportDrawerBtn = document.getElementById('closeExportDrawerBtn');
+  const exportMode = document.getElementById('exportMode');
+  const recentLimit = document.getElementById('recentLimit');
+  const recentLimitWrap = document.getElementById('recentLimitWrap');
+  const orderQueryWrap = document.getElementById('orderQueryWrap');
+  const productQueryWrap = document.getElementById('productQueryWrap');
+  const dateRangeWrap = document.getElementById('dateRangeWrap');
+  const orderQuery = document.getElementById('orderQuery');
+  const productQuery = document.getElementById('productQuery');
+  const exportFromDate = document.getElementById('exportFromDate');
+  const exportToDate = document.getElementById('exportToDate');
+  const applyExportFilterBtn = document.getElementById('applyExportFilterBtn');
+  const exportPdfBtn = document.getElementById('exportPdfBtn');
+  const exportPdfBtn2 = document.getElementById('exportPdfBtn2');
+  const exportPdfDrawerBtn = document.getElementById('exportPdfDrawerBtn');
+  const exportPreviewCount = document.getElementById('exportPreviewCount');
+  const exportPreviewList = document.getElementById('exportPreviewList');
+
+  const totalSpentValue = document.getElementById('totalSpentValue');
+  const totalOrdersPaidValue = document.getElementById('totalOrdersPaidValue');
+  const pendingPaymentsValue = document.getElementById('pendingPaymentsValue');
+  const refundTotalValue = document.getElementById('refundTotalValue');
+  const thisMonthSpentValue = document.getElementById('thisMonthSpentValue');
+  const lastOrderLabelValue = document.getElementById('lastOrderLabelValue');
+  const lastOrderDateValue = document.getElementById('lastOrderDateValue');
+
+  if (!form || !layout || !sidebar || !toggleBtn) return;
+
+  let timer = null;
+  let isSaving = false;
+  let lastPayload = '';
+  let clockTimer = null;
+  let refreshTimer = null;
+  let chartTrend = null;
+  let chartMix = null;
+  let selectedResult = null;
+
+  const report = {
+    userName: <%- JSON.stringify(userName) %>,
+    customerId: <%- JSON.stringify(customerId) %>,
+    currency: <%- JSON.stringify(currency) %>,
+    summary: {
+      totalSpent: <%- JSON.stringify(totalSpent) %>,
+      totalOrdersPaid: <%- JSON.stringify(totalOrdersPaid) %>,
+      pendingPayments: <%- JSON.stringify(pendingPayments) %>,
+      thisMonthSpent: <%- JSON.stringify(thisMonthSpent) %>,
+      refundTotal: <%- JSON.stringify(refundTotal) %>
+    },
+    lastOrder: <%- JSON.stringify(lastOrder || {}) %>,
+    recentOrders: <%- JSON.stringify(recentOrders) %>,
+    allOrders: <%- JSON.stringify(allOrders) %>,
+    monthlySeries: <%- JSON.stringify(monthlySeries) %>,
+    paymentMethodStats: <%- JSON.stringify(paymentMethodStats) %>
+  };
+
+  const state = {
+    data: {
+      allOrders: Array.isArray(report.allOrders) ? report.allOrders.slice() : [],
+      recentOrders: Array.isArray(report.recentOrders) ? report.recentOrders.slice() : [],
+      monthlySeries: Array.isArray(report.monthlySeries) ? report.monthlySeries.slice() : [],
+      paymentMethodStats: Array.isArray(report.paymentMethodStats) ? report.paymentMethodStats.slice() : []
+    },
+    filters: {
+      q: '',
+      from: '',
+      to: '',
+      status: 'all',
+      type: 'all',
+      graphRange: 'month'
+    },
+    filteredOrders: [],
+    filteredRows: [],
+    selectedExport: null,
+    lastRefreshAt: null,
+    liveMode: true
+  };
+
+  let exportState = { mode: 'all_orders', results: [], label: 'All Orders', details: '' };
+
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  function setSavingState(stateName, message) {
+    if (!savingDot || !savingText) return;
+    savingDot.classList.remove('is-saving', 'is-saved', 'is-error');
+    if (stateName === 'saving') {
+      savingDot.classList.add('is-saving');
+      savingText.textContent = message || 'Saving...';
+    } else if (stateName === 'saved') {
+      savingDot.classList.add('is-saved');
+      savingText.textContent = message || 'All changes saved';
+    } else if (stateName === 'error') {
+      savingDot.classList.add('is-error');
+      savingText.textContent = message || 'Save failed';
+    } else {
+      savingText.textContent = message || 'All changes saved';
+    }
+  }
+
+  function isMobile() { return window.innerWidth <= 991; }
+
+  function closeMobileSidebar() {
+    sidebar.classList.remove('open');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    toggleBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function applyBillingSidebarMode() {
+    if (isMobile()) {
+      closeMobileSidebar();
+      layout.classList.remove('sidebar-expanded');
+      layout.classList.add('sidebar-collapsed');
+      sidebar.classList.add('collapsed');
+      sidebar.classList.remove('expanded');
+      if (billingSubSidebarInner) billingSubSidebarInner.style.display = 'block';
+      return;
+    }
+    layout.classList.remove('sidebar-expanded');
+    layout.classList.add('sidebar-collapsed');
+    sidebar.classList.add('collapsed');
+    sidebar.classList.remove('expanded');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    if (billingSubSidebarInner) billingSubSidebarInner.style.display = 'block';
+  }
+
+  function getFormDataObject() {
+    const fd = new FormData(form);
+    const obj = {};
+    for (const [key, value] of fd.entries()) obj[key] = String(value).trim();
+    return obj;
+  }
+
+  function formatDateTime(value) {
+    if (!value) return 'Not available';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return 'Not available';
+    return d.toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function formatDate(value) {
+    if (!value) return 'Not available';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return 'Not available';
+    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  }
+
+  function toDateKey(value) {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+  }
+
+  function money(value, curr) {
+    return `${Number(value || 0).toFixed(2)} ${curr || report.currency}`;
+  }
+
+  function escapeHtml(str) {
+    return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function getOrderProductIds(order) {
+    const ids = [];
+    if (!order) return ids;
+    if (order.product_id) ids.push(order.product_id);
+    if (order.product?.id) ids.push(order.product.id);
+    if (order.product?.product_id) ids.push(order.product.product_id);
+    if (Array.isArray(order.items)) {
+      order.items.forEach(item => {
+        if (!item) return;
+        if (item.product_id) ids.push(item.product_id);
+        if (item.product?.product_id) ids.push(item.product.product_id);
+        if (item.product?.id) ids.push(item.product.id);
+        if (item.id) ids.push(item.id);
+      });
+    }
+    return [...new Set(ids.map(v => String(v)).filter(Boolean))];
+  }
+
+  function getOrderProductNames(order) {
+    const names = [];
+    if (!order) return names;
+    if (order.product?.name) names.push(order.product.name);
+    if (order.product_name) names.push(order.product_name);
+    if (Array.isArray(order.items)) {
+      order.items.forEach(item => {
+        if (!item) return;
+        if (item.product?.name) names.push(item.product.name);
+        if (item.product_name) names.push(item.product_name);
+        if (item.name) names.push(item.name);
+      });
+    }
+    return [...new Set(names.map(v => String(v)).filter(Boolean))];
+  }
+
+  function getProductRowsFromOrder(order) {
+    if (!order) return [];
+    const rows = [];
+    if (Array.isArray(order.items) && order.items.length) {
+      order.items.forEach(item => {
+        rows.push({
+          order_number: order.order_number || order.tracking_id || '—',
+          tracking_id: order.tracking_id || '—',
+          customer_id: report.customerId,
+          customer_name: report.userName,
+          product_id: item.product_id || item.product?.product_id || item.product?.id || item.id || '—',
+          product_name: item.product?.name || item.product_name || item.name || '—',
+          quantity: Number(item.qty || item.quantity || 1),
+          amount: Number(item.total || item.amount || item.price || item.unit_price || 0),
+          created_at: order.created_at || null,
+          order_status: order.order_status || '—',
+          payment_status: order.payment_status || '—',
+          payment_method: order.payment_method || '—',
+          currency: order.currency || report.currency
+        });
+      });
+      return rows;
+    }
+    rows.push({
+      order_number: order.order_number || order.tracking_id || '—',
+      tracking_id: order.tracking_id || '—',
+      customer_id: report.customerId,
+      customer_name: report.userName,
+      product_id: order.product_id || order.product?.product_id || order.product?.id || '—',
+      product_name: order.product?.name || order.product_name || '—',
+      quantity: Number(order.qty || order.quantity || 1),
+      amount: Number(order.grand_total || order.amount || 0),
+      created_at: order.created_at || null,
+      order_status: order.order_status || '—',
+      payment_status: order.payment_status || '—',
+      payment_method: order.payment_method || '—',
+      currency: order.currency || report.currency
+    });
+    return rows;
+  }
+
+  function flattenOrders(orders) {
+    return (Array.isArray(orders) ? orders : []).map((order, index) => {
+      const row = {
+        _key: `${order.order_number || order.tracking_id || index}-${index}`,
+        raw: order,
+        order_number: order.order_number || order.tracking_id || '—',
+        tracking_id: order.tracking_id || '—',
+        product_id: order.product_id || order.product?.id || order.product?.product_id || (Array.isArray(order.items) && order.items[0] ? (order.items[0].product_id || order.items[0].id || order.items[0].product?.product_id || order.items[0].product?.id || '—') : '—'),
+        product_name: order.product?.name || order.product_name || (Array.isArray(order.items) && order.items[0] ? (order.items[0].product?.name || order.items[0].product_name || order.items[0].name || '—') : '—'),
+        created_at: order.created_at || null,
+        created_key: toDateKey(order.created_at),
+        order_status: String(order.order_status || '—'),
+        payment_status: String(order.payment_status || '—'),
+        payment_method: String(order.payment_method || '—'),
+        grand_total: Number(order.grand_total || order.amount || 0),
+        currency: order.currency || report.currency,
+        search_blob: [
+          order.order_number,
+          order.tracking_id,
+          order.product_id,
+          order.product_name,
+          order.payment_method,
+          order.payment_status,
+          order.order_status,
+          order.grand_total,
+          order.amount,
+          ...(getOrderProductIds(order) || []),
+          ...(getOrderProductNames(order) || [])
+        ].filter(Boolean).join(' ').toLowerCase(),
+        order
+      };
+      return row;
+    });
+  }
+
+  function getAllRows() {
+    return flattenOrders(state.data.allOrders.length ? state.data.allOrders : state.data.recentOrders);
+  }
+
+  function startClock() {
+    const tick = () => {
+      const now = new Date();
+      if (liveClockValue) liveClockValue.textContent = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    };
+    tick();
+    clearInterval(clockTimer);
+    clockTimer = setInterval(tick, 1000);
+  }
+
+  function formatRangeLabel(from, to) {
+    if (from && to) return `Report from ${from} to ${to}`;
+    if (from && !to) return `Report from ${from}`;
+    if (!from && to) return `Report up to ${to}`;
+    return 'Report from all available data';
+  }
+
+  function humanGraphLabel(value) {
+    const map = { recent: 'Recent', '1w': '1 Week', '2w': '2 Weeks', '3w': '3 Weeks', month: 'Monthly', year: 'Yearly', custom: 'Custom Range' };
+    return map[value] || 'Monthly';
+  }
+
+  function getGraphWindowRange() {
+    const now = new Date();
+    const end = new Date(now);
+    let start = null;
+    const mode = graphRange.value;
+    if (mode === 'recent') { start = new Date(now); start.setDate(start.getDate() - 14); }
+    else if (mode === '1w') { start = new Date(now); start.setDate(start.getDate() - 7); }
+    else if (mode === '2w') { start = new Date(now); start.setDate(start.getDate() - 14); }
+    else if (mode === '3w') { start = new Date(now); start.setDate(start.getDate() - 21); }
+    else if (mode === 'month') { start = new Date(now); start.setMonth(start.getMonth() - 1); }
+    else if (mode === 'year') { start = new Date(now); start.setFullYear(start.getFullYear() - 1); }
+    else if (mode === 'custom') {
+      if (graphFromDate?.value) start = new Date(graphFromDate.value + 'T00:00:00');
+      if (graphToDate?.value) {
+        const customEnd = new Date(graphToDate.value + 'T23:59:59');
+        return { start, end: customEnd };
+      }
+      return { start, end };
+    }
+    return { start, end };
+  }
+
+  function filterRowsByState() {
+    const q = String(searchQuery?.value || '').trim().toLowerCase();
+    const status = String(statusFilter?.value || 'all');
+    const type = String(typeFilter?.value || 'all');
+    const from = fromDate?.value || '';
+    const to = toDate?.value || '';
+
+    const rows = getAllRows();
+    const filtered = rows.filter(row => {
+      const withinText = !q || row.search_blob.includes(q) || String(row.grand_total).includes(q) || String(row.created_at || '').toLowerCase().includes(q);
+      const rowStatus = `${row.order_status} ${row.payment_status}`.toLowerCase();
+      const withinStatus = status === 'all' || rowStatus.includes(status);
+      const withinType = type === 'all' || (type === 'orders' ? true : true);
+      const rowDate = row.created_key;
+      const withinFrom = !from || (rowDate && rowDate >= from);
+      const withinTo = !to || (rowDate && rowDate <= to);
+      return withinText && withinStatus && withinType && withinFrom && withinTo;
+    });
+
+    state.filteredOrders = filtered.map(r => r.order);
+    state.filteredRows = filtered;
+    return filtered;
+  }
+
+  function getGraphSeriesFromFilteredRows(filteredRows) {
+    const { start, end } = getGraphWindowRange();
+    const filtered = filteredRows.filter(r => {
+      if (!r.created_at) return false;
+      const d = new Date(r.created_at);
+      if (Number.isNaN(d.getTime())) return false;
+      if (start && d < start) return false;
+      if (end && d > end) return false;
+      return true;
+    });
+
+    const mode = graphRange.value;
+    const buckets = new Map();
+    const labels = [];
+
+    const addBucket = (key, label) => {
+      if (!buckets.has(key)) buckets.set(key, { label, amount: 0, count: 0 });
+      labels.push(key);
+    };
+
+    if (mode === 'year') {
+      const months = [];
+      const cursor = new Date(end || new Date());
+      cursor.setMonth(cursor.getMonth() - 11);
+      cursor.setDate(1);
+      for (let i = 0; i < 12; i++) {
+        const d = new Date(cursor);
+        d.setMonth(cursor.getMonth() + i);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        const label = d.toLocaleDateString('en-GB', { month:'short', year:'2-digit' });
+        months.push({ key, label });
+        buckets.set(key, { label, amount: 0, count: 0 });
+      }
+      filtered.forEach(r => {
+        const d = new Date(r.created_at);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        if (buckets.has(key)) buckets.get(key).amount += Number(r.grand_total || 0);
+      });
+      return months.map(m => ({ label: m.label, amount: buckets.get(m.key)?.amount || 0 }));
+    }
+
+    if (mode === '1w' || mode === '2w' || mode === '3w' || mode === 'recent') {
+      const days = [];
+      const span = mode === '1w' ? 7 : mode === '2w' ? 14 : mode === '3w' ? 21 : 14;
+      const base = new Date(end || new Date());
+      base.setHours(0,0,0,0);
+      for (let i = span - 1; i >= 0; i--) {
+        const d = new Date(base);
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0,10);
+        const label = d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+        days.push({ key, label });
+        buckets.set(key, { label, amount: 0, count: 0 });
+      }
+      filtered.forEach(r => {
+        const key = toDateKey(r.created_at);
+        if (buckets.has(key)) buckets.get(key).amount += Number(r.grand_total || 0);
+      });
+      return days.map(d => ({ label: d.label, amount: buckets.get(d.key)?.amount || 0 }));
+    }
+
+    const monthKeys = [];
+    const cursor = new Date(end || new Date());
+    cursor.setDate(1);
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(cursor);
+      d.setMonth(d.getMonth() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const label = d.toLocaleDateString('en-GB', { month:'short', year:'numeric' });
+      monthKeys.push({ key, label });
+      buckets.set(key, { label, amount: 0, count: 0 });
+    }
+    filtered.forEach(r => {
+      const d = new Date(r.created_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      if (buckets.has(key)) buckets.get(key).amount += Number(r.grand_total || 0);
+    });
+    return monthKeys.map(m => ({ label: m.label, amount: buckets.get(m.key)?.amount || 0 }));
+  }
+
+  function renderSummaryFromFiltered(filteredRows) {
+    const total = filteredRows.reduce((sum, r) => sum + Number(r.grand_total || 0), 0);
+    const paidCount = filteredRows.filter(r => String(r.payment_status || '').toLowerCase().includes('paid') || String(r.order_status || '').toLowerCase().includes('completed')).length;
+    const pendingCount = filteredRows.filter(r => String(r.payment_status || '').toLowerCase().includes('pending') || String(r.order_status || '').toLowerCase().includes('pending')).length;
+    const refundCount = filteredRows.filter(r => String(r.payment_status || '').toLowerCase().includes('refund')).reduce((sum, r) => sum + Number(r.grand_total || 0), 0);
+    const monthSpent = filteredRows.filter(r => {
+      const d = new Date(r.created_at); if (Number.isNaN(d.getTime())) return false;
+      const now = new Date(); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).reduce((sum, r) => sum + Number(r.grand_total || 0), 0);
+
+    if (totalSpentValue) totalSpentValue.textContent = money(total, report.currency);
+    if (totalOrdersPaidValue) totalOrdersPaidValue.textContent = String(paidCount);
+    if (pendingPaymentsValue) pendingPaymentsValue.textContent = String(pendingCount);
+    if (refundTotalValue) refundTotalValue.textContent = money(refundCount, report.currency);
+    if (thisMonthSpentValue) thisMonthSpentValue.textContent = money(monthSpent, report.currency);
+  }
+
+  function getFilterSummaryText() {
+    const q = String(searchQuery?.value || '').trim();
+    const fd = fromDate?.value || '';
+    const td = toDate?.value || '';
+    const status = statusFilter?.value || 'all';
+    const type = typeFilter?.value || 'all';
+    const parts = [];
+    if (q) parts.push(`Search: ${q}`);
+    if (fd || td) parts.push(formatRangeLabel(fd ? formatDate(fd) : '', td ? formatDate(td) : ''));
+    if (status !== 'all') parts.push(`Status: ${status}`);
+    if (type !== 'all') parts.push(`Type: ${type}`);
+    return parts.length ? parts.join(' • ') : 'Showing all billing history.';
+  }
+
+  function updateAppliedLabels() {
+    const summary = getFilterSummaryText();
+    if (filterSummaryText) filterSummaryText.textContent = summary;
+    if (appliedFilterLabel) appliedFilterLabel.textContent = summary.length > 42 ? summary.slice(0, 42) + '…' : summary;
+    const fromText = fromDate?.value ? formatDate(fromDate.value) : '';
+    const toText = toDate?.value ? formatDate(toDate.value) : '';
+    if (rangeLabelText) rangeLabelText.textContent = formatRangeLabel(fromText, toText);
+  }
+
+  function renderResults() {
+    const filtered = filterRowsByState();
+    updateAppliedLabels();
+    if (matchedCountLabel) matchedCountLabel.textContent = String(filtered.length);
+    if (visibleCountLabel) visibleCountLabel.textContent = String(filtered.length);
+
+    renderSummaryFromFiltered(filtered);
+
+    const graphSeries = getGraphSeriesFromFilteredRows(filtered);
+    updateTrendChart(graphSeries);
+
+    if (!billingResultsEmpty || !billingResultsTable || !billingResultsBody) return;
+
+    if (!filtered.length) {
+      billingResultsEmpty.classList.remove('d-none');
+      billingResultsTable.classList.add('d-none');
+      billingResultsEmpty.innerHTML = '<div class="billing-results-empty">No records match the current filter.</div>';
+      state.selectedExport = null;
+      selectedResult = null;
+      exportState.results = [];
+      updateExportPreview();
+      updateExportButtons();
+      return;
+    }
+
+    billingResultsEmpty.classList.add('d-none');
+    billingResultsTable.classList.remove('d-none');
+    billingResultsBody.innerHTML = filtered.map((row, idx) => `
+      <tr data-row-index="${idx}">
+        <td>
+          <div><a class="order-link" href="/customer/u/orders/${encodeURIComponent(row.order_number || row.tracking_id || '')}">${escapeHtml(row.order_number || row.tracking_id || '—')}</a></div>
+          <div class="muted">Tracking: ${escapeHtml(row.tracking_id || '—')}</div>
+        </td>
+        <td>
+          <div>${escapeHtml(row.product_id || '—')}</div>
+          <div class="muted">${escapeHtml(row.product_name || '—')}</div>
+        </td>
+        <td>${row.created_at ? escapeHtml(formatDateTime(row.created_at)) : 'Not available'}</td>
+        <td><div>${escapeHtml(row.order_status || '—')}</div><div class="muted">${escapeHtml(row.payment_status || '—')}</div></td>
+        <td class="amount">${escapeHtml(money(row.grand_total || 0, row.currency || report.currency))}</td>
+        <td>${escapeHtml(row.payment_method || '—')}</td>
+        <td>
+          <div class="result-actions">
+            <button type="button" class="btn btn-sm btn-outline-dark js-select-row" data-index="${idx}">Select</button>
+            <button type="button" class="btn btn-sm btn-outline-primary js-export-row" data-index="${idx}">Export</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    const currentFilterOrders = filtered.map(r => r.order);
+    exportState = { mode: 'all_orders', results: currentFilterOrders, label: 'Visible Results', details: getFilterSummaryText() };
+    updateExportPreview();
+    updateExportButtons();
+  }
+
+  function updateExportButtons() {
+    const hasMatch = Array.isArray(exportState.results) && exportState.results.length > 0;
+    [exportPdfBtn, exportPdfBtn2, exportPdfDrawerBtn, exportVisibleOrdersBtn, exportVisibleProductsBtn, exportSingleSelectionBtn].forEach(btn => {
+      if (!btn) return;
+      btn.disabled = !hasMatch;
+      btn.classList.toggle('export-disabled', !hasMatch);
+    });
+  }
+
+  function updateExportPreview() {
+    if (!exportPreviewCount || !exportPreviewList) return;
+    const count = Array.isArray(exportState.results) ? exportState.results.length : 0;
+    exportPreviewCount.textContent = `${count} result(s)`;
+    if (!count) {
+      exportPreviewList.innerHTML = '<div class="export-preview-item"><div class="k">No match</div><div class="v">No record found for the selected export condition.</div></div>';
+      return;
+    }
+    const first = exportState.results[0];
+    const items = [
+      ['Export Type', escapeHtml(exportState.label)],
+      ['Customer ID', escapeHtml(String(report.customerId))],
+      ['Customer Name', escapeHtml(report.userName)],
+      [exportState.mode === 'per_product' ? 'Product ID' : 'Order ID', escapeHtml(String(first.product_id || first.order_number || first.tracking_id || '—'))],
+      [exportState.mode === 'per_product' ? 'Product Name' : 'Tracking ID', escapeHtml(String(first.product_name || first.tracking_id || '—'))],
+      ['Generated Date', escapeHtml(new Date().toLocaleString('en-GB'))],
+      ['Currency', escapeHtml(report.currency)]
+    ];
+    exportPreviewList.innerHTML = items.map(([k,v]) => `<div class="export-preview-item"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+  }
+
+  function setSelectedRow(index) {
+    const row = state.filteredRows[index];
+    selectedResult = row ? row.order : null;
+    state.selectedExport = row ? row.order : null;
+    if (!row) return;
+    showToast(`Selected ${row.order_number || row.tracking_id || 'record'} for export`);
+  }
+
+  function applyLiveFilters() {
+    renderResults();
+    syncExportDrawerWithLiveFilters();
+  }
+
+  function syncExportDrawerWithLiveFilters() {
+    if (!exportFromDate || !exportToDate) return;
+    exportFromDate.value = fromDate?.value || exportFromDate.value || '';
+    exportToDate.value = toDate?.value || exportToDate.value || '';
+  }
+
+  function getActiveOrdersList() {
+    return Array.isArray(report.allOrders) && report.allOrders.length ? report.allOrders : (Array.isArray(report.recentOrders) ? report.recentOrders : []);
+  }
+
+  function applyExportFilter() {
+    const mode = exportMode?.value || 'all_orders';
+    const orders = getActiveOrdersList();
+    let results = [];
+    let label = 'All Orders';
+    let details = '';
+
+    if (mode === 'all_orders') {
+      results = orders.slice();
+      label = 'All Orders';
+      details = `All available orders (${results.length})`;
+    } else if (mode === 'recent_orders') {
+      const limit = Math.max(1, Math.min(100, Number(recentLimit?.value || 10)));
+      results = orders.slice(0, limit);
+      label = 'Recent Orders';
+      details = `Latest ${limit} order(s)`;
+    } else if (mode === 'per_order') {
+      const query = String(orderQuery?.value || '').trim().toLowerCase();
+      if (query) {
+        results = orders.filter(order => {
+          const orderNo = String(order.order_number || '').toLowerCase();
+          const trackId = String(order.tracking_id || '').toLowerCase();
+          return orderNo === query || trackId === query || orderNo.includes(query) || trackId.includes(query);
+        });
+      }
+      label = 'Per Order';
+      details = query ? `Matching order: ${query}` : 'No order query entered';
+    } else if (mode === 'per_product') {
+      const query = String(productQuery?.value || '').trim().toLowerCase();
+      const matches = [];
+      if (query) {
+        orders.forEach(order => {
+          const productIds = getOrderProductIds(order).map(v => String(v).toLowerCase());
+          const productNames = getOrderProductNames(order).map(v => String(v).toLowerCase());
+          const hit = productIds.some(v => v === query || v.includes(query)) || productNames.some(v => v.includes(query));
+          if (hit) getProductRowsFromOrder(order).forEach(row => matches.push(row));
+        });
+      }
+      results = matches;
+      label = 'Per Product';
+      details = query ? `Matching product: ${query}` : 'No product query entered';
+    } else if (mode === 'date_range') {
+      const f = String(exportFromDate?.value || '').trim();
+      const t = String(exportToDate?.value || '').trim();
+      results = orders.filter(order => {
+        const d = toDateKey(order.created_at);
+        return (!f || d >= f) && (!t || d <= t);
+      });
+      label = 'Date Range';
+      details = formatRangeLabel(f ? formatDate(f) : '', t ? formatDate(t) : '');
+    }
+
+    exportState = { mode, results, label, details };
+    updateExportPreview();
+    updateExportButtons();
+  }
+
+  function updateExportDrawerLabels() {
+    const mode = exportMode?.value || 'all_orders';
+    recentLimitWrap.style.display = mode === 'recent_orders' ? 'block' : 'none';
+    orderQueryWrap.style.display = mode === 'per_order' ? 'block' : 'none';
+    productQueryWrap.style.display = mode === 'per_product' ? 'block' : 'none';
+    dateRangeWrap.style.display = mode === 'date_range' ? 'block' : 'none';
+  }
+
+  function openExportDrawer() {
+    exportDrawer?.classList.add('show');
+    exportDrawerOverlay?.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeExportDrawer() {
+    exportDrawer?.classList.remove('show');
+    exportDrawerOverlay?.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function buildRowsForAllOrRecent(results) {
+    return results.map(order => ([
+      order.order_number || order.tracking_id || '—',
+      (getOrderProductIds(order)[0] || '—'),
+      order.created_at ? formatDateTime(order.created_at) : 'Not available',
+      order.order_status || '—',
+      order.payment_status || '—',
+      money(order.grand_total || 0, order.currency || report.currency),
+      order.payment_method || '—'
+    ]));
+  }
+
+  function buildRowsForPerOrder(order) {
+    const productIds = getOrderProductIds(order).join(', ') || '—';
+    const productNames = getOrderProductNames(order).join(', ') || '—';
+    return [
+      ['Company', 'JOOD'],
+      ['Customer ID', String(report.customerId)],
+      ['Customer Name', report.userName],
+      ['Generated Date', new Date().toLocaleString('en-GB')],
+      ['Currency', report.currency],
+      ['Order ID', order.order_number || '—'],
+      ['Tracking ID', order.tracking_id || '—'],
+      ['Product ID(s)', productIds],
+      ['Product Name(s)', productNames],
+      ['Order Date', order.created_at ? formatDateTime(order.created_at) : 'Not available'],
+      ['Order Status', order.order_status || '—'],
+      ['Payment Status', order.payment_status || '—'],
+      ['Payment Method', order.payment_method || '—'],
+      ['Grand Total', money(order.grand_total || 0, order.currency || report.currency)],
+      ['Payment Reference', order.payment_reference || '—']
+    ];
+  }
+
+  function buildRowsForPerProduct(results) {
+    return results.map(row => ([
+      row.order_number || '—',
+      row.tracking_id || '—',
+      row.product_id || '—',
+      row.product_name || '—',
+      row.quantity ?? 1,
+      money(row.amount || 0, row.currency || report.currency),
+      row.created_at ? formatDateTime(row.created_at) : 'Not available'
+    ]));
+  }
+
+  function exportPdf(modeOverride, rowsOverride, selectedOrderOverride) {
+    if (!window.jspdf || !window.jspdf.jsPDF) { showToast('PDF library is not loaded'); return; }
+
+    const mode = modeOverride || exportState.mode || 'all_orders';
+    const results = Array.isArray(rowsOverride) ? rowsOverride : (Array.isArray(exportState.results) ? exportState.results : []);
+    if (!results.length) { showToast('No matching data found for export'); return; }
+
+    const doc = new window.jspdf.jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 36;
+    const right = pageWidth - margin;
+
+    const titleMap = {
+      all_orders: 'All Orders Export',
+      recent_orders: 'Recent Orders Export',
+      per_order: 'Per Order Export',
+      per_product: 'Per Product Export',
+      date_range: 'Date Range Export'
+    };
+
+    const filterLabelMap = {
+      all_orders: 'All available orders',
+      recent_orders: `Recent orders (${results.length})`,
+      per_order: exportState.details || 'Matching order',
+      per_product: exportState.details || 'Matching product',
+      date_range: exportState.details || 'Date range'
+    };
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.text('JOOD Billing', margin, 46);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.text(titleMap[mode] || 'Billing Export', margin, 66);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+    doc.text(`Company: JOOD`, margin, 86);
+    doc.text(`Customer ID: ${report.customerId}`, margin, 100);
+    doc.text(`Customer Name: ${report.userName}`, margin, 114);
+    doc.text(`Generated Date: ${new Date().toLocaleString('en-GB')}`, margin, 128);
+    doc.text(`Currency: ${report.currency}`, margin, 142);
+    doc.text(`Filter: ${filterLabelMap[mode]}`, margin, 156);
+    doc.setDrawColor(229, 231, 235); doc.line(margin, 170, right, 170);
+
+    if (mode === 'per_order') {
+      const order = selectedOrderOverride || results[0] || {};
+      doc.autoTable({ startY: 186, head: [['Field', 'Value']], body: buildRowsForPerOrder(order), theme: 'plain', styles: { font: 'helvetica', fontSize: 10, cellPadding: 6, textColor: [15, 23, 42] }, headStyles: { fillColor: [248, 250, 252], textColor: [15, 23, 42], fontStyle: 'bold' }, columnStyles: { 0: { cellWidth: 160 }, 1: { cellWidth: 330 } } });
+      return doc.save(`JOOD_Billing_Per_Order_${String(order.order_number || order.tracking_id || 'Export').replace(/\s+/g, '_')}.pdf`);
+    }
+
+    if (mode === 'per_product') {
+      doc.autoTable({ startY: 186, head: [['Order ID', 'Tracking ID', 'Product ID', 'Product Name', 'Qty', 'Amount', 'Date']], body: buildRowsForPerProduct(results), theme: 'grid', styles: { font: 'helvetica', fontSize: 8.6, cellPadding: 5, textColor: [15, 23, 42] }, headStyles: { fillColor: [248, 250, 252], textColor: [15, 23, 42], fontStyle: 'bold' } });
+      return doc.save(`JOOD_Billing_Per_Product_${report.userName.replace(/\s+/g, '_')}.pdf`);
+    }
+
+    doc.autoTable({ startY: 186, head: [['Order ID', 'Product ID', 'Date', 'Status', 'Payment Status', 'Amount', 'Method']], body: buildRowsForAllOrRecent(results), theme: 'grid', styles: { font: 'helvetica', fontSize: 8.5, cellPadding: 5, textColor: [15, 23, 42] }, headStyles: { fillColor: [248, 250, 252], textColor: [15, 23, 42], fontStyle: 'bold' } });
+    const fileName = mode === 'recent_orders' ? `JOOD_Billing_Recent_Orders_${report.userName.replace(/\s+/g, '_')}.pdf` : (mode === 'date_range' ? `JOOD_Billing_Date_Range_${report.userName.replace(/\s+/g, '_')}.pdf` : `JOOD_Billing_All_Orders_${report.userName.replace(/\s+/g, '_')}.pdf`);
+    doc.save(fileName);
+  }
+
+  function updateTrendChart(series) {
+    if (!chartCanvas || typeof Chart === 'undefined') return;
+    const labels = series.map(x => x.label || '');
+    const values = series.map(x => Number(x.amount || 0));
+    const ctx = chartCanvas.getContext('2d');
+    if (chartTrend) chartTrend.destroy();
+    chartTrend = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [{ label: 'Billing Amount', data: values, borderWidth: 3, tension: .35, fill: true, pointRadius: 3, pointHoverRadius: 5, borderColor: '#0f172a', backgroundColor: 'rgba(15,23,42,.08)' }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.y} ${report.currency}` } } }, scales: { x: { grid: { color: 'rgba(148,163,184,.18)' }, ticks: { color: '#64748b' } }, y: { beginAtZero: true, grid: { color: 'rgba(148,163,184,.18)' }, ticks: { color: '#64748b' } } } }
+    });
+  }
+
+  function updateMixChart() {
+    if (!mixCanvas || typeof Chart === 'undefined') return;
+    const ctx = mixCanvas.getContext('2d');
+    if (chartMix) chartMix.destroy();
+    chartMix = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: <%- JSON.stringify(methodLabels) %>, datasets: [{ data: <%- JSON.stringify(methodValues) %>, borderWidth: 0, hoverOffset: 4 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, color: '#334155' } }, tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed} ${report.currency}` } } } }
+    });
+  }
+
+  async function refreshLiveData(silent) {
+    const endpoints = [
+      '/customer/u/account/billing/live',
+      '/customer/u/account/billing/summary',
+      '/customer/u/account/billing/data'
+    ];
+
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, cache: 'no-store' });
+        if (!res.ok) continue;
+        const data = await res.json().catch(() => null);
+        if (!data) continue;
+
+        if (Array.isArray(data.allOrders)) state.data.allOrders = data.allOrders;
+        if (Array.isArray(data.recentOrders)) state.data.recentOrders = data.recentOrders;
+        if (Array.isArray(data.monthlySeries)) state.data.monthlySeries = data.monthlySeries;
+        if (Array.isArray(data.paymentMethodStats)) state.data.paymentMethodStats = data.paymentMethodStats;
+        if (data.user) applyServerUser(data.user);
+        if (data.summary) {
+          if (typeof data.summary.totalSpent !== 'undefined' && totalSpentValue) totalSpentValue.textContent = money(data.summary.totalSpent, report.currency);
+          if (typeof data.summary.totalOrdersPaid !== 'undefined' && totalOrdersPaidValue) totalOrdersPaidValue.textContent = String(data.summary.totalOrdersPaid);
+          if (typeof data.summary.pendingPayments !== 'undefined' && pendingPaymentsValue) pendingPaymentsValue.textContent = String(data.summary.pendingPayments);
+          if (typeof data.summary.refundTotal !== 'undefined' && refundTotalValue) refundTotalValue.textContent = money(data.summary.refundTotal, report.currency);
+          if (typeof data.summary.thisMonthSpent !== 'undefined' && thisMonthSpentValue) thisMonthSpentValue.textContent = money(data.summary.thisMonthSpent, report.currency);
+        }
+        state.lastRefreshAt = new Date();
+        if (lastRefreshLabel) lastRefreshLabel.textContent = state.lastRefreshAt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+        if (!silent) showToast('Billing data refreshed');
+        applyLiveFilters();
+        return;
+      } catch (err) {
+        // ignore and fallback to current data
+      }
+    }
+    state.lastRefreshAt = new Date();
+    if (lastRefreshLabel) lastRefreshLabel.textContent = state.lastRefreshAt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    applyLiveFilters();
+  }
+
+  function scheduleRefresh() {
+    clearInterval(refreshTimer);
+    refreshTimer = setInterval(() => refreshLiveData(true), 20000);
+  }
+
+  function applyServerUser(user) {
+    if (!user) return;
+    if (topbarUserName && user.full_name) topbarUserName.textContent = user.full_name;
+    if (lastUpdatedValue && user.updated_at) lastUpdatedValue.textContent = formatDateTime(user.updated_at);
+    if (lastLoginValue && user.last_login_at) lastLoginValue.textContent = formatDateTime(user.last_login_at);
+    if (lastAttemptValueRow && user.last_attempt_time) lastAttemptValueRow.textContent = formatDateTime(user.last_attempt_time);
+  }
+
+  async function saveBilling() {
+    if (isSaving) return;
+    const payload = getFormDataObject();
+    const payloadKey = JSON.stringify(payload);
+    if (payloadKey === lastPayload) return;
+
+    isSaving = true;
+    setSavingState('saving', 'Saving changes...');
+    try {
+      const body = new URLSearchParams();
+      Object.entries(payload).forEach(([k, v]) => body.append(k, v));
+      const res = await fetch(form.action, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, body: body.toString() });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.message || data.error || 'Save failed');
+      lastPayload = payloadKey;
+      setSavingState('saved', 'Saved');
+      showToast(data.message || 'Billing updated successfully');
+      applyServerUser(data.user || {});
+    } catch (err) {
+      console.error(err);
+      setSavingState('error', 'Save failed');
+      showToast(err.message || 'Save failed');
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  function scheduleSave() {
+    setSavingState('saving', 'Typing...');
+    clearTimeout(timer);
+    timer = setTimeout(saveBilling, 850);
+  }
+
+  inputs.forEach(input => { input.addEventListener('input', scheduleSave); input.addEventListener('change', scheduleSave); });
+
+  otpButtons.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const channel = btn.dataset.channel || 'email';
+      const purpose = btn.dataset.purpose || 'billing_update';
+      btn.disabled = true;
+      try {
+        const body = new URLSearchParams();
+        body.append('channel', channel);
+        body.append('purpose', purpose);
+        const res = await fetch('/customer/u/account/billing/otp/request', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' }, body: body.toString() });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) throw new Error(data.message || 'OTP request failed');
+        showToast(data.message || 'OTP sent');
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || 'OTP request failed');
+      } finally { btn.disabled = false; }
+    });
+  });
+
+  toggleBtn.addEventListener('click', () => {
+    if (isMobile()) {
+      const isOpen = sidebar.classList.contains('open');
+      if (isOpen) { sidebar.classList.remove('open'); backdrop?.classList.remove('show'); document.body.style.overflow = ''; }
+      else { sidebar.classList.add('open'); backdrop?.classList.add('show'); document.body.style.overflow = 'hidden'; }
+      return;
+    }
+    const expanded = layout.classList.toggle('sidebar-expanded');
+    layout.classList.toggle('sidebar-collapsed', !expanded);
+  });
+  backdrop?.addEventListener('click', closeMobileSidebar);
+  window.addEventListener('resize', applyBillingSidebarMode);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMobileSidebar(); });
+
+  function wireFiltering() {
+    const inputsToWatch = [searchQuery, fromDate, toDate, statusFilter, typeFilter];
+    inputsToWatch.forEach(el => el?.addEventListener('input', applyLiveFilters));
+    inputsToWatch.forEach(el => el?.addEventListener('change', applyLiveFilters));
+
+    graphRange?.addEventListener('change', () => {
+      if (graphRangeLabel) graphRangeLabel.textContent = humanGraphLabel(graphRange.value);
+      applyLiveFilters();
+    });
+    graphFromDate?.addEventListener('change', applyLiveFilters);
+    graphToDate?.addEventListener('change', applyLiveFilters);
+    refreshLiveBtn?.addEventListener('click', () => refreshLiveData(false));
+
+    clearLiveFiltersBtn?.addEventListener('click', () => {
+      if (searchQuery) searchQuery.value = '';
+      if (fromDate) fromDate.value = '';
+      if (toDate) toDate.value = '';
+      if (statusFilter) statusFilter.value = 'all';
+      if (typeFilter) typeFilter.value = 'all';
+      applyLiveFilters();
+    });
+
+    billingResultsBody?.addEventListener('click', (e) => {
+      const rowBtn = e.target.closest('.js-select-row');
+      const exportBtn = e.target.closest('.js-export-row');
+      if (rowBtn) {
+        setSelectedRow(Number(rowBtn.dataset.index));
+        return;
+      }
+      if (exportBtn) {
+        const idx = Number(exportBtn.dataset.index);
+        const row = state.filteredRows[idx];
+        if (!row) return;
+        exportPdf('per_order', [row.order], row.order);
+      }
+    });
+
+    exportVisibleOrdersBtn?.addEventListener('click', () => exportPdf('all_orders', state.filteredRows.map(r => r.order)));
+    exportVisibleProductsBtn?.addEventListener('click', () => {
+      const productRows = state.filteredRows.flatMap(r => getProductRowsFromOrder(r.order));
+      if (!productRows.length) return showToast('No product rows available for export');
+      exportState = { mode: 'per_product', results: productRows, label: 'Visible Products', details: getFilterSummaryText() };
+      updateExportPreview();
+      updateExportButtons();
+      exportPdf('per_product', productRows);
+    });
+    exportSingleSelectionBtn?.addEventListener('click', () => {
+      if (!selectedResult && state.filteredRows[0]) selectedResult = state.filteredRows[0].order;
+      if (!selectedResult) return showToast('Select one record first');
+      exportPdf('per_order', [selectedResult], selectedResult);
+    });
+  }
+
+  function wireExportButtons() {
+    [exportPdfBtn, exportPdfBtn2, exportPdfDrawerBtn].forEach(btn => btn?.addEventListener('click', () => {
+      const mode = exportState.mode || 'all_orders';
+      if (mode === 'per_product') {
+        exportPdf('per_product', exportState.results);
+      } else if (mode === 'per_order' && state.selectedExport) {
+        exportPdf('per_order', [state.selectedExport], state.selectedExport);
+      } else {
+        exportPdf(mode, exportState.results);
+      }
+    }));
+    [openExportDrawerBtn, openExportDrawerBtn2].forEach(btn => btn?.addEventListener('click', openExportDrawer));
+    closeExportDrawerBtn?.addEventListener('click', closeExportDrawer);
+    exportDrawerOverlay?.addEventListener('click', closeExportDrawer);
+    applyExportFilterBtn?.addEventListener('click', applyExportFilter);
+
+    exportMode?.addEventListener('change', () => { updateExportDrawerLabels(); applyExportFilter(); });
+    recentLimit?.addEventListener('input', applyExportFilter);
+    orderQuery?.addEventListener('input', applyExportFilter);
+    productQuery?.addEventListener('input', applyExportFilter);
+    exportFromDate?.addEventListener('change', applyExportFilter);
+    exportToDate?.addEventListener('change', applyExportFilter);
+  }
+
+  function init() {
+    startClock();
+    scheduleRefresh();
+    wireFiltering();
+    wireExportButtons();
+    updateExportDrawerLabels(); 
+    if (graphRangeLabel) graphRangeLabel.textContent = humanGraphLabel(graphRange?.value || 'month');
+    lastPayload = JSON.stringify(getFormDataObject());
+    setSavingState('saved', 'All changes saved');
+    applyServerUser(<%- JSON.stringify(user || {}) %>);
+    applyBillingSidebarMode();
+    updateMixChart();
+    applyLiveFilters();
+    refreshLiveData(true);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

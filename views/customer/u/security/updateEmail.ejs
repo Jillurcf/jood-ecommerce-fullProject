@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Update Email — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="Update your email address securely with OTP verification." />
+  <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Update Email — JOOD Account Dashboard" />
+  <meta property="og:description" content="Update your email address securely through OTP verification." />
+  <meta property="og:url" content="https://jood.com/customer/u/account/update-email" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Update Email — JOOD" />
+  <meta name="twitter:description" content="Update your email address securely." />
+
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' && csrfToken ? csrfToken : '' %>">
+
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --card:#fff;
+      --border:#e5eaf3;
+      --border-strong:#cfd8e3;
+      --text:#0f172a;
+      --muted:#64748b;
+      --primary:#f59e0b;
+      --primary-hover:#d97706;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --radius:22px;
+      --sidebar-wide:280px;
+      --sidebar-collapsed:78px;
+      --topbar-height:68px;
+    }
+
+    *{box-sizing:border-box;min-width:0}
+    html,body{margin:0;padding:0;width:100%;max-width:100%;min-height:100%;overflow-x:hidden;background:var(--bg)}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      -webkit-text-size-adjust:100%;
+      text-rendering:optimizeLegibility;
+    }
+    a{text-decoration:none;color:inherit}
+    img,svg,canvas,video{max-width:100%;height:auto}
+    table{width:100%;border-collapse:collapse;table-layout:fixed}
+
+    .account-layout{width:100%;max-width:100%;min-height:100vh;position:relative;overflow:hidden;background:var(--bg)}
+    .account-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-collapsed);height:100vh;background:#fff;border-right:1px solid var(--border);z-index:1040;overflow:auto;transition:width .25s ease,transform .25s ease}
+    .account-layout.sidebar-expanded .account-sidebar{width:var(--sidebar-wide)}
+    .account-layout.sidebar-collapsed .account-sidebar,.account-sidebar.collapsed{width:var(--sidebar-collapsed)}
+    .account-sidebar::-webkit-scrollbar{width:6px}
+    .account-sidebar::-webkit-scrollbar-thumb{background:transparent;border-radius:999px}
+    .account-sidebar:hover::-webkit-scrollbar-thumb{background:rgba(100,116,139,.45)}
+
+    .account-right{margin-left:var(--sidebar-collapsed);width:calc(100% - var(--sidebar-collapsed));min-height:100vh;display:flex;flex-direction:column;background:var(--bg)}
+    .account-layout.sidebar-expanded .account-right{margin-left:var(--sidebar-wide);width:calc(100% - var(--sidebar-wide))}
+
+    .account-topbar{position:fixed;top:0;left:var(--sidebar-collapsed);right:0;height:var(--topbar-height);padding:10px 18px;background:#fff;border-bottom:1px solid var(--border);z-index:1030;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .account-layout.sidebar-expanded .account-topbar{left:var(--sidebar-wide)}
+
+    .topbar-left,.topbar-right{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+    .topbar-title{display:flex;flex-direction:column;gap:2px;min-width:0;overflow:hidden}
+    .topbar-title .title{font-size:1rem;font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .topbar-title .sub{font-size:.8rem;color:var(--muted);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .account-toggle-btn,.btn-export-wide,.btn-secure,.btn-ghost{height:44px;border:1px solid var(--border);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--text);cursor:pointer;padding:0 14px;font-weight:800;white-space:nowrap;transition:all .2s ease}
+    .account-toggle-btn{width:44px;padding:0}
+    .btn-secure{border-color:var(--primary);background:var(--primary);color:#fff}
+    .btn-secure:hover{background:var(--primary-hover);color:#fff}
+    .btn-export-wide:hover,.btn-ghost:hover,.account-toggle-btn:hover{border-color:var(--border-strong)}
+    .account-toggle-btn i,.btn-export-wide i,.btn-secure i,.btn-ghost i{font-size:16px}
+
+    .account-user-mini{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:var(--text);white-space:nowrap;min-width:0}
+    .account-user-mini i{font-size:20px;color:#475569}
+    .account-user-mini span{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+
+    .account-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.22);z-index:1035}
+    .account-backdrop.show{display:block}
+
+    .account-content-wrap{padding:calc(var(--topbar-height) + 18px) 18px 18px;width:100%;max-width:100%}
+    .account-footer-wrap{padding:0 18px 18px;margin-top:auto;width:100%;max-width:100%}
+
+    .history-page-shell{width:100%;max-width:100%;display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:16px;align-items:start}
+    .history-subsidebar{position:sticky;top:calc(var(--topbar-height) + 18px);align-self:start;background:#fff;border:1px solid var(--border);border-radius:18px;padding:14px;overflow:hidden;}
+    .history-subsidebar-mobilebar{display:none}
+    .history-sidepanel{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .history-sidepanel-header{padding:14px;border-radius:16px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;min-width:0}
+    .history-sidepanel-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:4px}
+    .history-sidepanel-title{margin:0;font-size:16px;font-weight:900;color:var(--text);line-height:1.2}
+    .history-sidepanel-subtitle{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+    .history-sidepanel-body{border-top:1px solid var(--border);background:#fff;overflow:hidden;min-width:0}
+    .history-main{min-width:0;max-width:100%}
+
+    .card-panel,.filter-box,.quick-action-item,.export-preview{background:#fff;border:1px solid var(--border)}
+    .card-panel{border-radius:var(--radius);width:100%;max-width:100%;min-width:0;}
+    .card-panel.pad{padding:20px}
+
+    .header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px;width:100%;max-width:100%}
+    .section-title{margin:0;font-size:1.05rem;font-weight:900;color:var(--text);letter-spacing:-.01em;word-break:break-word}
+    .section-subtitle{margin:6px 0 0;color:var(--muted);font-size:.88rem;line-height:1.5;word-break:break-word}
+
+    .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;font-size:.68rem;font-weight:700;border:1px solid transparent;white-space:nowrap;line-height:1}
+    .pill-neutral{background:#f8fafc;color:#64748b;border-color:#e2e8f0}
+    .pill-verified{background:#ecfdf5;color:var(--success);border-color:#c7eed6}
+    .pill-unverified{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+
+    .orders-table-wrap{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;border:1px solid var(--border);border-radius:16px;background:#fff}
+    .orders-table{width:100%;margin:0;min-width:980px}
+    .orders-table th,.orders-table td{padding:12px 14px;vertical-align:top;border-top:1px solid #eef2f7;font-size:.88rem;word-break:break-word}
+    .orders-table thead th{border-top:0;background:#f8fafc;color:#334155;font-weight:900;white-space:nowrap}
+    .orders-table td{color:#1f2937}.orders-table .muted{color:var(--muted)}.orders-table .amount{font-weight:900;white-space:nowrap}
+
+    .quick-action-item{display:flex;align-items:flex-start;gap:14px;padding:16px;border-radius:18px;background:#fff;border:1px solid var(--border);transition:.25s ease;text-decoration:none;min-height:92px}
+    .quick-action-item:hover{transform:translateY(-2px);border-color:var(--border-strong)}
+    .quick-action-item i{width:46px;height:46px;border-radius:14px;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:18px;color:#0f172a;flex-shrink:0}
+    .quick-action-content{display:flex;flex-direction:column;min-width:0}
+    .quick-action-title{font-size:.96rem;font-weight:800;color:#0f172a;margin-bottom:4px}
+    .quick-action-desc{font-size:.82rem;line-height:1.5;color:#64748b}
+
+    .empty-state{border:1px dashed #d8e0ea;border-radius:16px;padding:18px;text-align:center;color:var(--muted);background:#fff;width:100%;max-width:100%}
+
+    .toast-mini{position:fixed;right:18px;bottom:18px;z-index:1060;min-width:220px;max-width:calc(100vw - 36px);padding:12px 14px;border-radius:13px;background:#0f172a;color:#fff;font-size:.86rem;transform:translateY(18px);opacity:0;pointer-events:none;transition:.25s ease;}
+    .toast-mini.show{transform:translateY(0);opacity:1}
+
+    .account-sidebar-close{position:absolute;top:12px;right:12px;background:#fff;border:1px solid var(--border);width:36px;height:36px;border-radius:10px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:10}
+
+    .filter-drawer-overlay{position:fixed;inset:0;background:rgba(15,23,42,.28);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1040}
+    .filter-drawer-overlay.show{opacity:1;pointer-events:auto}
+    .filter-drawer{position:fixed;top:0;right:0;width:min(560px,100%);height:100vh;background:#fff;transform:translateX(100%);transition:transform .25s ease;z-index:1050;display:flex;flex-direction:column;border-left:1px solid var(--border);}
+    .filter-drawer.show{transform:translateX(0)}
+    .filter-drawer-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .filter-drawer-title{margin:0;font-size:1.05rem;font-weight:900;color:var(--text)}
+    .filter-drawer-subtitle{margin:4px 0 0;font-size:.92rem;color:var(--muted);line-height:1.45}
+    .filter-drawer-body{padding:18px 20px 22px;overflow:auto;flex:1}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .form-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px}
+    .form-label{font-weight:800;color:var(--text);margin-bottom:6px;font-size:.86rem;display:block}
+    .form-control,.form-select{width:100%;max-width:100%;min-height:46px;border-radius:14px;border:1px solid #dbe3ec;font-size:.92rem;background:#fff;color:var(--text)}
+    .form-control:focus,.form-select:focus{border-color:#b8c4d1;outline:none;}
+    .helper-text{display:block;margin-top:6px;color:var(--muted);font-size:.78rem;line-height:1.4}
+    .form-full{grid-column:1 / -1}
+    .action-row{display:flex;flex-wrap:wrap;gap:10px}
+    .result-actions{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 0;scrollbar-width:none}
+    .result-actions::-webkit-scrollbar{display:none}
+    .result-actions .btn-ghost,.result-actions .btn-secure,.result-actions .btn-export-wide{flex:0 0 auto;min-width:max-content;white-space:nowrap;font-size:12px;padding:8px 12px;border-radius:10px;height:38px}
+
+    .default-check-label{display:flex;align-items:center;gap:10px;margin:0;font-weight:700;cursor:pointer}
+    .default-check-label input[type="checkbox"]{width:18px;height:18px;margin:0;accent-color:var(--primary);flex-shrink:0}
+    .default-check-label span{line-height:1.2}
+
+    .export-preview{border:1px solid #e5e7eb;border-radius:16px;background:#f8fafc;padding:14px;margin-top:12px}
+    .export-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .export-preview-title{font-size:.95rem;font-weight:700;color:#0f172a}
+    .export-preview-count{font-size:.85rem;color:#475569}
+    .export-preview-list{display:grid;gap:10px}
+    .export-preview-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px}
+    .export-preview-item .k{font-size:.8rem;color:#64748b;margin-bottom:2px}
+    .export-preview-item .v{font-size:.92rem;color:#0f172a;font-weight:600;word-break:break-word}
+
+    .otp-box{display:none}
+    .otp-box.show{display:block}
+    .otp-actions{display:none}
+    .otp-actions.show{display:flex}
+
+    @media (max-width:1199px){
+      .history-page-shell{grid-template-columns:1fr}
+      .history-subsidebar{position:relative;top:auto}
+      .account-user-mini span{max-width:180px}
+    }
+    @media (max-width:991px){
+      .account-sidebar{width:290px;transform:translateX(-100%);height:100vh;max-width:100vw}
+      .account-sidebar.open{transform:translateX(0)}
+      .account-right{margin-left:0;width:100%}
+      .account-topbar{left:0!important;width:100%}
+      .account-content-wrap{padding:calc(var(--topbar-height) + 14px) 14px 14px}
+      .history-subsidebar{padding:0;border:1px solid var(--border);border-radius:18px;overflow:hidden}
+      .history-subsidebar-mobilebar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 14px 12px;background:#fff;border-bottom:1px solid var(--border)}
+      .history-subsidebar-inner{display:block;border:0;border-radius:0}
+      .account-sidebar-close{display:flex}
+      .form-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:768px){
+      .card-panel.pad{padding:16px}
+      .account-topbar{gap:10px;padding:10px 12px}
+      .topbar-title .title{font-size:.95rem}
+      .topbar-title .sub{font-size:.75rem}
+      .account-user-mini span{max-width:90px}
+      .btn-export-wide{padding:0 12px;font-size:.84rem}
+    }
+    @media (max-width:575px){
+      .account-content-wrap{padding:calc(var(--topbar-height) + 12px) 12px 12px}
+      .account-topbar{padding:10px 10px}
+      .account-user-mini{gap:8px}
+      .account-user-mini i{font-size:18px}
+      .account-user-mini span{max-width:78px;font-size:.85rem}
+      .section-title{font-size:1rem}
+      .section-subtitle{font-size:.84rem}
+    }
+  </style>
+</head>
+
+<body class="billing-page">
+<%
+  const routeBase = "/customer/u/security/updateEmail";
+  const verifyRoute = "/customer/u/security/updateEmail/verify-email-otp";
+  const resendRoute = "/customer/u/security/updateEmail/resend-email-otp";
+
+  const safeText = (v, fallback = "—") => {
+    const s = String(v ?? "").trim().replace(/\s+/g, " ");
+    return s || fallback;
+  };
+
+  const safeLower = (v) => safeText(v, "").toLowerCase();
+
+  const safeDate = (v) => {
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const fmtDateTime = (v) => {
+    const d = safeDate(v);
+    return d
+      ? d.toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        })
+      : "Not available";
+  };
+
+  const userName = safeText((user && (user.full_name || user.name)) || "Customer", "Customer");
+  const currentEmail = safeText(
+    (user && user.email) || (typeof old !== "undefined" && old && old.email) || "",
+    ""
+  );
+
+  const emailRows = [{
+    id: user?.id || 1,
+    current_email: currentEmail,
+    email_verified: !!user?.email_verified,
+    status: user?.status || "active",
+    updated_at: user?.updated_at || user?.last_activity_at || null
+  }];
+
+  const csrfValue = safeText(typeof csrfToken !== "undefined" ? csrfToken : "", "");
+  const initialOtpStep = !!(typeof otpStep !== "undefined" && otpStep);
+  const initialOtpEmail = safeText(typeof otpEmail !== "undefined" ? otpEmail : "", "");
+%>
+
+<div class="account-layout sidebar-collapsed" id="accountLayout">
+  <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+    <button type="button" class="account-sidebar-close" id="accountSidebarClose" aria-label="Close sidebar">
+      <i class="fa fa-times"></i>
+    </button>
+    <%- include('../../includes/account-sidebar', { user, activePage: 'update-email' }) %>
+  </aside>
+
+  <div class="account-right">
+    <header class="account-topbar" aria-label="Account Topbar">
+      <div class="topbar-left">
+        <button type="button" class="account-toggle-btn" id="accountToggleBtn" aria-label="Toggle account sidebar" aria-controls="accountSidebar" aria-expanded="false">
+          <i class="fa fa-bars"></i>
+        </button>
+        <div class="topbar-title">
+          <div class="title">Update Email</div>
+          <div class="sub">Secure OTP verification</div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="account-user-mini">
+          <i class="fa fa-user-circle"></i>
+          <span id="topbarUserName"><%= userName %></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+    <div class="account-content-wrap">
+      <div class="history-page-shell">
+        <aside class="history-subsidebar" id="historySubSidebar" aria-label="Email Sidebar">
+          <div class="history-subsidebar-mobilebar">
+            <div>
+              <h3 class="history-sidepanel-title">Email</h3>
+            </div>
+            <span class="pill pill-neutral"><i class="fa fa-envelope"></i> Update</span>
+          </div>
+
+          <div class="history-subsidebar-inner" id="historySubSidebarInner">
+            <div class="history-sidepanel">
+              <div class="history-sidepanel-header">
+                <div>
+                  <div class="history-sidepanel-label">Account Pages</div>
+                  <h3 class="history-sidepanel-title">Email Navigation</h3>
+                  <p class="history-sidepanel-subtitle">Request OTP, verify it, and change your email securely.</p>
+                </div>
+              </div>
+              <div class="history-sidepanel-body">
+                <%- include('../../includes/security/security-sidebar', { user, activePage: 'update-email' }) %>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="history-main">
+          <section class="card-panel pad">
+            <div class="header-row" style="margin-bottom:0;">
+              <div>
+                <h3 class="section-title" style="font-size:1.25rem;">Hello, <%= userName %></h3>
+                <p class="section-subtitle">Enter your new email address, request OTP, and verify it in the same drawer.</p>
+              </div>
+              <span class="pill pill-verified"><i class="fa fa-shield"></i> Secure Approval</span>
+            </div>
+          </section>
+
+          <section class="card-panel pad mt-3">
+            <div class="header-row">
+              <div>
+                <h3 class="section-title">Current Email</h3>
+                <p class="section-subtitle">Your current email and verification status.</p>
+              </div>
+            </div>
+
+            <div class="orders-table-wrap">
+              <table class="table orders-table" id="methodsTable">
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Account State</th>
+                    <th>Updated</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="methodsTableBody">
+                  <% if (emailRows.length) { %>
+                    <% emailRows.forEach((row) => { %>
+                      <tr
+                        data-id="<%= row.id %>"
+                        data-email="<%= safeLower(row.current_email) %>"
+                        data-keywords="<%= safeLower([row.current_email, row.email_verified ? 'verified' : 'unverified', row.status].filter(Boolean).join(' ')) %>"
+                      >
+                        <td>
+                          <div><strong><%= safeText(row.current_email, 'No email found') %></strong></div>
+                          <div class="muted">This is the email currently linked to your account.</div>
+                        </td>
+                        <td>
+                          <span class="pill <%= row.email_verified ? 'pill-verified' : 'pill-unverified' %>">
+                            <i class="fa <%= row.email_verified ? 'fa-check-circle' : 'fa-exclamation-circle' %>"></i>
+                            <%= row.email_verified ? 'Verified' : 'Unverified' %>
+                          </span>
+                        </td>
+                        <td><%= safeText(row.status, 'active') %></td>
+                        <td><%= fmtDateTime(row.updated_at) %></td>
+                        <td>
+                          <div class="result-actions">
+                            <button type="button" class="btn-ghost js-open-update-drawer">
+                              <i class="fa fa-envelope-open"></i> Update
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5">
+                        <div class="empty-state">No email information found.</div>
+                      </td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card-panel pad mt-3">
+            <div class="header-row">
+              <div>
+                <h3 class="section-title">Quick Actions</h3>
+                <p class="section-subtitle">Fast navigation for the most used account areas.</p>
+              </div>
+            </div>
+
+            <div class="actions-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%;">
+              <a href="/customer/u/profile" class="quick-action-item">
+                <i class="fa fa-user"></i>
+                <div class="quick-action-content">
+                  <span class="quick-action-title">View Profile</span>
+                  <small class="quick-action-desc">Check your profile information and account details.</small>
+                </div>
+              </a>
+
+              <a href="/customer/u/account/security" class="quick-action-item">
+                <i class="fa fa-lock"></i>
+                <div class="quick-action-content">
+                  <span class="quick-action-title">Security Page</span>
+                  <small class="quick-action-desc">Manage your security settings and password controls.</small>
+                </div>
+              </a>
+
+              <a href="/customer/u/orders" class="quick-action-item">
+                <i class="fa fa-shopping-bag"></i>
+                <div class="quick-action-content">
+                  <span class="quick-action-title">View Orders</span>
+                  <small class="quick-action-desc">Check all placed orders, delivery updates, invoices, and order status.</small>
+                </div>
+              </a>
+
+              <a href="/customer/logout" class="quick-action-item">
+                <i class="fa fa-sign-out"></i>
+                <div class="quick-action-content">
+                  <span class="quick-action-title">Logout</span>
+                  <small class="quick-action-desc">Securely sign out from your JOOD customer account dashboard.</small>
+                </div>
+              </a>
+            </div>
+          </section>
+
+          <div class="account-footer-wrap">
+            <%- include('../../includes/account-footer') %>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+<div class="filter-drawer-overlay" id="updateOverlay" aria-hidden="true"></div>
+<aside class="filter-drawer" id="updateDrawer" aria-label="Update email drawer">
+  <div class="filter-drawer-header">
+    <div>
+      <h3 class="filter-drawer-title">Update Email Address</h3>
+      <p class="filter-drawer-subtitle">Enter your new email address. An OTP will be sent to that email for verification.</p>
+    </div>
+    <button type="button" class="account-toggle-btn" id="closeUpdateDrawerBtn" aria-label="Close update drawer">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <div class="filter-drawer-body">
+    <form id="updateEmailForm" autocomplete="off">
+      <input type="hidden" name="_csrf" id="csrfTokenField" value="<%= csrfValue %>">
+
+      <div class="form-grid">
+        <div class="form-box form-full">
+          <label class="form-label" for="email">New Email Address</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" value="<%= currentEmail %>" required>
+          <small class="helper-text">Make sure you can access this email address. The OTP will be sent there.</small>
+        </div>
+      </div>
+
+      <div class="form-box mt-3">
+        <label class="form-label">Current Email</label>
+        <div class="export-preview" style="margin-top:0;">
+          <div class="export-preview-head">
+            <div class="export-preview-title">Linked Email</div>
+            <div class="export-preview-count"><%= currentEmail || 'Not available' %></div>
+          </div>
+          <div class="export-preview-list">
+            <div class="export-preview-item">
+              <div class="k">Instruction</div>
+              <div class="v">Submit the new email address first. The OTP input will appear after the code is sent.</div>
+            </div>
+            <div class="export-preview-item">
+              <div class="k">Security</div>
+              <div class="v">The email will only change after OTP verification is completed.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row mt-3">
+        <button type="button" class="btn-secure" id="requestOtpBtn">
+          <i class="fa fa-envelope-open"></i> Request OTP
+        </button>
+        <button type="button" class="btn-ghost" id="cancelUpdateBtn">
+          <i class="fa fa-times"></i> Cancel
+        </button>
+      </div>
+
+      <div class="form-box mt-3 otp-box" id="otpBox">
+        <label class="form-label" for="otp">OTP Code</label>
+        <input type="text" class="form-control" id="otp" name="otp" maxlength="6" placeholder="Enter OTP">
+        <small class="helper-text">Enter the OTP sent to your new email address.</small>
+      </div>
+
+      <div class="action-row mt-3 otp-actions" id="otpActions">
+        <button type="button" class="btn-secure" id="verifyOtpBtn">
+          <i class="fa fa-check"></i> Verify OTP
+        </button>
+        <button type="button" class="btn-ghost" id="resendOtpBtn">
+          <i class="fa fa-refresh"></i> Resend OTP
+        </button>
+      </div>
+    </form>
+  </div>
+</aside>
+
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/main.js"></script>
+
+<script>
+(function () {
+  const routeBase = '<%= routeBase %>';
+  const verifyRoute = '<%= verifyRoute %>';
+  const resendRoute = '<%= resendRoute %>';
+
+  const layout = document.getElementById('accountLayout');
+  const sidebar = document.getElementById('accountSidebar');
+  const sidebarClose = document.getElementById('accountSidebarClose');
+  const toggleBtn = document.getElementById('accountToggleBtn');
+  const backdrop = document.getElementById('accountBackdrop');
+  const toast = document.getElementById('toastMini');
+
+  const updateDrawer = document.getElementById('updateDrawer');
+  const updateOverlay = document.getElementById('updateOverlay');
+
+  const openUpdateDrawerBtn = document.getElementById('openUpdateDrawerBtn');
+  const openUpdateDrawerBtns = document.querySelectorAll('.js-open-update-drawer');
+  const closeUpdateDrawerBtn = document.getElementById('closeUpdateDrawerBtn');
+  const cancelUpdateBtn = document.getElementById('cancelUpdateBtn');
+
+  const updateEmailForm = document.getElementById('updateEmailForm');
+  const csrfTokenField = document.getElementById('csrfTokenField');
+  const emailField = document.getElementById('email');
+  const otpBox = document.getElementById('otpBox');
+  const otpActions = document.getElementById('otpActions');
+  const otpField = document.getElementById('otp');
+
+  const requestOtpBtn = document.getElementById('requestOtpBtn');
+  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+  const resendOtpBtn = document.getElementById('resendOtpBtn');
+
+  const initialOtpStep = <%- JSON.stringify(initialOtpStep) %>;
+  const initialOtpEmail = <%- JSON.stringify(initialOtpEmail) %>;
+
+  let otpReady = initialOtpStep;
+  let otpInputCreated = false;
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+(async function () {
+
+  const form = document.getElementById("updateEmailForm");
+  const emailField = document.getElementById("email");
+
+  let otpInputCreated = false;
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const csrfToken =
+      document.querySelector('meta[name="csrf-token"]')?.content ||
+      document.getElementById("csrfTokenField")?.value;
+
+    const email = emailField.value.trim();
+
+    if (!email) {
+      alert("Please enter email");
+      return;
+    }
+
+    try {
+
+      const response = await fetch("/customer/u/security/updateEmail", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "CSRF-Token": csrfToken
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          email
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed");
+      }
+
+      if (!otpInputCreated) {
+
+        otpInputCreated = true;
+
+        const otpBox = document.createElement("div");
+
+        otpBox.className = "form-box form-full mt-3";
+
+        otpBox.innerHTML = `
+          <label class="form-label" for="otp">
+            Enter OTP
+          </label>
+
+          <input
+            type="text"
+            class="form-control"
+            id="otp"
+            name="otp"
+            maxlength="6"
+            placeholder="Enter 6 digit OTP"
+            required
+          >
+
+          <small class="helper-text">
+            OTP sent successfully to your email.
+          </small>
+        `;
+
+        form.insertBefore(
+          otpBox,
+          document.querySelector(".action-row")
+        );
+
+        document.getElementById("requestOtpBtn").innerHTML =
+          '<i class="fa fa-check"></i> Verify OTP';
+
+        alert("OTP generated successfully");
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(error.message || "Something went wrong");
+    }
+
+  });
+
+})();
+  function isMobile() {
+    return window.innerWidth <= 991;
+  }
+
+  function closeMobileSidebar() {
+    sidebar?.classList.remove('open');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    toggleBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  function applySidebarMode() {
+    if (isMobile()) {
+      closeMobileSidebar();
+      layout.classList.remove('sidebar-expanded');
+      layout.classList.add('sidebar-collapsed');
+      sidebar.classList.add('collapsed');
+      sidebar.classList.remove('expanded');
+      return;
+    }
+
+    layout.classList.remove('sidebar-expanded');
+    layout.classList.add('sidebar-collapsed');
+    sidebar.classList.add('collapsed');
+    sidebar.classList.remove('expanded');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function openDrawer(drawer) {
+    if (!drawer) return;
+    drawer.classList.add('show');
+    if (drawer === updateDrawer) updateOverlay?.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAllDrawers() {
+    [updateDrawer].forEach((el) => el?.classList.remove('show'));
+    [updateOverlay].forEach((el) => el?.classList.remove('show'));
+    document.body.style.overflow = '';
+  }
+
+  function csrfToken() {
+    return (csrfTokenField?.value || document.querySelector('meta[name="csrf-token"]')?.content || '').trim();
+  }
+
+  function fetchHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      'CSRF-Token': csrfToken()
+    };
+  }
+
+  function setOtpVisible(visible) {
+    otpReady = !!visible;
+    otpBox.classList.toggle('show', otpReady);
+    otpActions.classList.toggle('show', otpReady);
+    otpField.disabled = !otpReady;
+    verifyOtpBtn.disabled = !otpReady;
+    resendOtpBtn.disabled = !otpReady;
+    if (otpReady) {
+      otpField.focus();
+    }
+  }
+
+  function openUpdateFlow() {
+    openDrawer(updateDrawer);
+    if (initialOtpStep) {
+      setOtpVisible(true);
+      if (initialOtpEmail) {
+        emailField.value = initialOtpEmail;
+      }
+    }
+  }
+
+  async function requestOtp() {
+    const email = String(emailField.value || '').trim();
+
+    if (!email) {
+      showToast('Please enter a new email address.');
+      return;
+    }
+
+    requestOtpBtn.disabled = true;
+
+    try {
+      const res = await fetch(routeBase, {
+        method: 'POST',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.message || 'Unable to send OTP.');
+      }
+
+      setOtpVisible(true);
+      showToast(data.message || 'OTP sent successfully.');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Unable to send OTP.');
+    } finally {
+      requestOtpBtn.disabled = false;
+    }
+  }
+
+  async function verifyOtp() {
+    const email = String(emailField.value || '').trim();
+    const otp = String(otpField.value || '').trim();
+
+    if (!email) {
+      showToast('Please enter a new email address.');
+      return;
+    }
+
+    if (!otp) {
+      showToast('Please enter the OTP.');
+      return;
+    }
+
+    verifyOtpBtn.disabled = true;
+
+    try {
+      const res = await fetch(verifyRoute, {
+        method: 'POST',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify({ otp, email })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.message || 'OTP verification failed.');
+      }
+
+      showToast(data.message || 'Email updated successfully.');
+      closeAllDrawers();
+      window.location.href = data.redirectUrl || '/customer/u/profile';
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'OTP verification failed.');
+    } finally {
+      verifyOtpBtn.disabled = false;
+    }
+  }
+
+  async function resendOtp() {
+    resendOtpBtn.disabled = true;
+
+    try {
+      const res = await fetch(resendRoute, {
+        method: 'POST',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify({ email: String(emailField.value || '').trim() })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.message || 'Unable to resend OTP.');
+      }
+
+      setOtpVisible(true);
+      showToast(data.message || 'A new OTP has been sent.');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Unable to resend OTP.');
+    } finally {
+      resendOtpBtn.disabled = false;
+    }
+  }
+
+  function bindEvents() {
+    openUpdateDrawerBtn?.addEventListener('click', openUpdateFlow);
+    openUpdateDrawerBtns.forEach((btn) => btn.addEventListener('click', openUpdateFlow));
+
+    closeUpdateDrawerBtn?.addEventListener('click', closeAllDrawers);
+    cancelUpdateBtn?.addEventListener('click', closeAllDrawers);
+    updateOverlay?.addEventListener('click', closeAllDrawers);
+
+    requestOtpBtn?.addEventListener('click', requestOtp);
+    verifyOtpBtn?.addEventListener('click', verifyOtp);
+    resendOtpBtn?.addEventListener('click', resendOtp);
+
+    sidebarClose?.addEventListener('click', closeMobileSidebar);
+    toggleBtn?.addEventListener('click', () => {
+      if (isMobile()) {
+        const isOpen = sidebar.classList.contains('open');
+        if (isOpen) {
+          closeMobileSidebar();
+        } else {
+          sidebar.classList.add('open');
+          backdrop?.classList.add('show');
+          document.body.style.overflow = 'hidden';
+          toggleBtn.setAttribute('aria-expanded', 'true');
+        }
+        return;
+      }
+
+      const expanded = layout.classList.toggle('sidebar-expanded');
+      layout.classList.toggle('sidebar-collapsed', !expanded);
+      sidebar.classList.toggle('expanded', expanded);
+      sidebar.classList.toggle('collapsed', !expanded);
+      toggleBtn.setAttribute('aria-expanded', String(expanded));
+    });
+
+    backdrop?.addEventListener('click', closeMobileSidebar);
+
+    window.addEventListener('resize', applySidebarMode);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMobileSidebar();
+        closeAllDrawers();
+      }
+    });
+
+    updateEmailForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      requestOtp();
+    });
+
+    emailField?.addEventListener('input', () => {
+      if (otpReady) {
+        otpField.value = '';
+      }
+    });
+  }
+
+  function init() {
+    applySidebarMode();
+    bindEvents();
+
+    if (initialOtpStep) {
+      openDrawer(updateDrawer);
+      setOtpVisible(true);
+    } else {
+      setOtpVisible(false);
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

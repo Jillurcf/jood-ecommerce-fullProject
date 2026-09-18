@@ -1,0 +1,251 @@
+<div class="recent-products-wrapper">
+
+  <div class="section-header">
+    <h6 class="section-title">Recently Added Products</h6>
+    <div class="nav-buttons">
+      <button class="nav-btn prev"><i class="fa fa-chevron-left"></i></button>
+      <button class="nav-btn next"><i class="fa fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+  <div id="recent-products-container" class="owl-carousel owl-theme">
+    <% if (products && products.length) { %>
+      <% products.forEach(p => { 
+           const stockNum = Number(p.stock) || 0;
+           const hasDiscount = Number(p.discount_percent) > 0;
+           const isFav = wishlistIds?.includes(String(p.id));
+           let stockText = "Out of stock", stockClass = "out";
+
+           if (stockNum > 0 && stockNum <= 5) {
+             stockText = `${stockNum} left`; stockClass = "limited";
+           } else if (stockNum > 5) {
+             stockText = `${stockNum} available`; stockClass = "available";
+           }
+      %>
+
+        <div class="item" data-product-id="<%= p.id %>">
+          <div class="product-card">
+            <a href="/product/<%= encodeURIComponent(p.slug) %>" class="product-image">
+              <img src="/uploads/products/<%= p.image || 'default.jpg' %>" alt="<%= p.name.replace(/</g,'&lt;').replace(/>/g,'&gt;') %>">
+              <span class="badge new">New</span>
+              <% if (hasDiscount) { %>
+                <span class="badge discount"><%= p.discount_percent %>%</span>
+              <% } %>
+            </a>
+
+            <div class="product-body">
+              <h4 class="product-title">
+                <a href="/product/<%= encodeURIComponent(p.slug) %>"><%= p.name.replace(/</g,'&lt;').replace(/>/g,'&gt;') %></a>
+              </h4>
+
+              <div class="price-box">
+                AED <%= p.final_price %>
+                <% if (hasDiscount) { %>
+                  <span class="old">AED <%= p.original_price %></span>
+                <% } %>
+              </div>
+
+              <% if (p.price_note) { %>
+                <div class="price-note"><%= p.price_note.replace(/</g,'&lt;').replace(/>/g,'&gt;') %></div>
+              <% } %>
+
+              <div class="stock <%= stockClass %>"><%= stockText %></div>
+
+              <div class="actions">
+                <button class="btn cart <%= stockNum > 0 ? '' : 'disabled' %>" 
+                        data-id="<%= p.id %>" <%= stockNum > 0 ? '' : 'disabled' %>>
+                  <i class="fa fa-shopping-cart"></i>
+                </button>
+
+                <button class="btn fav <%= isFav ? 'active' : '' %>" data-id="<%= p.id %>">
+                  <i class="fa fa-heart"></i>
+                </button>
+
+                <a href="/product/<%= encodeURIComponent(p.slug) %>" class="btn view">
+                  <i class="fa fa-eye"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <% }) %>
+    <% } else { %>
+      <div class="item">
+        <div class="empty">No products found</div>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="swipe-hint">
+    <span>Swipe to explore more</span>
+    <i class="fa fa-arrow-right"></i>
+  </div>
+
+</div>
+
+<style>
+/* =================== Product Card Styles =================== */
+.product-card { background:#fff; border:1px solid #eee; border-radius:10px; overflow:hidden; height:100%; transition:.2s;}
+.product-card:hover { transform:translateY(-3px); box-shadow:0 10px 25px rgba(0,0,0,.08); }
+
+.product-image { display:block; height:140px; position:relative; background:#fafafa;}
+.product-image img { width:100%; height:100%; object-fit:contain; }
+
+.badge { position:absolute; top:8px; padding:3px 6px; font-size:11px; border-radius:4px; color:#fff;}
+.badge.new { left:8px; background:#28a745; }
+.badge.discount { right:8px; background:#dc3545; }
+
+.product-body { padding:8px; text-align:center; }
+.product-title { font-size:13px; height:34px; overflow:hidden; font-weight:600; }
+
+.price-box { font-size:14px; font-weight:bold; }
+.price-box .old { text-decoration:line-through; color:#999; font-size:12px; margin-left:5px; }
+
+.stock.available{color:#28a745;}
+.stock.limited{color:#dc3545;}
+.stock.out{color:#999;}
+
+.actions{display:flex; justify-content:center; gap:6px; margin-top:6px;}
+.btn{width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:6px; color:#fff; border:none; cursor:pointer;}
+.btn.cart{background:#28a745;}
+.btn.view{background:#0d6efd;}
+.btn.fav{background:#ffc107;color:#222;}
+.btn.fav.active{background:#dc3545;color:#fff;}
+.btn.disabled{background:#ccc; cursor:not-allowed;}
+
+.swipe-hint{display:none;}
+@media(max-width:576px){ .swipe-hint{display:flex; justify-content:center; gap:6px; font-size:12px; color:#777; margin-top:6px;} }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const $owl = $('#recent-products-container');
+
+  // ==================== Init Owl Carousel ====================
+  function initOwl() {
+    try {
+      if (!$owl.length) return;
+      if ($owl.hasClass('owl-loaded')) return;
+      $owl.owlCarousel({
+        loop: true,
+        margin: 10,
+        nav: false,
+        dots: false,
+        responsive: {
+          0: { items: 2 },
+          768: { items: 4 },
+          1024: { items: 6 }
+        }
+      });
+    } catch(e) { console.warn('Owl init error', e); }
+  }
+  initOwl();
+
+  $('.nav-btn.next').off('click.recent').on('click.recent', () => $owl.trigger('next.owl.carousel'));
+  $('.nav-btn.prev').off('click.recent').on('click.recent', () => $owl.trigger('prev.owl.carousel'));
+
+  // ==================== Wishlist Toggle ====================
+  $(document).off('click.recentFav').on('click.recentFav', '.btn.fav', function(e){
+    e.preventDefault();
+    const btn = $(this);
+    const productId = btn.data('id');
+    if (!productId) return;
+
+    fetch('/wishlist/toggle', {
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ product_id: productId }),
+      credentials:'same-origin'
+    })
+    .then(res => res.json())
+    .then(data => { if (data?.success) btn.toggleClass('active', data.is_fav); })
+    .catch(err => console.error('Wishlist error:', err));
+  });
+
+  // ==================== Helper: Build Item HTML ====================
+  function buildItemHTML(p){
+    const stockNum = Number(p.stock) || 0;
+    const hasDiscount = Number(p.discount_percent) > 0;
+    let stockText = "Out of stock", stockClass = "out";
+    if(stockNum > 0 && stockNum <= 5){ stockText=`${stockNum} left`; stockClass="limited"; }
+    else if(stockNum > 5){ stockText=`${stockNum} available`; stockClass="available"; }
+
+    const id = String(p.id);
+    const name = (p.name||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const slug = encodeURIComponent(p.slug||'');
+    const img = (p.image||'default.jpg').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const final_price = p.final_price !== undefined ? p.final_price : (p.original_price||'0.00');
+    const original_price = p.original_price !== undefined ? p.original_price : '';
+    const price_note = p.price_note ? '<div class="price-note">'+p.price_note.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>' : '';
+    const discountBadge = hasDiscount ? `<span class="badge discount">${Number(p.discount_percent)}%</span>` : '';
+
+    return `<div class="item" data-product-id="${id}">
+      <div class="product-card">
+        <a href="/product/${slug}" class="product-image">
+          <img src="/uploads/products/${img}" alt="${name}">
+          <span class="badge new">New</span>${discountBadge}
+        </a>
+        <div class="product-body">
+          <h4 class="product-title"><a href="/product/${slug}">${name}</a></h4>
+          <div class="price-box">AED ${final_price}${hasDiscount ? '<span class="old">AED '+original_price+'</span>':''}</div>
+          ${price_note}
+          <div class="stock ${stockClass}">${stockText}</div>
+          <div class="actions">
+            <button class="btn cart ${stockNum>0?'':'disabled'}" data-id="${id}" ${stockNum>0?'':'disabled'}><i class="fa fa-shopping-cart"></i></button>
+            <button class="btn fav" data-id="${id}"><i class="fa fa-heart"></i></button>
+            <a href="/product/${slug}" class="btn view"><i class="fa fa-eye"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ==================== Carousel Upsert / Remove ====================
+  function upsertProductToCarousel(product){
+    try {
+      const id = String(product.id);
+      const existing = $owl.find(`.item[data-product-id="${id}"]`);
+      const html = $(buildItemHTML(product));
+      if(existing.length){
+        existing.first().replaceWith(html);
+        $owl.trigger('refresh.owl.carousel');
+      } else {
+        $owl.trigger('add.owl.carousel', [html, 0]).trigger('refresh.owl.carousel');
+      }
+    } catch(e){ console.warn('upsert error', e); }
+  }
+
+  function removeProductFromCarousel(productId){
+    try {
+      const id = String(productId);
+      const existing = $owl.find(`.item[data-product-id="${id}"]`);
+      if(existing.length){ existing.remove(); $owl.trigger('refresh.owl.carousel'); }
+    } catch(e){ console.warn('remove error', e); }
+  }
+
+  // ==================== Real-time Socket.IO ====================
+  function initSocket(){
+    if(typeof io==='undefined') return;
+    try {
+      const SOCKET_URL = window.SOCKET_URL || null;
+      const socketOpts = { transports:['websocket'], withCredentials:true };
+      const socket = SOCKET_URL ? io(SOCKET_URL, socketOpts) : io(socketOpts);
+
+      socket.on('recentProductsUpdated', products=>{
+        if(!Array.isArray(products)) return;
+        const html = products.map(buildItemHTML).join('');
+        $owl.trigger('destroy.owl.carousel').html(html);
+        initOwl();
+      });
+
+      socket.on('recentProductAdded', product=>{ if(product) upsertProductToCarousel(product); });
+      socket.on('recentProductUpdated', product=>{ if(product) upsertProductToCarousel(product); });
+      socket.on('recentProductDeleted', productId=>{ if(productId) removeProductFromCarousel(productId); });
+
+    } catch(e){ console.warn('Socket init failed', e); }
+  }
+
+  setTimeout(initSocket, 200);
+});
+</script>

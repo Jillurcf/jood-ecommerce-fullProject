@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="<%= csrfToken || '' %>">
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <title>Checkout | Jood - Quanlity Goods & Products</title>
+
+  <style>
+    :root{
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --primary:#eab308;
+      --primary-dark:#ca8a04;
+      --secondary:#111827;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --warning:#b45309;
+      --radius:22px;
+      --radius-lg:28px;
+      --chip:#fffbeb;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#ffffff 0%, var(--bg) 100%);
+      color:var(--text);
+      font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      line-height:1.5;
+    }
+
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+    button,input,textarea,select{font:inherit}
+
+    .page{max-width:1320px;margin:0 auto;padding:24px}
+    .hero{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap;margin-bottom:22px}
+    .hero h1{margin:0;font-size:36px;line-height:1.05;letter-spacing:-.04em;font-weight:950}
+    .hero p{margin:10px 0 0;color:var(--muted);max-width:860px;font-size:14px}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .btn{
+      border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      border-radius:16px;padding:13px 18px;font-size:14px;font-weight:600;
+      transition:transform .15s ease, background .15s ease, opacity .15s ease;
+      text-decoration:none;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn.primary{background:var(--primary);color:#111827}
+    .btn.primary:hover{background:var(--primary-dark)}
+    .btn.secondary{background:var(--secondary);color:#fff}
+    .btn.ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
+    .btn.outline{background:#fff;border:1px solid var(--line);color:var(--text)}
+    .btn.success{background:var(--success);color:#fff}
+    .btn.full{width:100%}
+
+    .layout{display:grid;grid-template-columns:minmax(280px,.72fr) minmax(0,1.28fr) minmax(340px,.95fr);gap:20px;align-items:start}
+    .card{background:var(--card);border:1px solid rgba(226,232,240,.92);border-radius:var(--radius-lg);padding:22px}
+    .sticky-card{position:sticky;top:20px}
+    .section-title{margin:0 0 12px 0;font-size:18px;letter-spacing:-.02em}
+    .section-subtitle{margin:-4px 0 14px 0;color:var(--muted);font-size:13px}
+
+    .alert{border-radius:16px;padding:14px 16px;margin-bottom:16px;border:1px solid transparent;display:flex;gap:10px;align-items:flex-start}
+    .alert.error{background:#fef2f2;color:var(--danger);border-color:#fecaca}
+    .alert.success{background:#f0fdf4;color:var(--success);border-color:#bbf7d0}
+    .alert.warning{background:#fffbeb;color:var(--warning);border-color:#fde68a}
+
+    .steps{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+    .step{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:18px;cursor:pointer}
+    .step-num{width:32px;height:32px;border-radius:999px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;background:#e2e8f0;color:#334155}
+    .step.done .step-num{background:#dcfce7;color:#166534}
+    .step.current .step-num{background:#fef3c7;color:#92400e}
+    .step-title{font-size:14px;font-weight:900;margin:0}
+    .step-text{font-size:12px;color:var(--muted);margin:2px 0 0}
+    .step.done{border-color:#bbf7d0}
+    .step.current{border-color:#fde68a;background:#fffbeb}
+
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    .field.full{grid-column:1/-1}
+    label{font-size:13px;font-weight:850;color:#111827}
+    input,textarea,select{
+      width:100%;border:1px solid #d1d5db;border-radius:14px;padding:12px 14px;font-size:14px;outline:none;background:#fff;color:#000000;
+      transition:border-color .15s ease, transform .15s ease
+    }
+    input:focus,textarea:focus,select:focus{border-color:var(--primary)}
+    textarea{min-height:110px;resize:vertical}
+    .hint,.small{font-size:12px;color:var(--muted)}
+
+    .block{border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:10px}
+    .payment-choice{display:flex;flex-direction:column;gap:10px}
+    .radio{display:flex;gap:10px;align-items:flex-start;padding:12px 0;cursor:pointer;border-bottom:1px solid rgba(226,232,240,.85)}
+    .radio:last-child{border-bottom:none}
+    .radio input{width:auto;margin-top:4px}
+    .radio strong{display:block;font-size:14px}
+    .radio span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+
+    .items{display:flex;flex-direction:column;gap:12px}
+    .item{display:flex;gap:14px;padding:14px;border:1px solid var(--line);border-radius:18px}
+    .thumb{width:76px;height:76px;border-radius:16px;overflow:hidden;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#64748b;font-size:12px;text-align:center;padding:8px}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .item-main{flex:1;min-width:0}
+    .item-name{margin:0 0 4px 0;font-size:15px;font-weight:900;letter-spacing:-.01em}
+    .item-meta{margin:0 0 8px 0;font-size:13px;color:var(--muted)}
+    .item-row{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-top:3px}
+
+    .summary{margin-top:14px}
+    .summary-row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+    .summary-row.total{font-size:18px;font-weight:950;border-bottom:none;padding-top:14px;padding-bottom:2px}
+    .footer-note{margin-top:12px;font-size:12px;color:var(--muted)}
+
+    .saved-list{display:flex;flex-direction:column;gap:10px}
+    .saved-card{border:1px solid var(--line);border-radius:18px;background:#fff;padding:14px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .saved-card .saved-title{font-weight:900;font-size:13px;margin:0}
+    .saved-card .meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .saved-select{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0}
+    .saved-select input{margin-top:4px}
+
+    .topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;background:#fff7ed;color:#92400e;font-size:12px;font-weight:850;border:1px solid rgba(234,179,8,.20)}
+    .order-number{font-size:24px;font-weight:950;letter-spacing:-.02em;word-break:break-word}
+
+    .success-panel{display:flex;flex-direction:column;gap:14px}
+    .success-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .success-card{border:1px solid var(--line);border-radius:18px;background:#fafafa;padding:14px}
+    .success-label{font-size:12px;color:var(--muted);margin-bottom:4px}
+    .success-value{font-size:14px;font-weight:900;word-break:break-word}
+
+    .save-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+    .check-row{display:flex;align-items:flex-start;gap:10px;padding:12px 0}
+    .check-row input{width:auto;margin-top:4px}
+    .check-row strong{display:block;font-size:14px}
+    .check-row span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+
+    .checkout-toggle{display:none}
+
+    .visa-panel{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+    .visa-panel .note{
+      border:1px solid rgba(234,179,8,.25);
+      background:#fffbeb;
+      border-radius:16px;
+      padding:12px 14px;
+      color:#92400e;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .back-to-cart-btn{
+      background: #000000;
+      border: 1px solid var(--line);
+      color: #fff;
+      padding: 10px;
+      border-radius: 15px;
+      width: 150px;
+      text-align: center;
+    }
+
+     .back-to-cart-btn:hover{
+      background: #ffffff;
+      border: 1px solid var(--line);
+      color: var(--text);
+    }
+
+    @media (max-width: 1180px){
+      .layout{grid-template-columns:1fr 1.05fr}
+      .sticky-card{position:static}
+      .left-col{order:1}
+      .center-col{order:2}
+      .right-col{order:3}
+      .success-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media (max-width: 900px){
+      .layout{grid-template-columns:1fr}
+      .form-grid{grid-template-columns:1fr}
+      .success-grid{grid-template-columns:1fr}
+      #order-summary{order:1}
+      .center-col{order:2}
+      #payment-details{order:3}
+      #final-verification{order:4}
+      .card{margin-bottom:16px}
+      .sticky-card{position:relative !important;top:auto !important}
+      .checkout-toggle{display:block;width:100%;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#111827;color:#fff;font-weight:900;margin-bottom:12px;cursor:pointer}
+      #checkout-sidebar{display:none;margin-top:10px}
+      .left-col.open #checkout-sidebar{display:flex}
+    }
+
+    @media (max-width: 640px){
+      .page{padding:16px}
+      .hero h1{font-size:28px}
+      .btn.full{width:100%}
+      .actions{width:100%}
+      .actions .btn{width:100%}
+      .item{align-items:flex-start}
+      .thumb{width:62px;height:62px}
+      .topline{align-items:flex-start}
+    }
+
+    .field select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+      color: #333;
+      appearance: none;
+    }
+
+    .field select:focus {
+      outline: none;
+      border-color: #000;
+    }
+  </style>
+</head>
+<body>
+  <%
+    const safeValue = (v) => String(v ?? "").replace(/"/g, "&quot;");
+    const safeJSON = (v) => encodeURIComponent(JSON.stringify(v || {}));
+    const profileName = profile && profile.name ? profile.name : "";
+    const profileEmail = profile && profile.email ? profile.email : "";
+    const profilePhone = profile && profile.phone ? profile.phone : "";
+
+    const currentAddress = selectedSavedAddress || null;
+    const defaultProductImage = "/uploads/products/default.jpg";
+
+    function normalizeImage(raw) {
+      if (!raw) return defaultProductImage;
+
+      let image = String(raw).trim().replace(/\\/g, "/");
+      if (!image) return defaultProductImage;
+
+      if (
+        image.startsWith("http://") ||
+        image.startsWith("https://") ||
+        image.startsWith("//") ||
+        image.startsWith("/")
+      ) {
+        return image;
+      }
+
+      image = image.replace(/^\/+/, "");
+      if (image.startsWith("uploads/products/") || image.startsWith("uploads/")) {
+        return "/" + image;
+      }
+
+      return "/uploads/products/" + image;
+    }
+
+    function getCheckoutImage(item) {
+      return normalizeImage(
+        item && (
+          item.variant_image ||
+          item.filename ||
+          item.media_filename ||
+          item.image ||
+          item.pv_image ||
+          item.main_image ||
+          item.product_image
+        )
+      );
+    }
+  %>
+
+  <div class="page">
+    <div class="hero">
+      <div>
+        <h1>Checkout</h1>
+      </div>
+      <div class="actions">
+        <a class="back-to-cart-btn" href="/customer/cart">Back to Cart</a>
+        <% if (typeof orderPlaced !== 'undefined' && orderPlaced) { %>
+          <a class="btn primary" href="/customer/shop">Continue Shopping</a>
+        <% } %>
+      </div>
+    </div>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div class="alert error">
+        <span>⚠️</span>
+        <span><%= errorMessage %></span>
+      </div>
+    <% } %>
+
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+      <div class="alert success">
+        <span>✅</span>
+        <span><%= successMessage %></span>
+      </div>
+    <% } %>
+
+    <% if (typeof orderPlaced !== 'undefined' && orderPlaced) { %>
+      <div class="card success-panel">
+        <div class="topline">
+          <div>
+            <div class="pill">Order completed</div>
+            <h2 class="section-title" style="margin-top:12px;margin-bottom:6px;">Thank you for your order</h2>
+            <div class="section-subtitle">Your order has been placed successfully.</div>
+          </div>
+          <div class="actions">
+            <% if (trackerUrl) { %>
+              <a class="btn success" href="/customer/u/orders/<%= orderNumber %>">Track Order</a>
+            <% } %>
+            <a class="btn secondary" href="/customer/u/orders">My Orders</a>
+          </div>
+        </div>
+
+        <div class="order-number"><%= orderNumber || '-' %></div>
+
+        <div class="success-grid">
+          <div class="success-card">
+            <div class="success-label">Payment Method</div>
+            <div class="success-value"><%= orderData && orderData.payment_method ? orderData.payment_method : '-' %></div>
+          </div>
+          <div class="success-card">
+            <div class="success-label">Payment Status</div>
+            <div class="success-value"><%= orderData && orderData.payment_status ? orderData.payment_status : '-' %></div>
+          </div>
+          <div class="success-card">
+            <div class="success-label">Tracking ID</div>
+            <div class="success-value"><%= trackingId || '-' %></div>
+          </div>
+          <div class="success-card">
+            <div class="success-label">Grand Total</div>
+            <div class="success-value">AED <%= Number(orderData && orderData.grand_total ? orderData.grand_total : 0).toFixed(2) %></div>
+          </div>
+        </div>
+      </div>
+    <% } else if (!cartItems || !cartItems.length) { %>
+      <div class="card" style="text-align:center;padding:44px 22px;">
+        <h2 style="margin:0 0 8px 0;">Your cart is empty</h2>
+        <p class="small" style="margin:0 0 18px 0;">Add products to continue to checkout.</p>
+        <a class="btn primary" href="/customer/shop" style="max-width:220px; margin:0 auto;">Shop Now</a>
+      </div>
+    <% } else { %>
+      <div class="layout">
+        <aside class="card sticky-card left-col">
+          <button class="checkout-toggle" id="checkout-toggle">☰</button>
+
+          <div class="steps" id="checkout-sidebar">
+            <h2 class="section-title">Checkout Process</h2>
+
+            <% (checkoutSteps || []).forEach(function(step, index) { 
+                const targetId =
+                  step.key === 'cart' ? 'order-summary' :
+                  step.key === 'details' ? 'customer-details' :
+                  step.key === 'payment' ? 'payment-details' :
+                  'final-verification';
+            %>
+              <div
+                class="step <%= step.done ? 'done' : '' %> <%= ['details'].includes(step.key) ? 'current' : '' %>"
+                data-step-key="<%= step.key %>"
+                data-target="<%= targetId %>"
+                role="button"
+                tabindex="0"
+              >
+                <div class="step-num"><%= index + 1 %></div>
+                <div>
+                  <p class="step-title"><%= step.label || 'Step' %></p>
+                  <p class="step-text">
+                    <% if (step.key === 'cart') { %>
+                      Cart reviewed and pricing confirmed.
+                    <% } else if (step.key === 'details') { %>
+                      Delivery and billing details below.
+                    <% } else if (step.key === 'payment') { %>
+                      Select COD or Visa payment.
+                    <% } %>
+                  </p>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        </aside>
+
+        <section class="card center-col">
+          <h2 class="section-title">Shipping, Billing & Verification</h2>
+
+          <form id="checkout-form" method="POST" action="/customer/checkout" autocomplete="on">
+            <input type="hidden" name="_csrf" value="<%= csrfToken || '' %>">
+            <input type="hidden" name="gateway_provider" id="gateway_provider" value="stripe">
+
+            <div class="block" id="customer-details">
+              <div class="topline">
+                <div>
+                  <strong>Customer details</strong>
+                </div>
+                <% if (customer) { %>
+                  <span class="pill">Profile detected</span>
+                <% } else { %>
+                  <span class="pill">Guest mode</span>
+                <% } %>
+              </div>
+
+              <div class="form-grid">
+                <div class="field full">
+                  <label for="customer_name">Full Name</label>
+                  <input type="text" id="customer_name" name="customer_name" required maxlength="150" value="<%= safeValue(profileName) %>" placeholder="Enter full name">
+                </div>
+                <div class="field">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" name="email" maxlength="150" value="<%= safeValue(profileEmail) %>" placeholder="name@example.com">
+                </div>
+                <div class="field">
+                  <label for="phone">Phone</label>
+                  <input type="tel" id="phone" name="phone" required maxlength="30" value="<%= safeValue(profilePhone) %>" placeholder="+971...">
+                </div>
+              </div>
+            </div>
+
+            <div class="block" id="saved-addresses">
+              <div class="topline">
+                <div><strong>Saved addresses</strong></div>
+              </div>
+
+              <% if (customer && savedAddresses && savedAddresses.length) { %>
+                <div class="saved-list" id="saved-address-list">
+                  <% savedAddresses.forEach(function(addr) { 
+                       const addrData = {
+                         id: addr.id,
+                         label: addr.label || 'Saved address',
+                         address: addr.address || '',
+                         city: addr.city || '',
+                         country: addr.country || '',
+                         emirate: addr.emirate || '',
+                         is_default: !!addr.is_default
+                       };
+                  %>
+                    <label class="saved-card">
+                      <div class="saved-select">
+                        <input
+                          type="radio"
+                          name="saved_address_id"
+                          value="<%= addr.id %>"
+                          class="saved-address-radio"
+                          <%= currentAddress && String(currentAddress.id) === String(addr.id) ? 'checked' : '' %>
+                          data-address="<%= safeJSON(addrData) %>"
+                        >
+                        <div>
+                          <div class="saved-title"><%= addr.label || 'Saved address' %></div>
+                          <div class="meta">
+                            <%= addr.address || '' %>
+                            <% if (addr.city) { %> · <%= addr.city %><% } %>
+                            <% if (addr.country) { %> · <%= addr.country %><% } %>
+                          </div>
+                        </div>
+                      </div>
+                      <% if (addr.is_default) { %>
+                        <span class="pill">Default</span>
+                      <% } %>
+                    </label>
+                  <% }); %>
+                </div>
+              <% } else { %>
+                <div class="small">No saved addresses yet.</div>
+              <% } %>
+
+              <div class="form-grid" style="margin-top:12px;">
+                <div class="field">
+                  <label for="country">Country</label>
+                  <input type="text" id="country" name="country" maxlength="80" value="<%= currentAddress && currentAddress.country ? safeValue(currentAddress.country) : 'UAE' %>" placeholder="United Arab Emirates">
+                </div>
+                <!-- <div class="field">
+                  <label for="emirate">Emirate</label>
+                  <input type="text" id="emirate" name="emirate" maxlength="80" value="<%= currentAddress && currentAddress.emirate ? safeValue(currentAddress.emirate) : '' %>" placeholder="Dubai">
+                </div> -->
+                <div class="field">
+                  <label for="emirate">Emirate</label>
+                  <select id="emirate" name="emirate" required>
+                    <option value="">Select Emirate</option>
+
+                    <option value="Abu Dhabi"
+                      <%= currentAddress && currentAddress.emirate === 'Abu Dhabi' ? 'selected' : '' %>>
+                      Abu Dhabi
+                    </option>
+
+                    <option value="Dubai"
+                      <%= currentAddress && currentAddress.emirate === 'Dubai' ? 'selected' : '' %>>
+                      Dubai
+                    </option>
+
+                    <option value="Sharjah"
+                      <%= currentAddress && currentAddress.emirate === 'Sharjah' ? 'selected' : '' %>>
+                      Sharjah
+                    </option>
+
+                    <option value="Ajman"
+                      <%= currentAddress && currentAddress.emirate === 'Ajman' ? 'selected' : '' %>>
+                      Ajman
+                    </option>
+
+                    <option value="Umm Al Quwain"
+                      <%= currentAddress && currentAddress.emirate === 'Umm Al Quwain' ? 'selected' : '' %>>
+                      Umm Al Quwain
+                    </option>
+
+                    <option value="Ras Al Khaimah"
+                      <%= currentAddress && currentAddress.emirate === 'Ras Al Khaimah' ? 'selected' : '' %>>
+                      Ras Al Khaimah
+                    </option>
+
+                    <option value="Fujairah"
+                      <%= currentAddress && currentAddress.emirate === 'Fujairah' ? 'selected' : '' %>>
+                      Fujairah
+                    </option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="city">City</label>
+                  <input type="text" id="city" name="city" maxlength="80" value="<%= currentAddress && currentAddress.city ? safeValue(currentAddress.city) : '' %>" placeholder="">
+                </div>
+                <div class="field full">
+                  <label for="address_line1">Address Line 1</label>
+                  <input type="text" id="address_line1" name="address_line1" required maxlength="160" value="<%= currentAddress && currentAddress.address ? safeValue(currentAddress.address) : '' %>" placeholder="Building, street, apartment number">
+                </div>
+                <div class="field full">
+                  <label for="address_line2">Address Line 2 (Optional)</label>
+                  <input type="text" id="address_line2" name="address_line2" maxlength="160" placeholder="Optional additional details">
+                </div>
+                <div class="field">
+                  <label for="postal_code">Postal Code (Optional)</label>
+                  <input type="text" id="postal_code" name="postal_code" maxlength="30" placeholder="Optional">
+                </div>
+                <div class="field">
+                  <label for="landmark">Landmark (Optional)</label>
+                  <input type="text" id="landmark" name="landmark" maxlength="120" placeholder="Near ...">
+                </div>
+              </div>
+
+              <div class="field full" style="margin-top:2px;">
+                <label for="notes">Order Notes</label>
+                <textarea id="notes" name="notes" maxlength="500" placeholder="Optional delivery instructions"></textarea>
+              </div>
+
+              <div class="save-row">
+                <label class="check-row">
+                  <input type="checkbox" id="save_address_for_later" name="save_address_for_later" value="1">
+                  <div>
+                    <strong>Save address for later use</strong>
+                    <span>Store this address in your account for future checkout.</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="block" id="payment-details">
+              <div class="topline">
+                <span class="pill">Payment details</span>
+              </div>
+
+              <div class="payment-choice" style="margin-top:12px;">
+                <label class="radio">
+                  <input type="radio" name="payment_method" value="cod" checked>
+                  <div>
+                    <strong>Cash on Delivery</strong>
+                    <span>Pay when your order is delivered.</span>
+                  </div>
+                </label>
+
+                <label class="radio">
+                  <input type="radio" name="payment_method" value="card">
+                  <div>
+                    <strong>Online Payment</strong>
+                  </div>
+                </label>
+              </div>
+
+              <div id="visa-panel" class="visa-panel hidden">
+                <div class="footer-note">You will be redirected to a secure Stripe payment page after clicking the button below.</div>
+              </div>
+            </div>
+
+            <div class="block" id="final-verification">
+              <div class="topline">
+                <div>
+                  <strong>Final verification</strong>
+                  <div class="small">Confirm your details before the order is created.</div>
+                </div>
+              </div>
+
+              <label class="check-row" style="border-bottom:none;padding-bottom:0;">
+                <input type="checkbox" id="verify_details" required>
+                <div>
+                  <strong>I confirm my delivery and payment details are correct</strong>
+                </div>
+              </label>
+            </div>
+
+            <button type="submit" class="btn primary full" id="cod-submit-btn" style="margin-top:16px;">Place COD Order</button>
+          </form>
+        </section>
+
+        <aside class="card sticky-card right-col" id="order-summary">
+          <h2 class="section-title">Order Summary</h2>
+          <div class="items">
+            <% (cartItems || []).forEach(function(item) { %>
+              <% const itemImage = getCheckoutImage(item); %>
+              <div class="item">
+                <div class="thumb">
+                  <img
+                    src="<%= itemImage %>"
+                    alt="<%= item.product_name || 'Product' %>"
+                    loading="lazy"
+                    onerror="this.onerror=null;this.src='<%= defaultProductImage %>';"
+                  >
+                </div>
+                <div class="item-main">
+                  <p class="item-name"><%= item.product_name || 'Product' %></p>
+                  <p class="item-meta">
+                    <% if (item.variant_name) { %>Variant: <%= item.variant_name %><br><% } %>
+                    Qty: <%= item.quantity || 0 %>
+                  </p>
+                  <div class="item-row">
+                    <span>total</span>
+                    <span><strong>AED <%= Number(item.line_total || 0).toFixed(2) %></strong></span>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+
+          <div class="summary">
+            <div class="summary-row"><span>Subtotal</span><span>AED <%= Number(summary && summary.subtotal ? summary.subtotal : 0).toFixed(2) %></span></div>
+            <div class="summary-row"><span>Discount</span><span>- AED <%= Number(summary && summary.discountTotal ? summary.discountTotal : 0).toFixed(2) %></span></div>
+            <div class="summary-row"><span>VAT</span><span>AED <%= Number(summary && summary.vatTotal ? summary.vatTotal : 0).toFixed(2) %></span></div>
+            <div class="summary-row total"><span>Total</span><span>AED <%= Number(summary && summary.grandTotal ? summary.grandTotal : 0).toFixed(2) %></span></div>
+          </div>
+        </aside>
+      </div>
+    <% } %>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const form = document.getElementById('checkout-form');
+      const paymentRadios = Array.from(document.querySelectorAll('input[name="payment_method"]'));
+      const visaPanel = document.getElementById('visa-panel');
+      const codSubmitBtn = document.getElementById('cod-submit-btn');
+      const savedAddressRadios = Array.from(document.querySelectorAll('.saved-address-radio'));
+      const verifyDetails = document.getElementById('verify_details');
+      const checkoutToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+      function updateSavedAddressState() {
+        const selected = savedAddressRadios.find(r => r.checked);
+        if (!selected) return;
+
+        try {
+          const data = JSON.parse(decodeURIComponent(selected.dataset.address || '{}'));
+          if (data.address) document.getElementById('address_line1').value = data.address;
+          if (data.city) document.getElementById('city').value = data.city;
+          if (data.country) document.getElementById('country').value = data.country;
+          if (data.emirate) document.getElementById('emirate').value = data.emirate;
+        } catch (e) {}
+      }
+
+      function setPaymentUI() {
+        const method = paymentRadios.find(r => r.checked)?.value || 'cod';
+        const isCard = method === 'card';
+
+        if (visaPanel) visaPanel.classList.toggle('hidden', !isCard);
+        if (codSubmitBtn) {
+          codSubmitBtn.classList.remove('hidden');
+          codSubmitBtn.disabled = false;
+          codSubmitBtn.textContent = isCard ? 'Proceed to Online Payment' : 'Place COD Order';
+        }
+      }
+
+      function collectFormPayload() {
+        const formData = new FormData(form);
+        const payload = {};
+        for (const [key, value] of formData.entries()) {
+          payload[key] = value;
+        }
+        return payload;
+      }
+
+      async function startVisaPayment() {
+        if (verifyDetails && !verifyDetails.checked) {
+          alert('Please confirm the verification checkbox before continuing to payment.');
+          verifyDetails.focus();
+          return;
+        }
+
+        if (!form) return;
+
+        const requiredFields = ['customer_name', 'phone', 'country', 'emirate', 'city', 'address_line1'];
+        for (const name of requiredFields) {
+          const el = form.querySelector(`[name="${name}"]`);
+          if (!el || !String(el.value || '').trim()) {
+            alert('Please complete all required delivery details before payment.');
+            el?.focus();
+            return;
+          }
+        }
+
+        if (codSubmitBtn) {
+          codSubmitBtn.disabled = true;
+          codSubmitBtn.textContent = 'Redirecting to online payment...';
+        }
+        try {
+          const payload = collectFormPayload();
+          payload.payment_method = 'card';
+          payload.gateway_provider = 'stripe';
+          payload._csrf = checkoutToken;
+
+          const response = await fetch('/customer/checkout/create-payment-session', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'X-CSRF-Token': checkoutToken
+            },
+            body: JSON.stringify(payload),
+            credentials: 'same-origin'
+          });
+
+          const data = await response.json().catch(() => ({}));
+
+          if (!response.ok || !data || data.success === false) {
+            throw new Error(data?.message || 'Unable to start Stripe payment');
+          }
+
+          const redirectUrl = data.redirect_url || data.url || data.checkout_url || data.session_url;
+          if (!redirectUrl) {
+            throw new Error('Payment session created, but no redirect URL was returned.');
+          }
+
+          window.location.href = redirectUrl;
+        } catch (err) {
+          alert(err?.message || 'Unable to start Visa payment. Please try again.');
+          if (codSubmitBtn) {
+            codSubmitBtn.disabled = false;
+            codSubmitBtn.textContent = 'Proceed to Online Payment';
+          }
+        }
+      }
+
+      paymentRadios.forEach(radio => {
+        radio.addEventListener('change', setPaymentUI);
+      });
+
+      savedAddressRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+          if (!radio.checked) return;
+          updateSavedAddressState();
+        });
+      });
+
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          const method = paymentRadios.find(r => r.checked)?.value || 'cod';
+
+          if (verifyDetails && !verifyDetails.checked) {
+            e.preventDefault();
+            alert(method === 'card'
+              ? 'Please confirm the verification checkbox before continuing to online payment.'
+              : 'Please confirm the verification checkbox before placing the order.'
+            );
+            verifyDetails.focus();
+            return;
+          }
+
+          if (method === 'card') {
+            e.preventDefault();
+            if (codSubmitBtn) {
+              codSubmitBtn.disabled = true;
+              codSubmitBtn.textContent = 'Redirecting to online payment...';
+            }
+            startVisaPayment();
+          }
+        });
+      }
+
+      const sidebarSteps = Array.from(document.querySelectorAll('#checkout-sidebar .step'));
+      const spySections = [
+        document.getElementById('customer-details'),
+        document.getElementById('saved-addresses'),
+        document.getElementById('payment-details'),
+        document.getElementById('final-verification')
+      ].filter(Boolean);
+
+      const stepBySection = {
+        'customer-details': 'details',
+        'saved-addresses': 'details',
+        'payment-details': 'payment',
+        'final-verification': 'payment',
+        'order-summary': 'cart'
+      };
+
+      function setActiveSidebarStep(stepKey) {
+        sidebarSteps.forEach(step => {
+          const active = step.dataset.stepKey === stepKey;
+          step.classList.toggle('current', active);
+          step.classList.toggle('done', active && stepKey !== 'cart');
+        });
+      }
+
+      function scrollToTarget(targetId) {
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      sidebarSteps.forEach(step => {
+        step.addEventListener('click', () => {
+          scrollToTarget(step.dataset.target);
+          setActiveSidebarStep(step.dataset.stepKey);
+        });
+
+        step.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            step.click();
+          }
+        });
+      });
+
+      let activeId = 'customer-details';
+
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visible.length) return;
+
+        const nextId = visible[0].target.id;
+        if (nextId && nextId !== activeId) {
+          activeId = nextId;
+          setActiveSidebarStep(stepBySection[nextId] || 'details');
+        }
+      }, { root: null, threshold: [0.25, 0.5, 0.75] });
+
+      spySections.forEach(section => observer.observe(section));
+
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY + 180;
+        let current = 'customer-details';
+
+        for (const section of spySections) {
+          if (section.offsetTop <= y) current = section.id;
+        }
+
+        if (current !== activeId) {
+          activeId = current;
+          setActiveSidebarStep(stepBySection[current] || 'details');
+        }
+      }, { passive: true });
+
+      setActiveSidebarStep('details');
+
+      setPaymentUI();
+      updateSavedAddressState();
+
+      try {
+        const firstInput = document.getElementById('customer_name');
+        if (firstInput) firstInput.focus({ preventScroll: true });
+      } catch (e) {}
+
+      try {
+        const alertBox = document.querySelector('.alert');
+        if (alertBox) alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {}
+    })();
+
+    const toggleBtn = document.getElementById('checkout-toggle');
+    const leftCol = document.querySelector('.left-col');
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        leftCol.classList.toggle('open');
+      });
+    }
+  </script>
+
+  <script src="/js/guest-token-manager.js"></script>
+</body>
+</html>

@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Categories | Issa GoodLife</title>
+
+  <!-- CSRF token (server must provide res.locals.csrfToken) -->
+  <meta name="csrf-token" content="<%= csrfToken %>">
+
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link href="/admin/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/admin/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <link href="/admin/assets/css/soft-ui-dashboard.css?v=1.0.3" rel="stylesheet" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+
+
+  <style>
+    :root {
+      --bg: #fff;
+      --muted: #6b7280;
+      --border: #e6e9ee;
+      --table-head: #f9fafb;
+      --accent: #2b6cb0;
+      --danger: #e04b4b;
+      --success: #2f855a;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: "Open Sans", sans-serif;
+      background: var(--bg);
+      color: #1f2d3d;
+    }
+
+    .page-root {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .panel {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar h1 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .actions-left,
+    .actions-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-control-sm-like {
+      height: 38px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #d0d7df;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .table-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-radius: 10px;
+      border: 1px solid #e3e7ea;
+      background: var(--bg);
+      height: calc(100vh - 220px);
+      overflow: hidden;
+    }
+
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .category-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .category-table thead th {
+      position: sticky;
+      top: 0;
+      background: var(--table-head);
+      z-index: 10;
+      padding: 8px 10px;
+      font-weight: 600;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    .category-table tbody td {
+      padding: 6px 10px;
+      line-height: 1.2;
+      border-bottom: 1px solid #f1f5f9;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .category-table tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .catDesc,
+    .catSlug {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .imgThumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e6eaee;
+    }
+
+    .btn-sm {
+      padding: 3px 8px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary-like {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-warning-like {
+      background: #f6a800;
+      color: #fff;
+    }
+
+    .btn-danger-like {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #fbfdff;
+      border-top: 1px solid #e6eaee;
+    }
+
+    .page-info {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pagination {
+      display: flex;
+      gap: 6px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .pagination button {
+      border-radius: 6px;
+      padding: 6px 9px;
+      border: none;
+      background: #eef2f6;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .pagination button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .pagination button.disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    @media (max-width: 860px) {
+      .actions,
+      .actions-left,
+      .actions-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    .modal-alert {
+      margin-bottom: 12px;
+    }
+
+    /* modal image styles */
+    .image-preview {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .image-preview img {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #e6eaee;
+    }
+
+    .small-muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body class="bg-white">
+  <div class="account-layout" id="accountLayout">
+        <aside class="account-sidebar" id="accountSidebar" aria-label="Account Sidebar">
+          <%- include('includes/account-sidebar', { user, activePage: 'addresses' }) %>
+        </aside>
+
+        <div class="account-right">
+          <%- include('includes/account-topbar') %>
+
+            <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+             <section class="account-page-header">
+    <%- include('includes/account-header', {
+        title: 'Category Management',
+        subtitle: 'Add new categories, edit existing ones, and view all categories in your inventory system. Well-structured categories improve product organization, inventory management, reporting, and customer browsing experience.',
+        primaryAction: null,
+        secondaryAction: null
+    }) %>
+
+    <div class="status-line" aria-live="polite" style="float: inline-end;">
+        <span class="saving-dot" id="savingDot"></span>
+        <span id="savingText">Categories are up to date</span>
+    </div>
+</section>
+
+    <main class="account-content">
+     
+  <div class="page-root">
+    <div class="topbar p-2" role="region" aria-label="Categories topbar">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+          <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Admin</a></li>
+          <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Categories</li>
+        </ol>
+        <h6 class="font-weight-bolder mb-0">Categories</h6>
+      </nav>
+    </div>
+
+    <div class="page-content">
+      <div class="panel">
+        <div class="actions">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input id="searchInput" class="form-control-sm-like" placeholder="Search by name, slug or parent..."
+              aria-label="Search categories" />
+            <select id="statusFilter" class="form-control-sm-like" aria-label="Filter by status">
+              <option value="">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:8px;">
+              Show
+              <select id="rowsPerPage" class="form-control-sm-like" style="width:84px;" aria-label="Rows per page">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="25">25</option>
+                <option value="all">All</option>
+              </select>
+              entries
+            </label>
+            <button id="openAddBtn" class="btn btn-sm btn-success btn-sm-like" aria-haspopup="dialog">
+              <i class="fas fa-plus"></i> Add New
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrapper" role="region" aria-label="Categories table">
+          <div class="table-container">
+            <table role="table" aria-label="Categories table" class="category-table">
+              <thead>
+                <tr>
+                  <th style="width:60px">Sr</th>
+                  <th style="width:70px">Image</th>
+                  <th>Category</th>
+                  <th>Parent</th>
+                  <th>Slug</th>
+                  <th>Description</th>
+                  <th style="width:120px">Created</th>
+                  <th style="width:120px">Updated</th>
+                  <th style="width:100px">Status</th>
+                  <th style="width:170px">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="categoryTable">
+                <% if (Array.isArray(categories) && categories.length) { %>
+                  <% categories.forEach((cat, index)=> { %>
+                    <tr data-id="<%= cat.id %>" class="p-0">
+                      <td class="sr"><%= index + 1 %></td>
+                      <td>
+                        <% if (cat.image) { %>
+                          <img alt="thumb" class="imgThumb" src="/uploads/subcategories/<%= cat.image %>" />
+                        <% } else { %>
+                          <div style="width:48px;height:48px;border-radius:6px;background:#f3f4f6;border:1px solid #e6e9ee;"></div>
+                        <% } %>
+                      </td>
+                      <td class="catName"><%= cat.name %></td>
+                      <td class="catParent"><%= cat.parent_name || '' %></td>
+                      <td class="catSlug"><%= cat.slug %></td>
+                      <td class="catDesc"><%= cat.description ? cat.description.substring(0,60) : '' %></td>
+                      <td class="catCreated"><%= cat.created_at ? new Date(cat.created_at).toLocaleString() : '' %></td>
+                      <td class="catUpdated"><%= cat.updated_at ? new Date(cat.updated_at).toLocaleString() : '' %></td>
+                      <td class="catStatus"><%= cat.status ? 'Active' : 'Inactive' %></td>
+                      <td>
+                        <button class="editBtn btn btn-warning btn-sm"
+                          data-id="<%= cat.id %>"
+                          data-name="<%= cat.name %>"
+                          data-slug="<%= cat.slug %>"
+                          data-parent_id="<%= cat.parent_id %>"
+                          data-description="<%= cat.description || '' %>"
+                          data-status="<%= cat.status ? 'active' : 'inactive' %>"
+                          data-image="<%= cat.image || '' %>">
+                          <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="deleteBtn btn-danger btn btn-sm" data-id="<%= cat.id %>">
+                          <i class="fas fa-trash"></i> Delete
+                        </button>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="10" style="padding:18px;text-align:center;color:#6b7280;">No categories yet.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-top:1px solid #e6eaee;">
+            <div class="page-info" id="pageInfo">Showing 0 to 0 of 0 entries</div>
+            <div>
+              <nav aria-label="Pagination">
+                <ul class="pagination" id="pagination" style="display:flex; gap:6px; padding:0; margin:0; list-style:none;"></ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ </main>
+            <%- include('includes/account-footer') %>
+        </div>
+      </div>
+
+      <div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+  <!-- Modal -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true" aria-labelledby="categoryModalTitle">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form id="categoryForm" method="POST" action="/admin/category" enctype="multipart/form-data" novalidate>
+          <input type="hidden" id="editId" name="id" />
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="modal-header">
+            <h5 class="modal-title" id="categoryModalTitle">Add / Edit Category</h5>
+            <button type="button" class="btn-close" id="closeModalBtn" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="alertContainer" class="modal-alert" aria-live="polite"></div>
+
+            <div class="row gx-3">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Parent Category</label>
+                <select id="parentSelect" name="parent_id" class="form-select">
+                  <option value="">-- Select Parent Category --</option>
+                  <% if (Array.isArray(parentCategories) && parentCategories.length) { %>
+                    <% parentCategories.forEach(function(pc) { %>
+                      <option value="<%= pc.id %>" <%= (pc.id && formData.parent_id && String(formData.parent_id) === String(pc.id)) ? 'selected' : '' %>><%= pc.name %></option>
+                    <% }) %>
+                  <% } %>
+                </select>
+                <div id="parentNotice" class="small-muted note" style="display:none;">No parent categories available — fetch failed or empty.</div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Category Name *</label>
+                <input type="text" id="cat_name" name="name" class="form-control" placeholder="e.g. Smartphones" required autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="row gx-3">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Slug</label>
+                <input type="text" id="cat_slug" name="slug" class="form-control" placeholder="auto-generated" />
+                <div class="form-text">Auto-generated from name. You can edit if needed.</div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Status</label>
+                <select id="status" name="status" class="form-control">
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea id="description" name="description" class="form-control" rows="3" placeholder="Brief description (optional)"></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Image (optional)</label>
+              <div style="display:flex;gap:12px;align-items:center;">
+                <input type="file" id="imageInput" name="image" accept="image/*" class="form-control" />
+                <div id="imagePreview" class="image-preview" aria-live="polite" style="display:none;">
+                  <img id="imagePreviewImg" src="#" alt="Preview" />
+                  <div>
+                    <button type="button" id="removeImageBtn" class="btn btn-sm btn-danger">Remove</button>
+                    <div class="small-muted" style="margin-top:6px;">Uploading a new image will replace the old one.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer d-flex justify-content-between">
+            <div class="text-muted small">Categories are grouped under parent categories</div>
+            <div>
+              <button type="button" id="cancelBtn" class="btn btn-secondary btn-sm">Cancel</button>
+              <button type="submit" class="btn btn-sm btn-success">Save Category</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- core scripts -->
+  <script src="/admin/assets/js/core/popper.min.js"></script>
+  <script src="/admin/assets/js/core/bootstrap.min.js"></script>
+  <script src="/admin/assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="/admin/assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script src="/admin/assets/js/plugins/chartjs.min.js"></script>
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="/admin/assets/js/soft-ui-dashboard.min.js?v=1.0.3"></script>
+  <script src="/socket.io/socket.io.js"></script>
+ <script src="/customer/js/account.js"></script>
+
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* DOM helpers */
+      const $ = (s, ctx = document) => ctx.querySelector(s);
+      const $$ = (s, ctx = document) => Array.from((ctx || document).querySelectorAll(s));
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+      // Elements
+      const openAddBtn = $('#openAddBtn');
+      const closeModalBtn = $('#closeModalBtn');
+      const cancelBtn = $('#cancelBtn');
+      const modalEl = $('#categoryModal');
+      const bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+
+      const parentSelect = $('#parentSelect');
+      const parentNotice = $('#parentNotice');
+      const editId = $('#editId');
+      const nameInput = $('#cat_name');
+      const slugInput = $('#cat_slug');
+      const descriptionEl = $('#description');
+      const statusEl = $('#status');
+      const alertContainer = $('#alertContainer');
+      const form = $('#categoryForm');
+
+      const imageInput = $('#imageInput');
+      const imagePreview = $('#imagePreview');
+      const imagePreviewImg = $('#imagePreviewImg');
+      const removeImageBtn = $('#removeImageBtn');
+
+      const searchInput = $('#searchInput');
+      const statusFilter = $('#statusFilter');
+      const rowsPerPageSelect = $('#rowsPerPage');
+      const categoryTable = $('#categoryTable');
+      const paginationEl = $('#pagination');
+      const pageInfoEl = $('#pageInfo');
+
+      // State
+      let parentListLoaded = false;
+      let parentList = [];
+      let currentPage = 1;
+      let rowsPerPage = rowsPerPageSelect.value === 'all' ? Infinity : parseInt(rowsPerPageSelect.value, 10);
+
+      /* Utilities */
+      function escapeHtml(s = '') {
+        return String(s)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      function escapeAttr(s = '') {
+        return String(s).replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+      }
+
+      function showModalAlert(type = 'danger', text = '') {
+        alertContainer.innerHTML = `<div class="alert alert-${type}" role="alert">${escapeHtml(text)}</div>`;
+        setTimeout(() => { alertContainer.innerHTML = ''; }, 3500);
+      }
+
+      function clearForm() {
+        form.reset();
+        editId.value = '';
+        alertContainer.innerHTML = '';
+        parentSelect.value = '';
+        parentNotice.style.display = 'none';
+        hideImagePreview();
+      }
+
+      function slugify(text = '') {
+        return String(text).toLowerCase().trim()
+          .replace(/&/g, 'and')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      }
+
+      /* Parent categories loader */
+      async function loadParentCategories(force = false) {
+        if (parentListLoaded && !force) return parentList;
+        try {
+          const res = await fetch('/admin/parent-categories', { credentials: 'include', headers: { 'X-CSRF-Token': csrfToken } });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const rows = await res.json();
+          if (!Array.isArray(rows)) throw new Error('Invalid response');
+          parentList = rows;
+          populateParentSelect(rows);
+          parentListLoaded = true;
+          parentNotice.style.display = rows.length ? 'none' : 'block';
+          return rows;
+        } catch (err) {
+          console.warn('Failed to load parent categories:', err);
+          parentListLoaded = false;
+          parentNotice.style.display = parentSelect.options.length > 1 ? 'none' : 'block';
+          return parentSelect.options.length > 1 ? Array.from(parentSelect.options).slice(1).map(o => ({ id: o.value, name: o.text })) : [];
+        }
+      }
+
+      function populateParentSelect(rows = []) {
+        const current = parentSelect.value;
+        parentSelect.innerHTML = '<option value="">-- Select Parent Category --</option>';
+        rows.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = String(r.id);
+          opt.textContent = r.name;
+          parentSelect.appendChild(opt);
+        });
+        if (current) parentSelect.value = current;
+      }
+
+      /* Image preview helpers */
+      function showImagePreview(url) {
+        imagePreviewImg.src = url;
+        imagePreview.style.display = 'flex';
+      }
+      function hideImagePreview() {
+        imagePreviewImg.src = '#';
+        imagePreview.style.display = 'none';
+      }
+
+      imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) { hideImagePreview(); return; }
+        const url = URL.createObjectURL(file);
+        showImagePreview(url);
+      });
+
+      removeImageBtn.addEventListener('click', async () => {
+        // If editing an existing category, call remove-image endpoint
+        const id = editId.value;
+        if (!id) {
+          // simply clear chosen file if new
+          imageInput.value = '';
+          hideImagePreview();
+          return;
+        }
+
+        if (!confirm('Remove category image? This will delete the image file.')) return;
+        try {
+          const res = await fetch(`/admin/category/remove-image/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: { 'X-CSRF-Token': csrfToken, 'Accept': 'application/json' }
+          });
+          const data = await res.json().catch(() => null);
+          if (!res.ok) {
+            alert((data && data.message) ? data.message : `Remove failed (HTTP ${res.status})`);
+            return;
+          }
+          if (!data || !data.success) {
+            alert((data && data.message) ? data.message : 'Remove failed');
+            return;
+          }
+          // success: clear preview and file input
+          imageInput.value = '';
+          hideImagePreview();
+          // update row thumbnail if present
+          const row = categoryTable.querySelector(`tr[data-id="${id}"]`);
+          if (row) {
+            const img = row.querySelector('.imgThumb');
+            if (img) {
+              img.src = '';
+              img.remove();
+              const placeholder = document.createElement('div');
+              placeholder.style.width = '48px';
+              placeholder.style.height = '48px';
+              placeholder.style.borderRadius = '6px';
+              placeholder.style.background = '#f3f4f6';
+              placeholder.style.border = '1px solid #e6e9ee';
+              row.children[1].appendChild(placeholder);
+            }
+          }
+          showModalAlert('success', 'Image removed');
+        } catch (err) {
+          console.error('Remove image error', err);
+          alert('Network error while removing image');
+        }
+      });
+
+      /* Fill form for edit */
+      function fillForm(data = {}) {
+        editId.value = data.id || '';
+        nameInput.value = data.name || '';
+        slugInput.value = data.slug || '';
+        descriptionEl.value = data.description || '';
+        statusEl.value = data.status === 'active' ? 'active' : 'inactive';
+        if (data.parent_id !== undefined && data.parent_id !== null) parentSelect.value = String(data.parent_id);
+        // image preview if provided
+        if (data.image) {
+          showImagePreview(`/uploads/subcategories/${data.image}`);
+        } else {
+          hideImagePreview();
+        }
+      }
+
+      /* Form submit using FormData (multipart) */
+      async function submitFormAJAX(event) {
+        event.preventDefault();
+
+        const submitBtn = form.querySelector('[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+
+        try {
+          const fd = new FormData(form); // includes file input and _csrf hidden input
+          // ensure fields: status value already set; ensure empty strings become null server-side if needed
+          // if no file chosen, multer will ignore
+          const res = await fetch(form.action, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'X-CSRF-Token': csrfToken, 'Accept': 'application/json' },
+            body: fd
+          });
+
+          const content = await res.text();
+          let data;
+          try { data = content ? JSON.parse(content) : null; } catch (e) { data = { success: res.ok, message: content || `HTTP ${res.status}` }; }
+
+          if (!res.ok) {
+            const msg = (data && data.message) ? data.message : `Server error ${res.status}`;
+            showModalAlert('danger', msg);
+            return;
+          }
+
+          if (!data) {
+            showModalAlert('danger', 'Invalid server response');
+            return;
+          }
+
+          if (!data.success) {
+            showModalAlert('danger', data.message || 'Save failed');
+            return;
+          }
+
+          // success: upsert the row with returned category object (preferred)
+          if (data.category) {
+            upsertRow(data.category);
+            bsModal.hide();
+            clearForm();
+          } else {
+            // fallback: reload
+            window.location.reload();
+          }
+        } catch (err) {
+          console.error('Submit error', err);
+          showModalAlert('danger', 'Network error while saving');
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+        }
+      }
+
+      /* Upsert row (add or update single row in table). Shows thumbnail if image present */
+      function upsertRow(cat = {}) {
+        try {
+          const existing = categoryTable.querySelector(`tr[data-id="${cat.id}"]`);
+          const created = cat.created_at ? new Date(cat.created_at).toLocaleString() : '';
+          const updated = cat.updated_at ? new Date(cat.updated_at).toLocaleString() : '';
+
+          const imgHtml = cat.image ? `<img alt="thumb" class="imgThumb" src="/uploads/subcategories/${escapeAttr(cat.image)}" />` :
+            `<div style="width:48px;height:48px;border-radius:6px;background:#f3f4f6;border:1px solid #e6e9ee;"></div>`;
+
+          const rowHtml = `
+            <td class="sr"></td>
+            <td>${imgHtml}</td>
+            <td class="catName">${escapeHtml(cat.name || '')}</td>
+            <td class="catParent">${escapeHtml(cat.parent_name || '')}</td>
+            <td class="catSlug">${escapeHtml(cat.slug || '')}</td>
+            <td class="catDesc">${escapeHtml((cat.description || '').substring(0, 60))}</td>
+            <td class="catCreated">${escapeHtml(created)}</td>
+            <td class="catUpdated">${escapeHtml(updated)}</td>
+            <td class="catStatus">${cat.status ? 'Active' : 'Inactive'}</td>
+            <td>
+              <button class="editBtn btn btn-warning btn-sm"
+                data-id="${cat.id}"
+                data-name="${escapeAttr(cat.name || '')}"
+                data-slug="${escapeAttr(cat.slug || '')}"
+                data-parent_id="${escapeAttr(cat.parent_id ? String(cat.parent_id) : '')}"
+                data-description="${escapeAttr(cat.description || '')}"
+                data-status="${cat.status ? 'active' : 'inactive'}"
+                data-image="${escapeAttr(cat.image || '')}">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="deleteBtn btn-danger btn btn-sm" data-id="${cat.id}">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </td>
+          `;
+
+          if (existing) {
+            existing.innerHTML = rowHtml;
+          } else {
+            const tr = document.createElement('tr');
+            tr.setAttribute('data-id', cat.id);
+            tr.innerHTML = rowHtml;
+            categoryTable.prepend(tr);
+          }
+          applyFilterAndPagination();
+        } catch (err) {
+          console.warn('upsertRow error', err);
+        }
+      }
+
+      /* Delete category */
+      async function deleteCategory(id) {
+        if (!id) return;
+        if (!confirm('Are you sure you want to delete this category? Deleting will remove products under it.')) return;
+        try {
+          const res = await fetch(`/admin/category/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: { 'X-CSRF-Token': csrfToken, 'Accept': 'application/json' }
+          });
+          const data = await res.json().catch(() => null);
+          if (!res.ok) {
+            alert((data && data.message) ? data.message : `Delete failed (HTTP ${res.status})`);
+            return;
+          }
+          if (!data || !data.success) {
+            alert((data && data.message) ? data.message : 'Delete failed');
+            return;
+          }
+          const row = categoryTable.querySelector(`tr[data-id="${id}"]`);
+          if (row) row.remove();
+          applyFilterAndPagination();
+        } catch (err) {
+          console.error('Delete error', err);
+          alert('Network error during delete');
+        }
+      }
+
+      /* Filtering & Pagination (client-side) */
+      function getAllRows() {
+        return Array.from(categoryTable.querySelectorAll('tr')).filter(r => r.querySelector('.catName'));
+      }
+
+      function applyFilterAndPagination() {
+        const search = (searchInput.value || '').trim().toLowerCase();
+        const statusVal = statusFilter.value;
+        const allRows = getAllRows();
+
+        const filtered = allRows.filter(row => {
+          const name = (row.querySelector('.catName')?.textContent || '').toLowerCase();
+          const parent = (row.querySelector('.catParent')?.textContent || '').toLowerCase();
+          const slug = (row.querySelector('.catSlug')?.textContent || '').toLowerCase();
+          const statusText = (row.querySelector('.catStatus')?.textContent || '').trim();
+          const matches = !search || name.includes(search) || slug.includes(search) || parent.includes(search);
+          const matchesStatus = !statusVal || statusText === statusVal;
+          return matches && matchesStatus;
+        });
+
+        const total = filtered.length;
+        const per = rowsPerPage === Infinity ? (total || 1) : rowsPerPage;
+        const totalPages = Math.max(1, Math.ceil(total / per));
+        if (currentPage > totalPages) currentPage = totalPages;
+        allRows.forEach(r => r.style.display = 'none');
+
+        const start = (currentPage - 1) * per;
+        const end = Math.min(start + per, total);
+        const pageRows = filtered.slice(start, end);
+        pageRows.forEach((r, i) => {
+          r.style.display = 'table-row';
+          const sr = r.querySelector('.sr');
+          if (sr) sr.textContent = (start + i + 1);
+        });
+
+        if (total === 0) {
+          // maintain a single placeholder row
+          Array.from(categoryTable.querySelectorAll('tr')).forEach(r => {
+            if (!r.querySelector('.catName')) r.remove();
+          });
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td colspan="10" style="padding:18px;text-align:center;color:#6b7280;">No results found.</td>`;
+          categoryTable.appendChild(tr);
+        } else {
+          Array.from(categoryTable.querySelectorAll('tr')).forEach(r => {
+            if (!r.querySelector('.catName')) {
+              const t = r.textContent.toLowerCase();
+              if (t.includes('no results found') || t.includes('no categories yet')) r.remove();
+            }
+          });
+        }
+
+        renderPagination(totalPages, currentPage);
+        const showFrom = total === 0 ? 0 : start + 1;
+        const showTo = total === 0 ? 0 : end;
+        pageInfoEl.textContent = `Showing ${showFrom} to ${showTo} of ${total} entries`;
+      }
+
+      function renderPagination(totalPages, current) {
+        paginationEl.innerHTML = '';
+        function makeBtn(txt, disabled = false, extraClass = '') {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = txt;
+          if (disabled) btn.disabled = true;
+          if (extraClass) btn.classList.add(extraClass);
+          return btn;
+        }
+
+        const prev = makeBtn('Prev', current === 1);
+        prev.addEventListener('click', () => { if (current > 1) { currentPage--; applyFilterAndPagination(); } });
+        paginationEl.appendChild(prev);
+
+        const maxButtons = 7;
+        let start = Math.max(1, current - 3);
+        let end = Math.min(totalPages, start + maxButtons - 1);
+        if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+
+        if (start > 1) {
+          const b1 = makeBtn('1');
+          b1.addEventListener('click', () => { currentPage = 1; applyFilterAndPagination(); });
+          paginationEl.appendChild(b1);
+          if (start > 2) {
+            const dots = makeBtn('...');
+            dots.disabled = true;
+            paginationEl.appendChild(dots);
+          }
+        }
+
+        for (let p = start; p <= end; p++) {
+          const pb = makeBtn(String(p));
+          if (p === current) pb.classList.add('active');
+          pb.addEventListener('click', () => { currentPage = p; applyFilterAndPagination(); });
+          paginationEl.appendChild(pb);
+        }
+
+        if (end < totalPages) {
+          if (end < totalPages - 1) {
+            const dots = makeBtn('...');
+            dots.disabled = true;
+            paginationEl.appendChild(dots);
+          }
+          const last = makeBtn(String(totalPages));
+          last.addEventListener('click', () => { currentPage = totalPages; applyFilterAndPagination(); });
+          paginationEl.appendChild(last);
+        }
+
+        const next = makeBtn('Next', current === totalPages);
+        next.addEventListener('click', () => { if (current < totalPages) { currentPage++; applyFilterAndPagination(); } });
+        paginationEl.appendChild(next);
+      }
+
+      /* Event bindings */
+
+      // Auto-slug while typing if new item
+      nameInput.addEventListener('input', () => {
+        if (!editId.value) slugInput.value = slugify(nameInput.value);
+      });
+
+      // Open add modal
+      openAddBtn?.addEventListener('click', async () => {
+        clearForm();
+        await loadParentCategories().catch(() => { });
+        bsModal.show();
+      });
+
+      // Close modal buttons
+      closeModalBtn?.addEventListener('click', () => { clearForm(); bsModal.hide(); });
+      cancelBtn?.addEventListener('click', () => { clearForm(); bsModal.hide(); });
+
+      // Delegate edit & delete & image remove
+      document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+
+        // Edit
+        if (btn.classList.contains('editBtn')) {
+          const d = btn.dataset;
+          const cat = {
+            id: d.id,
+            name: d.name,
+            slug: d.slug,
+            parent_id: d.parent_id,
+            description: d.description,
+            status: d.status,
+            image: d.image
+          };
+          await loadParentCategories().catch(() => { });
+          fillForm(cat);
+          bsModal.show();
+        }
+
+        // Delete
+        if (btn.classList.contains('deleteBtn')) {
+          const id = btn.dataset.id;
+          deleteCategory(id);
+        }
+      });
+
+      // Form submit
+      form.addEventListener('submit', submitFormAJAX);
+
+      // Filters & paging events
+      searchInput.addEventListener('input', () => { currentPage = 1; applyFilterAndPagination(); });
+      statusFilter.addEventListener('change', () => { currentPage = 1; applyFilterAndPagination(); });
+      rowsPerPageSelect.addEventListener('change', () => {
+        const v = rowsPerPageSelect.value;
+        rowsPerPage = v === 'all' ? Infinity : parseInt(v, 10);
+        currentPage = 1;
+        applyFilterAndPagination();
+      });
+
+      // On page load
+      window.addEventListener('load', async () => {
+        await loadParentCategories().catch(() => { });
+        applyFilterAndPagination();
+      });
+
+      // Expose for debugging
+      window.__categoryDebug = { loadParentCategories, populateParentSelect, upsertRow, applyFilterAndPagination };
+
+    })();
+  </script>
+</body>
+
+</html>

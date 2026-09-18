@@ -1,0 +1,105 @@
+# =========================
+# Node.js
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Environment Files
+# =========================
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!.env.*.example
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# Runtime Data
+# =========================
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# Coverage / Testing
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Build Folders
+# =========================
+dist/
+build/
+out/
+
+# =========================
+# Cache
+# =========================
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Uploads / Temp
+# =========================
+uploads/
+tmp/
+temp/
+
+# =========================
+# XAMPP / PHP
+# =========================
+vendor/
+composer.lock
+
+# =========================
+# Database
+# =========================
+*.sql
+*.sqlite
+*.db
+
+# =========================
+# Misc
+# =========================
+*.zip
+*.tar.gz
+
+jood-stripe
+isagoodlife.backup
+
+# =========================
+# New apps — do NOT commit real secrets
+# =========================
+backend/.env
+frontend/.env.local
+
+# Prisma
+backend/prisma/migrations/**/migration_lock.toml

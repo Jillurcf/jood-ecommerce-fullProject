@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Payment Methods — JOOD | Quality Goods & Products</title>
+  <meta name="description" content="Add and manage your payment methods securely with OTP verification." />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Payment Methods — JOOD Account Dashboard" />
+  <meta property="og:description" content="Add payment methods, verify via OTP, and manage methods securely." />
+  <meta property="og:url" content="https://jood.com/customer/u/account/payment-methods" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Payment Methods — JOOD" />
+  <meta name="twitter:description" content="Add and manage payment methods securely." />
+
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' && csrfToken ? csrfToken : '' %>">
+
+  <link rel="stylesheet" href="/customer/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/customer/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/customer/css/account.css" />
+  <link rel="stylesheet" href="/customer/css/style.css" />
+  <link rel="stylesheet" href="/customer/css/responsive.css" />
+
+  <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --card:#fff;
+      --border:#e5eaf3;
+      --border-strong:#cfd8e3;
+      --text:#0f172a;
+      --muted:#64748b;
+      --primary:#f59e0b;
+      --primary-hover:#d97706;
+      --success:#16a34a;
+      --danger:#dc2626;
+      --radius:22px;
+      --sidebar-wide:280px;
+      --sidebar-collapsed:78px;
+      --topbar-height:68px;
+    }
+
+    *{box-sizing:border-box;min-width:0}
+    html,body{margin:0;padding:0;width:100%;max-width:100%;min-height:100%;overflow-x:hidden;background:var(--bg)}
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      -webkit-text-size-adjust:100%;
+      text-rendering:optimizeLegibility;
+    }
+    a{text-decoration:none;color:inherit}
+    img,svg,canvas,video{max-width:100%;height:auto}
+    table{width:100%;border-collapse:collapse;table-layout:fixed}
+
+    .account-layout{width:100%;max-width:100%;min-height:100vh;position:relative;overflow:hidden;background:var(--bg)}
+    .account-sidebar{position:fixed;top:0;left:0;width:var(--sidebar-collapsed);height:100vh;background:#fff;border-right:1px solid var(--border);z-index:1040;overflow:auto;transition:width .25s ease,transform .25s ease}
+    .account-layout.sidebar-expanded .account-sidebar{width:var(--sidebar-wide)}
+    .account-layout.sidebar-collapsed .account-sidebar,.account-sidebar.collapsed{width:var(--sidebar-collapsed)}
+    .account-sidebar::-webkit-scrollbar{width:6px}
+    .account-sidebar::-webkit-scrollbar-thumb{background:transparent;border-radius:999px}
+    .account-sidebar:hover::-webkit-scrollbar-thumb{background:rgba(100,116,139,.45)}
+
+    .account-right{margin-left:var(--sidebar-collapsed);width:calc(100% - var(--sidebar-collapsed));min-height:100vh;display:flex;flex-direction:column;background:var(--bg)}
+    .account-layout.sidebar-expanded .account-right{margin-left:var(--sidebar-wide);width:calc(100% - var(--sidebar-wide))}
+
+    .account-topbar{position:fixed;top:0;left:var(--sidebar-collapsed);right:0;height:var(--topbar-height);padding:10px 18px;background:#fff;border-bottom:1px solid var(--border);z-index:1030;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .account-layout.sidebar-expanded .account-topbar{left:var(--sidebar-wide)}
+
+    .topbar-left,.topbar-right{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+    .topbar-title{display:flex;flex-direction:column;gap:2px;min-width:0;overflow:hidden}
+    .topbar-title .title{font-size:1rem;font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .topbar-title .sub{font-size:.8rem;color:var(--muted);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .account-toggle-btn,.btn-export-wide,.btn-secure,.btn-ghost{height:44px;border:1px solid var(--border);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:var(--text);cursor:pointer;padding:0 14px;font-weight:800;white-space:nowrap;transition:all .2s ease}
+    .account-toggle-btn{width:44px;padding:0}
+    .btn-secure{border-color:var(--primary);background:var(--primary);color:#fff}
+    .btn-secure:hover{background:var(--primary-hover);color:#fff}
+    .btn-export-wide:hover,.btn-ghost:hover,.account-toggle-btn:hover{border-color:var(--border-strong)}
+    .account-toggle-btn i,.btn-export-wide i,.btn-secure i,.btn-ghost i{font-size:16px}
+
+    .account-user-mini{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:var(--text);white-space:nowrap;min-width:0}
+    .account-user-mini i{font-size:20px;color:#475569}
+    .account-user-mini span{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block}
+
+    .account-backdrop{display:none;position:fixed;inset:0;background:rgba(15,23,42,.22);z-index:1035}
+    .account-backdrop.show{display:block}
+
+    .account-content-wrap{padding:calc(var(--topbar-height) + 18px) 18px 18px;width:100%;max-width:100%}
+    .account-footer-wrap{padding:0 18px 18px;margin-top:auto;width:100%;max-width:100%}
+
+    .history-page-shell{width:100%;max-width:100%;display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:16px;align-items:start}
+    .history-subsidebar{position:sticky;top:calc(var(--topbar-height) + 18px);align-self:start;background:#fff;border:1px solid var(--border);border-radius:18px;padding:14px;overflow:hidden;}
+    .history-subsidebar-mobilebar{display:none}
+    .history-sidepanel{display:flex;flex-direction:column;gap:12px;min-width:0}
+    .history-sidepanel-header{padding:14px;border-radius:16px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;min-width:0}
+    .history-sidepanel-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:4px}
+    .history-sidepanel-title{margin:0;font-size:16px;font-weight:900;color:var(--text);line-height:1.2}
+    .history-sidepanel-subtitle{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+    .history-sidepanel-body{    
+      flex: 1 1 auto;
+      border-top: 1px solid var(--border);
+      background: #fff;
+      overflow: hidden;
+      text-align: left;
+      min-width: 0;
+    }
+    .history-main{min-width:0;max-width:100%}
+
+    .card-panel,.filter-box,.quick-action-item,.export-preview{background:#fff;border:1px solid var(--border)}
+    .card-panel{border-radius:var(--radius);width:100%;max-width:100%;min-width:0;}
+    .card-panel.pad{padding:20px}
+
+    .header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px;width:100%;max-width:100%}
+    .section-title{
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--text);
+    letter-spacing: -.01em;
+    word-break: break-word;
+  }
+    .section-subtitle{margin:6px 0 0;color:var(--muted);font-size:.88rem;line-height:1.5;word-break:break-word}
+
+    .pill{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;font-size:.68rem;font-weight:700;border:1px solid transparent;white-space:nowrap;line-height:1}
+    .pill-neutral{background:#f8fafc;color:#64748b;border-color:#e2e8f0}
+    .pill-verified{background:#ecfdf5;color:var(--success);border-color:#c7eed6}
+    .pill-unverified{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+
+    .orders-table-wrap{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;border:1px solid var(--border);border-radius:16px;background:#fff}
+    .orders-table{width:100%;margin:0;min-width:980px}
+    .orders-table th,.orders-table td{padding:12px 14px;vertical-align:top;border-top:1px solid #eef2f7;font-size:.88rem;word-break:break-word}
+    .orders-table thead th{border-top:0;background:#f8fafc;color:#334155;white-space:nowrap}
+    .orders-table td{color:#1f2937}.orders-table .muted{color:var(--muted)}.orders-table .amount{font-weight:900;white-space:nowrap}
+
+    .quick-action-item{display:flex;align-items:flex-start;gap:14px;padding:16px;border-radius:18px;background:#fff;border:1px solid var(--border);transition:.25s ease;text-decoration:none;min-height:92px}
+    .quick-action-item:hover{transform:translateY(-2px);border-color:var(--border-strong)}
+    .quick-action-item i{width:46px;height:46px;border-radius:14px;background:#f8fafc;display:flex;align-items:center;justify-content:center;font-size:18px;color:#0f172a;flex-shrink:0}
+    .quick-action-content{display:flex;flex-direction:column;min-width:0}
+    .quick-action-title{font-size:.96rem;font-weight:800;color:#0f172a;margin-bottom:4px}
+    .quick-action-desc{font-size:.82rem;line-height:1.5;color:#64748b}
+
+    .empty-state{border:1px dashed #d8e0ea;border-radius:16px;padding:18px;text-align:center;color:var(--muted);background:#fff;width:100%;max-width:100%}
+
+    .toast-mini{position:fixed;right:18px;bottom:18px;z-index:1060;min-width:220px;max-width:calc(100vw - 36px);padding:12px 14px;border-radius:13px;background:#0f172a;color:#fff;font-size:.86rem;transform:translateY(18px);opacity:0;pointer-events:none;transition:.25s ease;}
+    .toast-mini.show{transform:translateY(0);opacity:1}
+
+    .account-sidebar-close{position:absolute;top:12px;right:12px;background:#fff;border:1px solid var(--border);width:36px;height:36px;border-radius:10px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:10}
+
+    .filter-drawer-overlay{position:fixed;inset:0;background:rgba(15,23,42,.28);opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:1040}
+    .filter-drawer-overlay.show{opacity:1;pointer-events:auto}
+    .filter-drawer{position:fixed;top:0;right:0;width:min(560px,100%);height:100vh;background:#fff;transform:translateX(100%);transition:transform .25s ease;z-index:1050;display:flex;flex-direction:column;border-left:1px solid var(--border);}
+    .filter-drawer.show{transform:translateX(0)}
+    .filter-drawer-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .filter-drawer-title{margin:0;font-size:1.05rem;font-weight:900;color:var(--text)}
+    .filter-drawer-subtitle{margin:4px 0 0;font-size:.92rem;color:var(--muted);line-height:1.45}
+    .filter-drawer-body{padding:18px 20px 22px;overflow:auto;flex:1}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .form-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px}
+    .form-label{font-weight:800;color:var(--text);margin-bottom:6px;font-size:.86rem;display:block}
+    .form-control,.form-select{width:100%;max-width:100%;min-height:46px;border-radius:14px;border:1px solid #dbe3ec;font-size:.92rem;background:#fff;color:var(--text)}
+    .form-control:focus,.form-select:focus{border-color:#b8c4d1;outline:none;box-shadow:none}
+    .helper-text{display:block;margin-top:6px;color:var(--muted);font-size:.78rem;line-height:1.4}
+    .form-full{grid-column:1 / -1}
+    .action-row{display:flex;flex-wrap:wrap;gap:10px}
+    .result-actions{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 0;scrollbar-width:none}
+    .result-actions::-webkit-scrollbar{display:none}
+    .result-actions .btn-ghost,.result-actions .btn-secure,.result-actions .btn-export-wide{flex:0 0 auto;min-width:max-content;white-space:nowrap;font-size:12px;padding:8px 12px;border-radius:10px;height:38px}
+
+    .default-check-label{display:flex;align-items:center;gap:10px;margin:0;font-weight:700;cursor:pointer}
+    .default-check-label input[type="checkbox"]{width:18px;height:18px;margin:0;accent-color:var(--primary);flex-shrink:0}
+    .default-check-label span{line-height:1.2}
+
+    .export-preview{border:1px solid #e5e7eb;border-radius:16px;background:#f8fafc;padding:14px;margin-top:12px}
+    .export-preview-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .export-preview-title{font-size:.95rem;font-weight:700;color:#0f172a}
+    .export-preview-count{font-size:.85rem;color:#475569}
+    .export-preview-list{display:grid;gap:10px}
+    .export-preview-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px}
+    .export-preview-item .k{font-size:.8rem;color:#64748b;margin-bottom:2px}
+    .export-preview-item .v{font-size:.92rem;color:#0f172a;font-weight:600;word-break:break-word}
+
+    @media (max-width:1199px){
+      .history-page-shell{grid-template-columns:1fr}
+      .history-subsidebar{position:relative;top:auto}
+      .account-user-mini span{max-width:180px}
+    }
+    @media (max-width:991px){
+      .account-sidebar{width:290px;transform:translateX(-100%);height:100vh;max-width:100vw}
+      .account-sidebar.open{transform:translateX(0)}
+      .account-right{margin-left:0;width:100%}
+      .account-topbar{left:0!important;width:100%}
+      .account-content-wrap{padding:calc(var(--topbar-height) + 14px) 14px 14px}
+      .history-subsidebar{padding:0;border:1px solid var(--border);border-radius:18px;overflow:hidden}
+      .history-subsidebar-mobilebar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 14px 12px;background:#fff;border-bottom:1px solid var(--border)}
+      .history-subsidebar-inner{display:block;border:0;border-radius:0}
+      .account-sidebar-close{display:flex}
+      .form-grid{grid-template-columns:1fr}
+    }
+    @media (max-width:768px){
+      .card-panel.pad{padding:16px}
+      .account-topbar{gap:10px;padding:10px 12px}
+      .topbar-title .title{font-size:.95rem}
+      .topbar-title .sub{font-size:.75rem}
+      .account-user-mini span{max-width:90px}
+      .btn-export-wide{padding:0 12px;font-size:.84rem}
+    }
+    @media (max-width:575px){
+      .account-content-wrap{padding:calc(var(--topbar-height) + 12px) 12px 12px}
+      .account-topbar{padding:10px 10px}
+      .account-user-mini{gap:8px}
+      .account-user-mini i{font-size:18px}
+      .account-user-mini span{max-width:78px;font-size:.85rem}
+      .section-title{font-size:1rem}
+      .section-subtitle{font-size:.84rem}
+    }
+  </style>
+</head>
+
+<body class="billing-page">
+<%
+  const routeBase = "/customer/u/account/payment-methods";
+
+  const safeText = (v, fallback = "—") => {
+    const s = String(v ?? "").trim().replace(/\s+/g, " ");
+    return s || fallback;
+  };
+
+  const safeLower = (v) => safeText(v, "").toLowerCase();
+
+  const safeDate = (v) => {
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  };
+
+  const fmtDateTime = (v) => {
+    const d = safeDate(v);
+    return d
+      ? d.toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        })
+      : "Not available";
+  };
+
+  const userName = safeText((user && (user.full_name || user.name)) || "Customer", "Customer");
+
+  const rows = Array.isArray(locals?.rows)
+    ? locals.rows
+    : (Array.isArray(locals?.paymentMethods) ? locals.paymentMethods : []);
+
+  const paymentMethods = rows.map((row) => ({
+    id: row.id,
+    provider: safeText(row.provider, "Manual"),
+    method_type: safeText(row.method_type, "card"),
+    card_brand: safeText(row.card_brand, ""),
+    cardholder_name: safeText(row.cardholder_name || row.card_holder || row.card_name, ""),
+    card_last4: safeText(row.card_last4 || row.last4, ""),
+    expiry_month: safeText(row.expiry_month, ""),
+    expiry_year: safeText(row.expiry_year, ""),
+    display_name: safeText(row.display_name, ""),
+    account_email: safeText(row.account_email, ""),
+    is_default: !!row.is_default,
+    updated_at: row.updated_at || row.created_at || null
+  }));
+
+  const csrfValue = safeText(typeof csrfToken !== "undefined" ? csrfToken : "", "");
+%>
+
+<div class="account-layout sidebar-collapsed" id="accountLayout">
+  <aside class="account-sidebar collapsed" id="accountSidebar" aria-label="Account Sidebar">
+    <button type="button" class="account-sidebar-close" id="accountSidebarClose" aria-label="Close sidebar">
+      <i class="fa fa-times"></i>
+    </button>
+    <%- include('../../includes/account-sidebar', { user, activePage: 'payment-methods' }) %>
+  </aside>
+
+  <div class="account-right">
+    <header class="account-topbar" aria-label="Account Topbar">
+      <div class="topbar-left">
+        <button type="button" class="account-toggle-btn" id="accountToggleBtn" aria-label="Toggle account sidebar" aria-controls="accountSidebar" aria-expanded="false">
+          <i class="fa fa-bars"></i>
+        </button>
+        <div class="topbar-title">
+          <div class="title">Payment Methods</div>
+          <div class="sub">Manage cards securely</div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <button type="button" class="btn-export-wide" id="openAddDrawerBtn" aria-label="Add payment method">
+          <i class="fa fa-plus"></i> Add Payment
+        </button>
+        <div class="account-user-mini">
+          <i class="fa fa-user-circle"></i>
+          <span id="topbarUserName"><%= userName %></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="account-backdrop" id="accountBackdrop" aria-hidden="true"></div>
+
+    <div class="account-content-wrap">
+      <div class="history-page-shell">
+        <aside class="history-subsidebar" id="historySubSidebar" aria-label="Payment Sidebar">
+          <div class="history-subsidebar-mobilebar">
+            <div>
+              <div class="history-sidepanel-label">Account Pages</div>
+              <h3 class="history-sidepanel-title">Payments</h3>
+            </div>
+          </div>
+
+          <div class="history-subsidebar-inner" id="historySubSidebarInner">
+            <div class="history-sidepanel">
+              <div class="history-sidepanel-header">
+                <div>
+                  <div class="history-sidepanel-label">Account Pages</div>
+                  <h3 class="history-sidepanel-title">Payment Navigation</h3>
+                  <p class="history-sidepanel-subtitle">Add, verify, and manage payment methods.</p>
+                </div>
+              </div>
+              <div class="history-sidepanel-body">
+                <%- include('../../includes/account/account-billing-sidebar', { user, activePage: 'payment-methods' }) %>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <main class="history-main">
+          <section class="card-panel pad">
+            <div class="header-row" style="margin-bottom:0;">
+              <div>
+                <h3 class="section-title" style="font-size:1.25rem;">Hello, <%= userName %></h3>
+                <p class="section-subtitle">Add your payment method, verify it through OTP, and manage saved methods below.</p>
+              </div>
+              <span class="pill pill-verified"><i class="fa fa-shield"></i> Secure Approval</span>
+            </div>
+          </section>
+
+          <section class="card-panel pad mt-3">
+            <div class="header-row">
+              <div>
+                <h3 class="section-title">Saved Payment Methods</h3>
+                <p class="section-subtitle">Your saved payment methods with secure OTP approval and delete protection.</p>
+              </div>
+            </div>
+
+            <div class="orders-table-wrap">
+              <table class="table orders-table" id="methodsTable">
+                <thead>
+                  <tr>
+                    <th>Provider</th>
+                    <th>Type</th>
+                    <th>Card Holder</th>
+                    <th>Card Number</th>
+                    <th>Expiry</th>
+                    <th>Status</th>
+                    <th>Updated</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="methodsTableBody">
+                  <% if (paymentMethods.length) { %>
+                    <% paymentMethods.forEach((method) => { %>
+                      <tr
+                        data-id="<%= method.id %>"
+                        data-provider="<%= safeLower(method.provider) %>"
+                        data-keywords="<%= safeLower([method.provider, method.method_type, method.card_brand, method.cardholder_name, method.card_last4, method.display_name, method.account_email].filter(Boolean).join(' ')) %>"
+                      >
+                        <td>
+                          <div><strong><%= safeText(method.provider, 'Manual') %></strong></div>
+                          <div class="muted"><%= safeText(method.display_name, '—') %></div>
+                        </td>
+                        <td><%= safeText(method.method_type, 'card') %></td>
+                        <td><%= safeText(method.cardholder_name, '—') %></td>
+                        <td class="amount"><%= method.card_last4 ? `•••• ${String(method.card_last4).replace(/\D/g,'').slice(-4)}` : '—' %></td>
+                        <td>
+                          <% if (method.expiry_month && method.expiry_year) { %>
+                            <%= method.expiry_month %>/<%= method.expiry_year %>
+                          <% } else { %>
+                            —
+                          <% } %>
+                        </td>
+                        <td>
+                          <span class="pill <%= method.is_default ? 'pill-verified' : 'pill-unverified' %>">
+                            <i class="fa <%= method.is_default ? 'fa-star' : 'fa-check-circle' %>"></i>
+                            <%= method.is_default ? 'Default' : 'Saved' %>
+                          </span>
+                        </td>
+                        <td><%= fmtDateTime(method.updated_at) %></td>
+                        <td>
+                          <div class="result-actions">
+                            <button type="button" class="btn-ghost js-method-delete" data-id="<%= method.id %>">
+                              <i class="fa fa-trash"></i> Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="8">
+                        <div class="empty-state">No payment methods found.</div>
+                      </td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card-panel pad mt-3">
+            <div class="header-row">
+              <div>
+                <h3 class="section-title">Quick Actions</h3>
+                <p class="section-subtitle">Fast navigation for the most used account areas.</p>
+              </div>
+            </div>
+
+            <div class="actions-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%;">
+              <a href="/customer/u/orders" class="quick-action-item">
+                <i class="fa fa-shopping-bag"></i>
+                <div class="quick-action-content">
+                  <span class="quick-action-title">View Orders</span>
+                  <small class="quick-action-desc">Check all placed orders, delivery updates, invoices, and order status.</small>
+                </div>
+              </a>
+
+              <a href="/customer/u/account/billing" class="quick-action-item">
+                <i class="fa fa-credit-card"></i>
+                <div class="quick-action-content">
+                  <span class="quick-action-title">Billing Page</span>
+                  <small class="quick-action-desc">Manage billing information, invoices, subscriptions, and payment settings.</small>
+                </div>
+              </a>
+
+              <a href="/customer/u/account/transaction-history" class="quick-action-item">
+                <i class="fa fa-history"></i>
+                <div class="quick-action-content">
+                  <span class="quick-action-title">Transaction History</span>
+                  <small class="quick-action-desc">Review all payment transactions, export reports, and search records.</small>
+                </div>
+              </a>
+
+              <a href="/customer/logout" class="quick-action-item">
+                <i class="fa fa-sign-out"></i>
+                <div class="quick-action-content">
+                  <span class="quick-action-title">Logout</span>
+                  <small class="quick-action-desc">Securely sign out from your JOOD customer account dashboard.</small>
+                </div>
+              </a>
+            </div>
+          </section>
+
+          <div class="account-footer-wrap">
+            <%- include('../../includes/account-footer') %>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-mini" id="toastMini" role="status" aria-live="polite"></div>
+
+<div class="filter-drawer-overlay" id="addOverlay" aria-hidden="true"></div>
+<aside class="filter-drawer" id="addDrawer" aria-label="Add payment method drawer">
+  <div class="filter-drawer-header">
+    <div>
+      <h3 class="filter-drawer-title">Add Payment Method</h3>
+      <p class="filter-drawer-subtitle">Request OTP first, then verify to save the payment method.</p>
+    </div>
+    <button type="button" class="account-toggle-btn" id="closeAddDrawerBtn" aria-label="Close add drawer">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <div class="filter-drawer-body">
+    <form id="paymentMethodForm" autocomplete="off">
+      <input type="hidden" name="_csrf" id="csrfTokenField" value="<%= csrfValue %>">
+      <input type="hidden" id="methodTypeField" name="method_type" value="card">
+      <input type="hidden" id="providerField" name="provider" value="visa">
+
+      <div class="form-grid">
+        <div class="form-box">
+          <label class="form-label" for="provider_select">Card Provider</label>
+          <select class="form-select" id="provider_select" required>
+            <option value="visa">Visa</option>
+            <option value="mastercard">Mastercard</option>
+            <option value="amex">Amex</option>
+            <option value="paypal">PayPal</option>
+            <option value="stripe">Stripe</option>
+          </select>
+          <small class="helper-text">This provider value is used by the controller validation.</small>
+        </div>
+
+        <div class="form-box">
+          <label class="form-label" for="cardholder_name">Card Holder Name</label>
+          <input type="text" class="form-control" id="cardholder_name" name="cardholder_name" placeholder="Name on card" required>
+        </div>
+
+        <div class="form-box form-full">
+          <label class="form-label" for="card_number">Card Number</label>
+          <input type="text" class="form-control" id="card_number" name="card_number" maxlength="23" placeholder="0000 0000 0000 0000" required>
+          <small class="helper-text">Enter the full card number exactly as shown on the card.</small>
+        </div>
+
+        <div class="form-box">
+          <label class="form-label" for="expiry_month">Expiry Month</label>
+          <input type="text" class="form-control" id="expiry_month" name="expiry_month" maxlength="2" placeholder="MM" required>
+        </div>
+
+        <div class="form-box">
+          <label class="form-label" for="expiry_year">Expiry Year</label>
+          <input type="text" class="form-control" id="expiry_year" name="expiry_year" maxlength="4" placeholder="YYYY" required>
+        </div>
+
+        <div class="form-box form-full">
+          <label class="form-label" for="display_name">Display Name</label>
+          <input type="text" class="form-control" id="display_name" name="display_name" placeholder="Optional label for this method">
+          <small class="helper-text">Optional. Leave blank to auto-generate a label.</small>
+        </div>
+      </div>
+
+      <div class="form-box mt-3">
+        <label class="form-label" for="account_email">Wallet / Account Email</label>
+        <input type="email" class="form-control" id="account_email" name="account_email" placeholder="name@example.com">
+        <small class="helper-text">Only needed for wallet-type methods. Leave blank for cards.</small>
+      </div>
+
+      <div class="form-box mt-3">
+        <label class="form-label default-check-label" for="is_default">
+          <input type="checkbox" id="is_default" name="is_default" value="1">
+          <span>Set as default method</span>
+        </label>
+      </div>
+
+      <div class="action-row mt-3">
+        <button type="button" class="btn-secure" id="requestOtpBtn">
+          <i class="fa fa-envelope-open"></i> Request OTP
+        </button>
+        <button type="button" class="btn-ghost" id="saveMethodBtn" disabled>
+          <i class="fa fa-save"></i> Save Method
+        </button>
+      </div>
+
+      <div class="form-box mt-3" id="otpBox" style="display:none;">
+        <label class="form-label" for="otpCode">OTP Code</label>
+        <input type="text" class="form-control" id="otpCode" placeholder="Enter OTP from email">
+      </div>
+
+      <div class="action-row mt-3" id="otpActions" style="display:none;">
+        <button type="button" class="btn-secure" id="verifyOtpBtn">
+          <i class="fa fa-check"></i> Verify OTP
+        </button>
+        <button type="button" class="btn-ghost" id="cancelOtpBtn">
+          <i class="fa fa-times"></i> Cancel
+        </button>
+      </div>
+
+      <div class="export-preview mt-3">
+        <div class="export-preview-head">
+          <div class="export-preview-title">Approval Status</div>
+          <div class="export-preview-count" id="approvalStateLabel">Waiting</div>
+        </div>
+        <div class="export-preview-list">
+          <div class="export-preview-item">
+            <div class="k">Instruction</div>
+            <div class="v">Request OTP first, verify it, then save the payment method.</div>
+          </div>
+          <div class="export-preview-item">
+            <div class="k">Security</div>
+            <div class="v">CVV is not stored. Only safe payment details are kept.</div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</aside>
+
+<div class="filter-drawer-overlay" id="deleteOverlay" aria-hidden="true"></div>
+<aside class="filter-drawer" id="deleteDrawer" aria-label="Delete payment method drawer">
+  <div class="filter-drawer-header">
+    <div>
+      <h3 class="filter-drawer-title">Remove Payment Method</h3>
+      <p class="filter-drawer-subtitle">Request OTP first, then verify before deleting.</p>
+    </div>
+    <button type="button" class="account-toggle-btn" id="closeDeleteDrawerBtn" aria-label="Close delete drawer">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <div class="filter-drawer-body">
+    <div class="export-preview">
+      <div class="export-preview-head">
+        <div class="export-preview-title">Selected Method</div>
+        <div class="export-preview-count" id="deleteMethodLabel">None</div>
+      </div>
+      <div class="export-preview-list" id="deletePreviewList">
+        <div class="export-preview-item">
+          <div class="k">Status</div>
+          <div class="v">Select a method to remove.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-row mt-3">
+      <button type="button" class="btn-secure" id="requestDeleteOtpBtn">
+        <i class="fa fa-envelope-open"></i> Request Delete OTP
+      </button>
+      <button type="button" class="btn-ghost" id="confirmDeleteBtn" disabled>
+        <i class="fa fa-trash"></i> Delete Now
+      </button>
+      <button type="button" class="btn-ghost" id="cancelDeleteBtn">
+        <i class="fa fa-times"></i> Cancel
+      </button>
+    </div>
+
+    <div class="form-box mt-3" id="deleteOtpBox" style="display:none;">
+      <label class="form-label" for="deleteOtpCode">OTP Code</label>
+      <input type="text" class="form-control" id="deleteOtpCode" placeholder="Enter OTP from email">
+    </div>
+
+    <div class="action-row mt-3" id="deleteOtpActions" style="display:none;">
+      <button type="button" class="btn-secure" id="verifyDeleteOtpBtn">
+        <i class="fa fa-check"></i> Verify OTP
+      </button>
+      <button type="button" class="btn-ghost" id="resetDeleteOtpBtn">
+        <i class="fa fa-undo"></i> Reset
+      </button>
+    </div>
+
+    <div class="export-preview mt-3">
+      <div class="export-preview-head">
+        <div class="export-preview-title">Approval Status</div>
+        <div class="export-preview-count" id="deleteApprovalStateLabel">Waiting</div>
+      </div>
+      <div class="export-preview-list">
+        <div class="export-preview-item">
+          <div class="k">Instruction</div>
+          <div class="v">OTP must be verified before the delete action becomes active.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<script src="/customer/js/vendor/popper.min.js"></script>
+<script src="/customer/js/bootstrap.min.js"></script>
+<script src="/customer/js/main.js"></script>
+
+<script>
+(function () {
+  const routeBase = '<%= routeBase %>';
+
+  const layout = document.getElementById('accountLayout');
+  const sidebar = document.getElementById('accountSidebar');
+  const sidebarClose = document.getElementById('accountSidebarClose');
+  const toggleBtn = document.getElementById('accountToggleBtn');
+  const backdrop = document.getElementById('accountBackdrop');
+  const toast = document.getElementById('toastMini');
+
+  const addDrawer = document.getElementById('addDrawer');
+  const deleteDrawer = document.getElementById('deleteDrawer');
+  const addOverlay = document.getElementById('addOverlay');
+  const deleteOverlay = document.getElementById('deleteOverlay');
+
+  const openAddDrawerBtn = document.getElementById('openAddDrawerBtn');
+  const closeAddDrawerBtn = document.getElementById('closeAddDrawerBtn');
+
+  const paymentMethodForm = document.getElementById('paymentMethodForm');
+  const csrfTokenField = document.getElementById('csrfTokenField');
+
+  const methodTypeField = document.getElementById('methodTypeField');
+  const providerField = document.getElementById('providerField');
+  const providerSelect = document.getElementById('provider_select');
+
+  const cardHolderName = document.getElementById('cardholder_name');
+  const cardNumber = document.getElementById('card_number');
+  const expiryMonth = document.getElementById('expiry_month');
+  const expiryYear = document.getElementById('expiry_year');
+  const displayName = document.getElementById('display_name');
+  const accountEmail = document.getElementById('account_email');
+  const isDefault = document.getElementById('is_default');
+
+  const requestOtpBtn = document.getElementById('requestOtpBtn');
+  const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+  const cancelOtpBtn = document.getElementById('cancelOtpBtn');
+  const saveMethodBtn = document.getElementById('saveMethodBtn');
+  const otpBox = document.getElementById('otpBox');
+  const otpActions = document.getElementById('otpActions');
+  const otpCode = document.getElementById('otpCode');
+  const approvalStateLabel = document.getElementById('approvalStateLabel');
+
+  const methodsTableBody = document.getElementById('methodsTableBody');
+
+  const deleteMethodLabel = document.getElementById('deleteMethodLabel');
+  const deletePreviewList = document.getElementById('deletePreviewList');
+  const requestDeleteOtpBtn = document.getElementById('requestDeleteOtpBtn');
+  const verifyDeleteOtpBtn = document.getElementById('verifyDeleteOtpBtn');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+  const resetDeleteOtpBtn = document.getElementById('resetDeleteOtpBtn');
+  const deleteOtpBox = document.getElementById('deleteOtpBox');
+  const deleteOtpActions = document.getElementById('deleteOtpActions');
+  const deleteOtpCode = document.getElementById('deleteOtpCode');
+  const deleteApprovalStateLabel = document.getElementById('deleteApprovalStateLabel');
+
+  const report = {
+    methods: <%- JSON.stringify(paymentMethods.map((m) => ({
+      id: m.id,
+      provider: String(m.provider || 'Manual'),
+      method_type: String(m.method_type || 'card'),
+      card_brand: String(m.card_brand || ''),
+      cardholder_name: String(m.cardholder_name || ''),
+      card_last4: String(m.card_last4 || ''),
+      expiry_month: String(m.expiry_month || ''),
+      expiry_year: String(m.expiry_year || ''),
+      display_name: String(m.display_name || ''),
+      account_email: String(m.account_email || ''),
+      is_default: !!m.is_default,
+      updated_at: String(m.updated_at || '')
+    }))) %>
+  };
+
+  const state = {
+    deleteId: null,
+    selectedMethod: null,
+    addOtpVerified: false,
+    deleteOtpVerified: false
+  };
+
+  function csrfToken() {
+    const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    const hiddenToken = csrfTokenField?.value || document.querySelector('input[name="_csrf"]')?.value || '';
+    return (metaToken || hiddenToken || '').trim();
+  }
+
+  function fetchHeaders(extra = {}) {
+    return {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      'CSRF-Token': csrfToken(),
+      ...extra
+    };
+  }
+
+  function showToast(message) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  function isMobile() {
+    return window.innerWidth <= 991;
+  }
+
+  function closeMobileSidebar() {
+    sidebar?.classList.remove('open');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+    toggleBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  function applySidebarMode() {
+    if (isMobile()) {
+      closeMobileSidebar();
+      layout.classList.remove('sidebar-expanded');
+      layout.classList.add('sidebar-collapsed');
+      sidebar.classList.add('collapsed');
+      sidebar.classList.remove('expanded');
+      return;
+    }
+
+    layout.classList.remove('sidebar-expanded');
+    layout.classList.add('sidebar-collapsed');
+    sidebar.classList.add('collapsed');
+    sidebar.classList.remove('expanded');
+    backdrop?.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function openDrawer(drawer) {
+    if (!drawer) return;
+    drawer.classList.add('show');
+    if (drawer === addDrawer) addOverlay?.classList.add('show');
+    if (drawer === deleteDrawer) deleteOverlay?.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAllDrawers() {
+    [addDrawer, deleteDrawer].forEach((el) => el?.classList.remove('show'));
+    [addOverlay, deleteOverlay].forEach((el) => el?.classList.remove('show'));
+    document.body.style.overflow = '';
+  }
+
+  function resetAddOtpFlow() {
+    state.addOtpVerified = false;
+    otpBox.style.display = 'none';
+    otpActions.style.display = 'none';
+    otpCode.value = '';
+    saveMethodBtn.disabled = true;
+    approvalStateLabel.textContent = 'Waiting';
+  }
+
+  function resetDeleteOtpFlow() {
+    state.deleteOtpVerified = false;
+    deleteOtpBox.style.display = 'none';
+    deleteOtpActions.style.display = 'none';
+    deleteOtpCode.value = '';
+    confirmDeleteBtn.disabled = true;
+    deleteApprovalStateLabel.textContent = 'Waiting';
+  }
+
+  function normalizeCardNumberInput(value) {
+    return String(value || '')
+      .replace(/\D/g, '')
+      .slice(0, 19)
+      .replace(/(.{4})/g, '$1 ')
+      .trim();
+  }
+
+  function cardLabel(method) {
+    const brand = String(method.card_brand || '').trim();
+    const last4 = String(method.card_last4 || '').replace(/\D/g, '').slice(-4);
+    const holder = String(method.cardholder_name || '').trim();
+    const pieces = [];
+    if (brand) pieces.push(brand);
+    if (last4) pieces.push(`•••• ${last4}`);
+    if (holder) pieces.push(holder);
+    return pieces.length ? pieces.join(' • ') : 'No card details';
+  }
+
+  function buildDeletePanel(method) {
+    if (!method) {
+      deleteMethodLabel.textContent = 'None';
+      deletePreviewList.innerHTML = `
+        <div class="export-preview-item">
+          <div class="k">Status</div>
+          <div class="v">Select a method to remove.</div>
+        </div>
+      `;
+      return;
+    }
+
+    deleteMethodLabel.textContent = method.provider || 'Method';
+    deletePreviewList.innerHTML = `
+      <div class="export-preview-item"><div class="k">Provider</div><div class="v">${method.provider || 'Manual'}</div></div>
+      <div class="export-preview-item"><div class="k">Card</div><div class="v">${cardLabel(method)}</div></div>
+      <div class="export-preview-item"><div class="k">Expiry</div><div class="v">${method.expiry_month && method.expiry_year ? `${method.expiry_month}/${method.expiry_year}` : '—'}</div></div>
+      <div class="export-preview-item"><div class="k">Status</div><div class="v">${method.is_default ? 'Default' : 'Saved'}</div></div>
+    `;
+  }
+
+  function getFormPayload() {
+    return {
+      method_type: methodTypeField.value || 'card',
+      provider: providerField.value || 'visa',
+      cardholder_name: cardHolderName.value.trim(),
+      card_number: cardNumber.value.replace(/\s+/g, ''),
+      expiry_month: expiryMonth.value.trim(),
+      expiry_year: expiryYear.value.trim(),
+      display_name: displayName.value.trim(),
+      account_email: accountEmail.value.trim(),
+      is_default: isDefault.checked ? '1' : '0',
+      meta: JSON.stringify({
+        source: 'payment-methods-ejs',
+        browser: navigator.userAgent || ''
+      })
+    };
+  }
+
+  async function requestAddOtp() {
+    if (!csrfToken()) {
+      showToast('Security token missing. Please refresh the page.');
+      return;
+    }
+
+    const payload = getFormPayload();
+
+    if (!payload.provider || !payload.cardholder_name || !payload.card_number || !payload.expiry_month || !payload.expiry_year) {
+      showToast('Please fill all required fields');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${routeBase}/payments/send-otp`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify({ action: 'create' })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.message || 'OTP request failed');
+
+      state.addOtpVerified = false;
+      otpBox.style.display = 'block';
+      otpActions.style.display = 'flex';
+      approvalStateLabel.textContent = 'OTP Sent';
+      saveMethodBtn.disabled = true;
+      showToast(data.message || 'OTP sent to email');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'OTP request failed');
+    }
+  }
+
+  async function verifyAddOtp() {
+    if (!csrfToken()) {
+      showToast('Security token missing. Please refresh the page.');
+      return;
+    }
+
+    const code = otpCode.value.trim();
+    if (!code) {
+      showToast('Please enter the OTP code');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${routeBase}/payments/verify-otp`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify({ otp: code })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.message || 'Verification failed');
+
+      state.addOtpVerified = true;
+      approvalStateLabel.textContent = 'Verified';
+      saveMethodBtn.disabled = false;
+      showToast(data.message || 'OTP verified');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Verification failed');
+    }
+  }
+
+  async function savePaymentMethod() {
+    if (!state.addOtpVerified) {
+      showToast('Please verify OTP first');
+      return;
+    }
+
+    const payload = getFormPayload();
+
+    try {
+      const res = await fetch(`${routeBase}/payments`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.message || 'Save failed');
+
+      showToast(data.message || 'Payment method added');
+      closeAllDrawers();
+      paymentMethodForm.reset();
+      providerSelect.value = 'visa';
+      providerField.value = 'visa';
+      methodTypeField.value = 'card';
+      resetAddOtpFlow();
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Save failed');
+    }
+  }
+
+  async function requestDeleteOtp() {
+    if (!state.deleteId) {
+      showToast('No payment method selected');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${routeBase}/payments/delete/send-otp`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify({ action: 'delete' })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.message || 'Delete OTP request failed');
+
+      state.deleteOtpVerified = false;
+      deleteOtpBox.style.display = 'block';
+      deleteOtpActions.style.display = 'flex';
+      deleteApprovalStateLabel.textContent = 'OTP Sent';
+      showToast(data.message || 'Delete OTP sent to email');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Delete OTP request failed');
+    }
+  }
+
+  async function verifyDeleteOtp() {
+    if (!csrfToken()) {
+      showToast('Security token missing. Please refresh the page.');
+      return;
+    }
+
+    const code = deleteOtpCode.value.trim();
+    if (!code) {
+      showToast('Please enter the OTP code');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${routeBase}/payments/verify-otp`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify({ otp: code })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.message || 'Delete verification failed');
+
+      state.deleteOtpVerified = true;
+      confirmDeleteBtn.disabled = false;
+      deleteApprovalStateLabel.textContent = 'Verified';
+      showToast(data.message || 'OTP verified. You can delete now.');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Delete verification failed');
+    }
+  }
+
+  async function deletePaymentMethod() {
+    if (!state.deleteId) {
+      showToast('No payment method selected');
+      return;
+    }
+
+    if (!state.deleteOtpVerified) {
+      showToast('Please verify OTP first');
+      return;
+    }
+
+    try {
+      const res = await fetch(`${routeBase}/payments/${encodeURIComponent(state.deleteId)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: fetchHeaders(),
+        body: JSON.stringify({ id: state.deleteId })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.message || 'Delete failed');
+
+      showToast(data.message || 'Payment method removed');
+      closeAllDrawers();
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Delete failed');
+    }
+  }
+
+  function bindEvents() {
+    openAddDrawerBtn?.addEventListener('click', () => {
+      openDrawer(addDrawer);
+      resetAddOtpFlow();
+    });
+
+    closeAddDrawerBtn?.addEventListener('click', closeAllDrawers);
+    addOverlay?.addEventListener('click', closeAllDrawers);
+
+    requestOtpBtn?.addEventListener('click', requestAddOtp);
+    verifyOtpBtn?.addEventListener('click', verifyAddOtp);
+    cancelOtpBtn?.addEventListener('click', resetAddOtpFlow);
+    saveMethodBtn?.addEventListener('click', savePaymentMethod);
+
+    providerSelect?.addEventListener('change', () => {
+      providerField.value = providerSelect.value;
+    });
+
+    cardNumber?.addEventListener('input', () => {
+      cardNumber.value = normalizeCardNumberInput(cardNumber.value);
+    });
+
+    expiryMonth?.addEventListener('input', () => {
+      expiryMonth.value = String(expiryMonth.value || '').replace(/\D/g, '').slice(0, 2);
+    });
+
+    expiryYear?.addEventListener('input', () => {
+      expiryYear.value = String(expiryYear.value || '').replace(/\D/g, '').slice(0, 4);
+    });
+
+    sidebarClose?.addEventListener('click', closeMobileSidebar);
+    toggleBtn?.addEventListener('click', () => {
+      if (isMobile()) {
+        const isOpen = sidebar.classList.contains('open');
+        if (isOpen) {
+          closeMobileSidebar();
+        } else {
+          sidebar.classList.add('open');
+          backdrop?.classList.add('show');
+          document.body.style.overflow = 'hidden';
+          toggleBtn.setAttribute('aria-expanded', 'true');
+        }
+        return;
+      }
+
+      const expanded = layout.classList.toggle('sidebar-expanded');
+      layout.classList.toggle('sidebar-collapsed', !expanded);
+      sidebar.classList.toggle('expanded', expanded);
+      sidebar.classList.toggle('collapsed', !expanded);
+      toggleBtn.setAttribute('aria-expanded', String(expanded));
+    });
+
+    backdrop?.addEventListener('click', closeMobileSidebar);
+    window.addEventListener('resize', applySidebarMode);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMobileSidebar();
+        closeAllDrawers();
+      }
+    });
+
+    methodsTableBody?.addEventListener('click', (e) => {
+      const deleteBtn = e.target.closest('.js-method-delete');
+      if (!deleteBtn) return;
+
+      const id = deleteBtn.dataset.id;
+      state.deleteId = id || null;
+      state.selectedMethod = report.methods.find((m) => String(m.id) === String(id)) || null;
+
+      buildDeletePanel(state.selectedMethod);
+      resetDeleteOtpFlow();
+      openDrawer(deleteDrawer);
+    });
+
+    requestDeleteOtpBtn?.addEventListener('click', requestDeleteOtp);
+    verifyDeleteOtpBtn?.addEventListener('click', verifyDeleteOtp);
+    confirmDeleteBtn?.addEventListener('click', deletePaymentMethod);
+    cancelDeleteBtn?.addEventListener('click', closeAllDrawers);
+    resetDeleteOtpBtn?.addEventListener('click', resetDeleteOtpFlow);
+    deleteOverlay?.addEventListener('click', closeAllDrawers);
+  }
+
+  function init() {
+    applySidebarMode();
+    bindEvents();
+    resetAddOtpFlow();
+    resetDeleteOtpFlow();
+    providerField.value = providerSelect?.value || 'visa';
+    methodTypeField.value = 'card';
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

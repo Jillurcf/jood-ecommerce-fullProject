@@ -1,0 +1,240 @@
+
+
+<div class="security-nav-wrapper">
+
+  <!-- HEADER (MOBILE TOGGLE ONLY) -->
+  <div class="security-nav-header" id="securityNavToggle">
+    <span>
+      <i class="fa fa-shield-alt"></i> Security Navigation
+    </span>
+
+    <i class="fa fa-chevron-down security-nav-arrow"></i>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav
+    class="security-nav"
+    aria-label="Security navigation"
+    id="securityNav"
+  >
+
+    <!-- UPDATE EMAIL -->
+    <a
+      href="/customer/u/security/updateEmail"
+      class="security-nav-link <%= activePage === 'update-email' ? 'active' : '' %>"
+    >
+      <i class="fa fa-envelope"></i>
+      <span>Update Email</span>
+    </a>
+
+    <!-- UPDATE PASSWORD -->
+    <a
+      href="/customer/u/security/updatePassword"
+      class="security-nav-link <%= activePage === 'update-password' ? 'active' : '' %>"
+    >
+      <i class="fa fa-lock"></i>
+      <span>Update Password</span>
+    </a>
+
+  </nav>
+
+</div>
+
+<!-- =========================================================
+  STYLE
+========================================================= -->
+<style>
+:root {
+  --security-primary: #0f172a;
+  --security-border: #e5e7eb;
+  --security-bg: #ffffff;
+  --security-hover: rgba(245, 158, 11, 0.12);
+  --security-active: rgba(245, 158, 11, 0.12);
+  --security-active-color: #0f172a;
+  --security-text: #374151;
+  --security-radius: 14px;
+  --security-transition: 0.25s ease;
+}
+
+/* WRAPPER */
+.security-nav-wrapper {
+  width: 100%;
+  background: var(--security-bg);
+  border: 1px solid var(--security-border);
+  border-radius: var(--security-radius);
+  overflow: hidden;
+}
+
+/* HEADER */
+.security-nav-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  background: #fff;
+  border-bottom: 1px solid var(--security-border);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--security-primary);
+  user-select: none;
+}
+
+.security-nav-header span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.security-nav-arrow {
+  transition: transform var(--security-transition);
+}
+
+/* NAV */
+.security-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+}
+
+/* LINK */
+.security-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  padding: 13px 14px;
+  border-radius: 12px;
+  color: var(--security-primary);
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background var(--security-transition),
+    color var(--security-transition),
+    transform var(--security-transition);
+}
+
+.security-nav-link i {
+  width: 18px;
+  text-align: center;
+  font-size: 15px;
+  color: #f59e0b;
+}
+
+/* HOVER */
+.security-nav-link:hover {
+  background: var(--security-hover);
+  color: var(--security-primary);
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
+/* ACTIVE */
+.security-nav-link.active {
+  background: var(--security-active);
+  color: var(--security-active-color);
+  font-weight: 700;
+}
+
+
+
+/* MOBILE */
+@media (max-width: 991px) {
+
+  .security-nav-header {
+    display: flex;
+  }
+
+  .security-nav.collapsed {
+    display: none;
+  }
+
+  .security-nav-wrapper.closed .security-nav-arrow {
+    transform: rotate(-90deg);
+  }
+
+}
+
+/* SMALL DEVICES */
+@media (max-width: 576px) {
+
+  .security-nav-link {
+    font-size: 13px;
+    padding: 12px 13px;
+  }
+
+}
+</style>
+
+<!-- =========================================================
+  SCRIPT
+========================================================= -->
+<script>
+(function () {
+
+  const toggleBtn = document.getElementById("securityNavToggle");
+  const nav = document.getElementById("securityNav");
+  const wrapper = document.querySelector(".security-nav-wrapper");
+
+  const MOBILE_BREAKPOINT = 991;
+
+  function isMobile() {
+    return window.innerWidth <= MOBILE_BREAKPOINT;
+  }
+
+  // INITIAL STATE
+  function initState() {
+
+    if (isMobile()) {
+
+      // CLOSED BY DEFAULT ON MOBILE
+      nav.classList.add("collapsed");
+      wrapper.classList.add("closed");
+
+    } else {
+
+      // ALWAYS OPEN ON DESKTOP
+      nav.classList.remove("collapsed");
+      wrapper.classList.remove("closed");
+
+    }
+
+  }
+
+  // TOGGLE
+  if (toggleBtn) {
+
+    toggleBtn.addEventListener("click", function () {
+
+      if (!isMobile()) return;
+
+      const isClosed = nav.classList.toggle("collapsed");
+
+      wrapper.classList.toggle("closed", isClosed);
+
+    });
+
+  }
+
+  // AUTO CLOSE ON MOBILE LINK CLICK
+  document.addEventListener("click", function (e) {
+
+    const link = e.target.closest(".security-nav-link");
+
+    if (!link || !isMobile()) return;
+
+    nav.classList.add("collapsed");
+    wrapper.classList.add("closed");
+
+  });
+
+  // HANDLE RESIZE
+  window.addEventListener("resize", initState);
+
+  // INIT
+  initState();
+
+})();
+</script>
+

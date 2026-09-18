@@ -1,0 +1,1048 @@
+<!doctype html>
+<html class="no-js" lang="zxx">
+
+<!-- index-331:38-->
+
+<head>
+    <!-- Basic SEO -->
+    <title>JOOD | Quality Goods & Products</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+        content="JOOD is a trusted online e-commerce store offering quality lifestyle and digital products with secure payments, fast delivery, and excellent customer service.">
+    <meta name="keywords"
+        content="JOOD, online shopping, ecommerce store, digital products, lifestyle products, buy online, secure shopping">
+    <meta name="author" content="JOOD">
+    <meta name="robots" content="index, follow">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://jood.com/">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="JOOD | Trusted Online E-Commerce Store">
+    <meta property="og:description"
+        content="Shop online at JOOD for quality lifestyle and digital products with a smooth, secure, and reliable shopping experience.">
+    <meta property="og:url" content="https://jood.com/">
+    <meta property="og:site_name" content="JOOD">
+    <meta property="og:image" content="https://jood.com/assets/images/og-image.jpg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="JOOD | Trusted Online E-Commerce Store">
+    <meta name="twitter:description"
+        content="Discover quality lifestyle and digital products at JOOD with secure payments and fast delivery.">
+    <meta name="twitter:image" content="https://jood.com/assets/images/og-image.jpg">
+    <meta name="csrf-token" content="<%= csrfToken %>">
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#0d6efd">
+
+      <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+    <!-- Material Design Iconic Font-V2.2.0 -->
+    <link rel="stylesheet" href="/customer/css/material-design-iconic-font.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/customer/css/font-awesome.min.css">
+    <!-- Font Awesome Stars-->
+    <link rel="stylesheet" href="/customer/css/fontawesome-stars.css">
+    <!-- Meanmenu CSS -->
+    <link rel="stylesheet" href="/customer/css/meanmenu.css">
+    <!-- owl carousel CSS -->
+    <link rel="stylesheet" href="/customer/css/owl.carousel.min.css">
+    <!-- Slick Carousel CSS -->
+    <link rel="stylesheet" href="/customer/css/slick.css">
+    <!-- Animate CSS -->
+    <link rel="stylesheet" href="/customer/css/animate.css">
+    <!-- Jquery-ui CSS -->
+    <link rel="stylesheet" href="/customer/css/jquery-ui.min.css">
+    <!-- Venobox CSS -->
+    <link rel="stylesheet" href="/customer/css/venobox.css">
+    <!-- Nice Select CSS -->
+    <link rel="stylesheet" href="/customer/css/nice-select.css">
+    <!-- Magnific Popup CSS -->
+    <link rel="stylesheet" href="/customer/css/magnific-popup.css">
+    <!-- Bootstrap V4.1.3 Fremwork CSS -->
+    <link rel="stylesheet" href="/customer/css/bootstrap.min.css">
+    <!-- Helper CSS -->
+    <link rel="stylesheet" href="/customer/css/helper.css">
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" href="/customer/css/style.css">
+    <!-- Responsive CSS -->
+    <link rel="stylesheet" href="/customer/css/responsive.css">
+    <!-- Modernizr js -->
+    <script src="/customer/js/vendor/modernizr-2.8.3.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+    <link rel="stylesheet" href="owl.carousel.min.css">
+    <script src="owl.carousel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+</head>
+
+<body>
+    <!-- Begin Body Wrapper -->
+<div class="body-wrapper">
+  <%- include('includes/header') %>
+
+  <div class="cartx-page-container">
+    <div class="cartx-page-header">
+      <div>
+        <h2>Your Shopping Cart</h2>
+        <p class="cartx-page-subtitle" id="cartx-page-subtitle">Loading your items...</p>
+      </div>
+    </div>
+
+    <div class="cartx-summary-bar">
+      <div class="cartx-summary-box">
+        <span class="cartx-summary-label">Items</span>
+        <span class="cartx-summary-value" id="cartx-items-count">0</span>
+      </div>
+
+      <div class="cartx-summary-box">
+        <span class="cartx-summary-label">Subtotal</span>
+        <span class="cartx-summary-value">AED <span id="cartx-subtotal">0.00</span></span>
+      </div>
+
+      <div class="cartx-summary-box">
+        <span class="cartx-summary-label">Discount</span>
+        <span class="cartx-summary-value">AED <span id="cartx-discount-total">0.00</span></span>
+      </div>
+
+      <div class="cartx-summary-box">
+        <span class="cartx-summary-label">VAT</span>
+        <span class="cartx-summary-value">AED <span id="cartx-vat-total">0.00</span></span>
+      </div>
+
+      <div class="cartx-summary-box cartx-total-box">
+        <span class="cartx-summary-label">Total</span>
+        <span class="cartx-summary-value">AED <span id="cartx-total-amount">0.00</span></span>
+      </div>
+    </div>
+
+    <div class="cartx-table-wrap">
+      <table class="cartx-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Product</th>
+            <th>Brand</th>
+            <th>Price (AED)</th>
+            <th>Quantity</th>
+            <th>Subtotal (AED)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="cartx-table-body">
+          <tr>
+            <td colspan="8" style="text-align:center;padding:28px;">Loading cart...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+     <div class="checkout-btn-wrapper">
+    <a href="/customer/checkout" class="checkout-btn mt-3">
+        <span>Checkout</span>
+    </a>
+</div>
+
+<style>
+/* Button Wrapper */
+.checkout-btn-wrapper{
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+/* =========================
+   Professional Checkout Button
+========================= */
+.checkout-btn{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 20%;
+    max-width: 320px;
+    height: 54px;
+    padding: 0 22px;
+
+    border-radius: 14px;
+    border: none;
+
+    /* Dark Warning Yellow */
+    background: linear-gradient(135deg, #eab308, #eab308);
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-decoration: none;
+
+    overflow: hidden;
+    cursor: pointer;
+
+    transition: all 0.25s ease;
+
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+}
+
+/* Hover */
+.checkout-btn:hover{
+    background: linear-gradient(135deg, #fbbf24, #ea580c);
+    transform: translateY(-2px);
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Active */
+.checkout-btn:active{
+    transform: scale(0.98);
+}
+
+/* Shine Effect */
+.checkout-btn::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.18);
+    transform: skewX(-25deg);
+    transition: 0.7s;
+}
+
+.checkout-btn:hover::before{
+    left: 120%;
+}
+
+/* Text */
+.checkout-btn span{
+    position: relative;
+    z-index: 2;
+}
+
+/* Tablet */
+@media (max-width: 768px){
+    .checkout-btn{
+        max-width: 220px;
+        height: 50px;
+        font-size: 15px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 576px){
+    .checkout-btn-wrapper{
+        justify-content: flex-end;
+    }
+
+    .checkout-btn{
+        max-width: 180px;
+        height: 46px;
+        font-size: 14px;
+        border-radius: 10px;
+    }
+}
+</style>
+  </div>
+
+  <style>
+    .cartx-page-container {
+      max-width: 1250px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .cartx-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 18px;
+    }
+
+    .cartx-page-header h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: #222;
+    }
+
+    .cartx-page-subtitle {
+      margin: 6px 0 0;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .cartx-refresh-btn {
+      border: none;
+      background: #222;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.25s ease;
+    }
+
+    .cartx-refresh-btn:hover {
+      background: #000;
+    }
+
+    .cartx-summary-bar {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .cartx-summary-box {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .cartx-summary-label {
+      display: block;
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 6px;
+    }
+
+    .cartx-summary-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+    }
+
+    .cartx-total-box {
+      background: #111;
+      border-color: #111;
+    }
+
+    .cartx-total-box .cartx-summary-label,
+    .cartx-total-box .cartx-summary-value {
+      color: #fff;
+    }
+
+    .cartx-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 14px;
+    }
+
+    .cartx-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1100px;
+    }
+
+    .cartx-table th,
+    .cartx-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .cartx-table th {
+      background: #fafafa;
+      font-weight: 700;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .cartx-table td {
+      font-size: 14px;
+      color: #222;
+    }
+
+    .cartx-table img {
+      width: 65px;
+      height: 65px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #eee;
+      background: #f8f8f8;
+    }
+
+    .cartx-product-cell {
+      text-align: left;
+    }
+
+    .cartx-product-name {
+      display: block;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 4px;
+      text-decoration: none;
+    }
+
+    .cartx-product-meta {
+      display: block;
+      font-size: 12px;
+      color: #777;
+      line-height: 1.5;
+    }
+
+    .cartx-price-wrap {
+      line-height: 1.5;
+    }
+
+    .cartx-price-old {
+      display: block;
+      color: #888;
+      text-decoration: line-through;
+      font-size: 12px;
+    }
+
+    .cartx-price-current {
+      display: block;
+      font-weight: 700;
+      color: #111;
+      font-size: 14px;
+    }
+
+    .cartx-price-saved {
+      display: block;
+      color: #2e7d32;
+      font-size: 12px;
+    }
+
+    .cartx-qty-box {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .cartx-qty-btn {
+      width: 34px;
+      height: 34px;
+      border: none;
+      background: #f5f5f5;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .cartx-qty-btn:hover {
+      background: #ededed;
+    }
+
+    .cartx-qty-input {
+      width: 54px;
+      height: 34px;
+      border: none;
+      text-align: center;
+      outline: none;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .cartx-action-btn {
+      border: none;
+      color: #d93025;
+      padding: 9px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.25s ease;
+      background: none;
+    }
+
+    .cartx-action-btn:hover {
+      background: #fafafa;
+    }
+
+    .cartx-empty-cart {
+      padding: 40px 20px;
+      text-align: center;
+      color: #666;
+    }
+
+    .cartx-empty-cart h3 {
+      margin: 0 0 10px;
+      color: #222;
+    }
+
+    .cartx-empty-cart p {
+      margin: 0 0 18px;
+    }
+
+    .cartx-empty-cart a {
+      display: inline-block;
+      text-decoration: none;
+      background: #111;
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: 8px;
+    }
+
+    .cartx-inline-note {
+      display: block;
+      font-size: 12px;
+      color: #777;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 992px) {
+      .cartx-summary-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cartx-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .cartx-summary-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .cartx-page-container {
+        padding: 12px;
+      }
+    }
+  </style>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const API = "/customer/cart/api";
+      const API_UPDATE = "/customer/cart/update";
+      const API_REMOVE = "/customer/cart/remove";
+      const GUEST_KEY = "guest_wishlist_token";
+      const DEFAULT_IMAGE = "/uploads/products/default.jpg";
+      const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || null;
+
+      function toNum(v) {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : 0;
+      }
+
+      function escapeHtml(v) {
+        return v == null ? "" : String(v)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function getItems(cart) {
+        if (Array.isArray(cart?.items)) return cart.items;
+        if (Array.isArray(cart?.data)) return cart.data;
+        if (Array.isArray(cart?.cart)) return cart.cart;
+        if (Array.isArray(cart?.rows)) return cart.rows;
+        return [];
+      }
+
+      function normalizeImage(raw) {
+        if (!raw) return DEFAULT_IMAGE;
+
+        let img = String(raw).trim().replaceAll("\\", "/");
+
+        if (img.startsWith("http://") || img.startsWith("https://") || img.startsWith("//")) {
+          return img;
+        }
+
+        if (img.startsWith("/")) {
+          return img;
+        }
+
+        img = img.replace(/^\/+/, "");
+
+        if (img.startsWith("uploads/products/") || img.startsWith("uploads/")) {
+          return "/" + img;
+        }
+
+        return "/uploads/products/" + img;
+      }
+
+      function getImagePath(item) {
+        const raw =
+          item?.variant_image ||
+          item?.filename ||
+          item?.media_filename ||
+          item?.image ||
+          item?.pv_image ||
+          item?.main_image ||
+          item?.product_image ||
+          item?.product?.image ||
+          "";
+        return normalizeImage(raw);
+      }
+
+      function getName(item) {
+        return item?.pv_name || item?.variant_name || item?.name || item?.product_name || "Unnamed Item";
+      }
+
+      function getBrand(item) {
+        return (
+          item?.product_brand ||
+          item?.brand_name ||
+          item?.brand ||
+          item?.pv_brand ||
+          item?.product?.brand ||
+          item?.product?.brand_name ||
+          "—"
+        );
+      }
+
+      function getProductId(item) {
+        return item?.pv_product_id ?? item?.cart_product_id ?? item?.product_id ?? item?.master_id ?? item?.id ?? "";
+      }
+
+      function getVariantId(item) {
+        return item?.variant_id ?? item?.pv_id ?? item?.id ?? "";
+      }
+
+      function getQty(item) {
+        return Number(item?.quantity ?? item?.qty ?? item?.in_cart_qty ?? 1) || 1;
+      }
+
+      function getOriginalPrice(item) {
+        const p1 = toNum(item?.pv_price);
+        const p2 = toNum(item?.price);
+        const p3 = toNum(item?.original_price);
+        return p1 > 0 ? p1 : (p2 > 0 ? p2 : p3);
+      }
+
+      function getSalePrice(item) {
+        const s = toNum(item?.pv_sale_price);
+        if (s > 0) return s;
+        return 0;
+      }
+
+      function getDiscountPerUnit(item, originalPrice, effectivePrice) {
+        const type = String(item?.pv_discount_type || "").toLowerCase().trim();
+        const value = toNum(item?.pv_discount_value);
+
+        if (value > 0) {
+          if (type === "percent" || type === "percentage") {
+            return (originalPrice * value) / 100;
+          }
+          return value;
+        }
+
+        return Math.max(originalPrice - effectivePrice, 0);
+      }
+function getVatPerUnit(item, priceAfterDiscount) {
+  const vatRate = Number(item?.pv_vat_rate || 0);
+
+  const vatIncluded =
+    item?.pv_vat_included === true ||
+    item?.pv_vat_included === 1 ||
+    item?.pv_vat_included === "1" ||
+    String(item?.pv_vat_included).toLowerCase() === "true";
+
+  // ❌ FIX: proper guard
+  if (vatRate <= 0) return 0;
+
+  // if VAT already included in price → skip calculation
+  if (vatIncluded) return 0;
+
+  return (priceAfterDiscount * vatRate) / 100;
+}
+
+   function calcRow(item) {
+  const qty = getQty(item);
+
+  const originalPrice = getOriginalPrice(item);
+
+  // FIXED DISCOUNT
+  const discountPerUnit = getDiscountPerUnit(item, originalPrice, originalPrice);
+
+  const priceAfterDiscount = Math.max(originalPrice - discountPerUnit, 0);
+
+  // FIXED VAT BASED ON YOUR RULE
+  const vatRate = Number(item?.pv_vat_rate || 0);
+
+  const vatIncluded = false; 
+  // (IMPORTANT: do NOT block VAT unless you really store inclusive pricing)
+
+  const vatPerUnit = vatRate > 0
+    ? (priceAfterDiscount * vatRate) / 100
+    : 0;
+
+  const lineSubtotal = originalPrice * qty;
+  const lineDiscount = discountPerUnit * qty;
+  const lineVat = vatPerUnit * qty;
+
+  const lineTotal = (priceAfterDiscount + vatPerUnit) * qty;
+
+  return {
+    qty,
+    originalPrice,
+    discountPerUnit,
+    priceAfterDiscount,
+    vatPerUnit,
+    lineSubtotal,
+    lineDiscount,
+    lineVat,
+    lineTotal
+  };
+}   function getGuestToken() {
+        try {
+          const existing = localStorage.getItem(GUEST_KEY);
+          if (existing) return existing;
+          const token = "guest_" + Math.random().toString(36).slice(2, 12);
+          localStorage.setItem(GUEST_KEY, token);
+          return token;
+        } catch (e) {
+          return "guest_" + Math.random().toString(36).slice(2, 12);
+        }
+      }
+
+      const GUEST_TOKEN = getGuestToken();
+
+      async function apiFetch(url, method = "GET", body = null) {
+        const headers = {
+          "x-guest-token": GUEST_TOKEN
+        };
+
+        if (method !== "GET") {
+          headers["Content-Type"] = "application/json";
+          if (CSRF) headers["x-csrf-token"] = CSRF;
+        }
+
+        const res = await fetch(url, {
+          method,
+          headers,
+          credentials: "same-origin",
+          body: method === "GET" || body == null ? undefined : JSON.stringify(body)
+        });
+
+        let json = null;
+        try {
+          json = await res.json();
+        } catch (e) {}
+
+        if (!res.ok) {
+          const msg = (json && json.message) ? json.message : `HTTP ${res.status}`;
+          const err = new Error(msg);
+          err.status = res.status;
+          err.body = json;
+          throw err;
+        }
+
+        return json;
+      }
+
+      function setBusy(el, busy) {
+        if (!el) return;
+
+        if (busy) {
+          el.dataset.originalHtml = el.innerHTML;
+          el.disabled = true;
+          el.innerHTML = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+        } else {
+          el.disabled = false;
+          if (el.dataset.originalHtml) {
+            el.innerHTML = el.dataset.originalHtml;
+            delete el.dataset.originalHtml;
+          }
+        }
+      }
+
+      function renderCart(cart) {
+        const countEl = document.getElementById("cartx-items-count");
+        const subtotalEl = document.getElementById("cartx-subtotal");
+        const discountEl = document.getElementById("cartx-discount-total");
+        const vatEl = document.getElementById("cartx-vat-total");
+        const totalEl = document.getElementById("cartx-total-amount");
+        const subtitleEl = document.getElementById("cartx-page-subtitle");
+        const bodyEl = document.getElementById("cartx-table-body");
+
+        const items = getItems(cart);
+
+        const summary = items.reduce((acc, item) => {
+          const row = calcRow(item);
+          acc.items += row.qty;
+          acc.subtotal += row.lineSubtotal;
+          acc.discount += row.lineDiscount;
+          acc.vat += row.lineVat;
+          acc.total += row.lineTotal;
+          return acc;
+        }, { items: 0, subtotal: 0, discount: 0, vat: 0, total: 0 });
+
+        if (countEl) countEl.textContent = String(summary.items);
+        if (subtotalEl) subtotalEl.textContent = summary.subtotal.toFixed(2);
+        if (discountEl) discountEl.textContent = summary.discount.toFixed(2);
+        if (vatEl) vatEl.textContent = summary.vat.toFixed(2);
+        if (totalEl) totalEl.textContent = summary.total.toFixed(2);
+
+        if (subtitleEl) {
+          subtitleEl.textContent = items.length
+            ? `${items.length} line item(s) in your cart`
+            : "Your cart is currently empty";
+        }
+
+        if (!bodyEl) return;
+
+        if (!items.length) {
+          bodyEl.innerHTML = `
+            <tr>
+              <td colspan="8">
+                <div class="cartx-empty-cart">
+                  <h3>Your cart is empty</h3>
+                  <p>Browse products and add items to see them here.</p>
+                  <a href="/">Continue Shopping</a>
+                </div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        bodyEl.innerHTML = items.map((item) => {
+          const row = calcRow(item);
+          const productId = getProductId(item);
+          const variantId = getVariantId(item);
+          const name = getName(item);
+          const brand = getBrand(item);
+          const img = getImagePath(item);
+
+          return `
+            <tr data-variant-id="${escapeHtml(String(variantId))}">
+              <td>
+                <a href="/customer/product/product-details/${productId}/${variantId}">
+                  <img src="${img}" alt="${escapeHtml(name)}">
+                </a>
+              </td>
+
+              <td class="cartx-product-cell">
+                <a href="/customer/product/product-details/${productId}/${variantId}" class="cartx-product-name">
+                  ${escapeHtml(name)}
+                </a>
+              </td>
+
+              <td>${escapeHtml(brand)}</td>
+
+              <td>
+                <div class="cartx-price-wrap">
+                  ${
+                    row.discountPerUnit > 0
+                      ? `
+                        <span class="cartx-price-old">AED ${row.originalPrice.toFixed(2)}</span>
+                        <span class="cartx-price-current">AED ${row.priceAfterDiscount.toFixed(2)}</span>
+                        <span class="cartx-price-saved"> Discount: AED ${row.discountPerUnit.toFixed(2)} / item</span>
+                        <span class="cartx-inline-note">VAT: AED ${row.vatPerUnit.toFixed(2)} / item</span>
+                      `
+                      : `
+                        <span class="cartx-price-current">AED ${row.originalPrice.toFixed(2)}</span>
+                        <span class="cartx-inline-note">VAT: AED ${row.vatPerUnit.toFixed(2)} / item</span>
+                      `
+                  }
+                </div>
+              </td>
+
+              <td>
+                <div class="cartx-qty-box">
+                  <button type="button" class="cartx-qty-btn js-cartx-minus" data-variant-id="${escapeHtml(String(variantId))}">−</button>
+                  <input class="cartx-qty-input" type="text" value="${row.qty}" readonly>
+                  <button type="button" class="cartx-qty-btn js-cartx-plus" data-variant-id="${escapeHtml(String(variantId))}">+</button>
+                </div>
+              </td>
+
+              <td>
+                <strong>AED ${row.lineTotal.toFixed(2)}</strong>
+                
+              </td>
+
+              <td>
+                <button type="button" class="cartx-action-btn js-cartx-remove" data-variant-id="${escapeHtml(String(variantId))}">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      async function loadCart() {
+        try {
+          const json = await apiFetch(API, "GET");
+          renderCart(json);
+        } catch (error) {
+          console.error("Cart load error:", error);
+          renderCart({ items: [] });
+        }
+      }
+
+      async function updateCartQty(variantId, qty) {
+        return apiFetch(API_UPDATE, "POST", {
+          variant_id: Number(variantId),
+          quantity: Number(qty)
+        });
+      }
+
+      async function removeFromCart(variantId) {
+        return apiFetch(API_REMOVE, "POST", {
+          variant_id: Number(variantId)
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        loadCart();
+
+        const refreshBtn = document.getElementById("cartx-refresh-btn");
+        if (refreshBtn) {
+          refreshBtn.addEventListener("click", loadCart);
+        }
+
+        const bodyEl = document.getElementById("cartx-table-body");
+
+        if (bodyEl) {
+          bodyEl.addEventListener("click", async (e) => {
+            const target = e.target;
+            if (!target) return;
+
+            const plusBtn = target.closest(".js-cartx-plus");
+            const minusBtn = target.closest(".js-cartx-minus");
+            const removeBtn = target.closest(".js-cartx-remove");
+
+            try {
+              if (plusBtn) {
+                e.preventDefault();
+                const variantId = plusBtn.dataset.variantId;
+                const row = plusBtn.closest("tr");
+                const qtyInput = row?.querySelector(".cartx-qty-input");
+                const currentQty = toNum(qtyInput?.value || 0);
+
+                setBusy(plusBtn, true);
+                await updateCartQty(variantId, currentQty + 1);
+                await loadCart();
+              }
+
+              if (minusBtn) {
+                e.preventDefault();
+                const variantId = minusBtn.dataset.variantId;
+                const row = minusBtn.closest("tr");
+                const qtyInput = row?.querySelector(".cartx-qty-input");
+                const currentQty = toNum(qtyInput?.value || 0);
+
+                setBusy(minusBtn, true);
+
+                if (currentQty <= 1) {
+                  await removeFromCart(variantId);
+                } else {
+                  await updateCartQty(variantId, currentQty - 1);
+                }
+
+                await loadCart();
+              }
+
+              if (removeBtn) {
+                e.preventDefault();
+                const variantId = removeBtn.dataset.variantId;
+                setBusy(removeBtn, true);
+                await removeFromCart(variantId);
+                await loadCart();
+              }
+            } catch (err) {
+              console.error("Cart action failed:", err);
+              alert(err?.body?.message || err.message || "Cart action failed");
+            } finally {
+              [plusBtn, minusBtn, removeBtn].forEach(btn => {
+                if (btn) setBusy(btn, false);
+              });
+            }
+          });
+        }
+
+        const socket = typeof io !== "undefined"
+          ? io({ transports: ["websocket"], withCredentials: true })
+          : null;
+
+        const CURRENT_USER_ID = window.CURRENT_USER_ID || null;
+        const CURRENT_GUEST_ID = localStorage.getItem(GUEST_KEY) || null;
+
+        if (socket) {
+          socket.on("cartUpdated", (payload) => {
+            const { userId, guestId } = payload || {};
+            if (userId === CURRENT_USER_ID || guestId === CURRENT_GUEST_ID) {
+              loadCart();
+            }
+          });
+        }
+
+        window.loadCart = loadCart;
+      });
+    })();
+  </script>
+
+  <%- include('includes/footer') %>
+</div>
+    <!-- load libs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+    <!-- Body Wrapper End Here -->
+    <!-- jQuery-V1.12.4 -->
+    <!-- <script src="/customer/javascript/include.js"></script> -->
+    <script src="/customer/js/vendor/jquery-1.12.4.min.js"></script>
+    <!-- Popper js -->
+    <script src="/customer/js/vendor/popper.min.js"></script>
+    <!-- Bootstrap V4.1.3 Fremwork js -->
+    <script src="/customer/js/bootstrap.min.js"></script>
+    <!-- Ajax Mail js -->
+    <script src="/customer/js/ajax-mail.js"></script>
+    <!-- Meanmenu js -->
+    <script src="/customer/js/jquery.meanmenu.min.js"></script>
+    <!-- Wow.min js -->
+    <script src="/customer/js/wow.min.js"></script>
+    <!-- Slick Carousel js -->
+    <script src="/customer/js/slick.min.js"></script>
+    <!-- Owl Carousel-2 js -->
+    <script src="/customer/js/owl.carousel.min.js"></script>
+    <!-- Magnific popup js -->
+    <script src="/customer/js/jquery.magnific-popup.min.js"></script>
+    <!-- Isotope js -->
+    <script src="/customer/js/isotope.pkgd.min.js"></script>
+    <!-- Imagesloaded js -->
+    <script src="/customer/js/imagesloaded.pkgd.min.js"></script>
+    <!-- Mixitup js -->
+    <script src="/customer/js/jquery.mixitup.min.js"></script>
+    <!-- Countdown -->
+    <script src="/customer/js/jquery.countdown.min.js"></script>
+    <!-- Counterup -->
+    <script src="/customer/js/jquery.counterup.min.js"></script>
+    <!-- Waypoints -->
+    <script src="/customer/js/waypoints.min.js"></script>
+    <!-- Barrating -->
+    <script src="/customer/js/jquery.barrating.min.js"></script>
+    <!-- Jquery-ui -->
+    <script src="/customer/js/jquery-ui.min.js"></script>
+    <!-- Venobox -->
+    <script src="/customer/js/venobox.min.js"></script>
+    <!-- Nice Select js -->
+    <script src="/customer/js/jquery.nice-select.min.js"></script>
+    <!-- ScrollUp js -->
+    <script src="/customer/js/scrollUp.min.js"></script>
+    <!-- Main/Activator js -->
+    <script src="/customer/js/main.js"></script>
+    <!-- Guest Token Manager (handles cart persistence for non-logged-in users) -->
+    <script src="/js/guest-token-manager.js"></script>
+</body>
+
+<!-- index-331:41-->
+
+</html>

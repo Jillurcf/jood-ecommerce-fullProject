@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Recover Password - JOOD | Account Recovery</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Recover your JOOD account securely by setting a new password.">
+  <meta name="robots" content="noindex, follow">
+
+  <link rel="icon" type="image/png" href="/customer/assets/images/favicon.png">
+    <link rel="shortcut icon" href="/customer/images/web-img-vid/favicon.png" type="image/x-icon">
+
+
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+  <link href="/customer/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/customer/assets/css/nucleo-svg.css" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <link id="pagestyle" href="/customer/assets/css/soft-ui-dashboard.css?v=1.0.3" rel="stylesheet" />
+
+  <style>
+    .wizard-shell {
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .wizard-step {
+      display: none;
+      animation: fadeInUp .25s ease;
+    }
+
+    .wizard-step.active {
+      display: block;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .summary-box {
+      border: 1px solid #e9ecef;
+      border-radius: 16px;
+      background: #fbfcfe;
+      padding: 16px;
+    }
+
+    .soft-divider {
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.04));
+      margin: 16px 0;
+    }
+
+    .step-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      background: #fe9d00;
+      color: #fff;
+      margin-right: 10px;
+      flex: 0 0 auto;
+    }
+
+    .step-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .step-muted {
+      color: #67748e;
+      font-size: .92rem;
+    }
+
+    .strength-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #e9ecef;
+      overflow: hidden;
+    }
+
+    .strength-bar > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      transition: width .2s ease, background .2s ease;
+      background: #dc3545;
+    }
+
+    .criteria-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .9rem;
+      color: #6c757d;
+      margin-bottom: .4rem;
+    }
+
+    .criteria-item i {
+      width: 16px;
+      text-align: center;
+    }
+
+    .criteria-item.valid {
+      color: #198754;
+    }
+
+    .criteria-item.invalid {
+      color: #6c757d;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #67748e;
+      padding: 0;
+      cursor: pointer;
+      z-index: 3;
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .inline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .3rem .55rem;
+      border-radius: 999px;
+      font-size: .78rem;
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+    }
+
+    .inline-badge.ok {
+      background: rgba(25, 135, 84, 0.08);
+      border-color: rgba(25, 135, 84, 0.2);
+      color: #198754;
+    }
+
+    .inline-badge.bad {
+      background: rgba(220, 53, 69, 0.08);
+      border-color: rgba(220, 53, 69, 0.2);
+      color: #dc3545;
+    }
+
+    .btn-recovery {
+      background-color: #fe9d00;
+      color: #fff;
+      border: 1px solid #fe9d00;
+    }
+
+    .btn-recovery:hover,
+    .btn-recovery:focus {
+      background-color: #e98d00;
+      color: #fff;
+      border-color: #e98d00;
+    }
+
+    .btn-outline-soft {
+      border: 1px solid #d2d6da;
+      background: #fff;
+      color: #344767;
+    }
+
+    .btn-outline-soft:hover {
+      background: #f8f9fa;
+      color: #344767;
+    }
+  </style>
+</head>
+
+<body class="g-sidenav-show bg-gray-100">
+  <section class="min-vh-100 mb-8">
+    <div
+      class="page-header align-items-start min-vh-50 pt-5 pb-11 m-3 border-radius-lg bg-warning"
+      style="background-image: url('/customer/assets/img/curved-images/s.png');"
+    >
+      <span class="mask bg-gradient-dark opacity-6"></span>
+
+      <div class="container position-relative">
+        <div class="row justify-content-center">
+          <div class="col-lg-6 text-center mx-auto">
+            <div class="logo mb-4">
+              <a href="/">
+                <img src="/customer/images/web-img-vid/logo.png" width="120" alt="logo">
+              </a>
+            </div>
+
+            <h1 class="text-white mb-2">Recover Password</h1>
+            <p class="text-lead text-white">
+              Set a new strong password for your account.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row mt-lg-n10 mt-md-n11 mt-n10">
+        <div class="col-xl-6 col-lg-8 col-md-10 mx-auto">
+          <div class="card z-index-0 shadow-sm wizard-shell">
+            <div class="card-header text-center pt-4 pb-2">
+              <h5 class="mb-1">Create New Password</h5>
+              <p class="text-sm text-muted mb-0">Your password must be strong and unique</p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+              <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-danger text-white">
+                  <%= error %>
+                </div>
+              <% } %>
+
+              <% if (typeof success !== 'undefined' && success) { %>
+                <div class="alert alert-success text-white">
+                  <%= success %>
+                </div>
+              <% } %>
+
+              <%
+                const safeTarget = (typeof maskedTarget !== 'undefined' && maskedTarget)
+                  ? maskedTarget
+                  : ((typeof otpTarget !== 'undefined' && otpTarget) ? otpTarget : 'your account');
+
+                const safeMode = (typeof recoveryMode !== 'undefined' && recoveryMode)
+                  ? recoveryMode
+                  : 'otp';
+              %>
+
+              <form
+                id="recoveryForm"
+                action="/admin/a/password/forgot/update"
+                method="POST"
+                autocomplete="off"
+                novalidate
+              >
+                <% if (csrfToken) { %>
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <% } %>
+
+                <input type="hidden" name="recovery_mode" value="<%= safeMode %>">
+
+                <div id="step1" class="wizard-step active">
+                  <div class="step-title">
+                    <span class="step-badge">1</span>
+                    <div>
+                      <div class="fw-bold">Confirm your recovery session</div>
+                      <div class="step-muted">
+                        You are about to set a new password for <strong><%= safeTarget %></strong>.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="summary-box mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-sm text-muted">Account</span>
+                      <strong><%= safeTarget %></strong>
+                    </div>
+
+                    <div class="soft-divider"></div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-sm text-muted">Recovery type</span>
+                      <span class="inline-badge ok">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <%= safeMode === 'link' ? 'Reset Link Verified' : 'OTP Verified' %>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="d-flex justify-content-end">
+                    <button type="button" id="toStep2Btn" class="btn btn-recovery px-5">
+                      Continue
+                    </button>
+                  </div>
+                </div>
+
+                <div id="step2" class="wizard-step">
+                  <div class="step-title">
+                    <span class="step-badge">2</span>
+                    <div>
+                      <div class="fw-bold">Enter your new password</div>
+                      <div class="step-muted">
+                        Use at least 8 characters with uppercase, lowercase, number, and special character.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">New password</label>
+                    <div class="password-wrap">
+                      <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control form-control-lg pe-5"
+                        placeholder="Enter new password"
+                        autocomplete="new-password"
+                        required
+                      >
+                      <button type="button" class="toggle-password" data-target="password" aria-label="Toggle password visibility">
+                        <i class="fa-solid fa-eye"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="text-sm text-muted">Password strength</span>
+                      <strong id="strengthText">Too weak</strong>
+                    </div>
+
+                    <div class="strength-bar mb-3">
+                      <span id="strengthBar"></span>
+                    </div>
+
+                    <div id="criteria">
+                      <div class="criteria-item invalid" data-rule="length">
+                        <i class="fa-regular fa-circle-xmark"></i>
+                        <span>At least 8 characters</span>
+                      </div>
+                      <div class="criteria-item invalid" data-rule="upper">
+                        <i class="fa-regular fa-circle-xmark"></i>
+                        <span>At least 1 uppercase letter</span>
+                      </div>
+                      <div class="criteria-item invalid" data-rule="lower">
+                        <i class="fa-regular fa-circle-xmark"></i>
+                        <span>At least 1 lowercase letter</span>
+                      </div>
+                      <div class="criteria-item invalid" data-rule="number">
+                        <i class="fa-regular fa-circle-xmark"></i>
+                        <span>At least 1 number</span>
+                      </div>
+                      <div class="criteria-item invalid" data-rule="special">
+                        <i class="fa-regular fa-circle-xmark"></i>
+                        <span>At least 1 special character</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mb-4">
+                    <label class="form-label fw-bold">Confirm password</label>
+                    <div class="password-wrap">
+                      <input
+                        type="password"
+                        id="confirm_password"
+                        name="confirm_password"
+                        class="form-control form-control-lg pe-5"
+                        placeholder="Confirm new password"
+                        autocomplete="new-password"
+                        required
+                      >
+                      <button type="button" class="toggle-password" data-target="confirm_password" aria-label="Toggle confirm password visibility">
+                        <i class="fa-solid fa-eye"></i>
+                      </button>
+                    </div>
+                    <div id="matchHint" class="mt-2 text-sm text-muted">
+                      Passwords must match.
+                    </div>
+                  </div>
+
+                  <div class="d-flex gap-2 justify-content-between">
+                    <button type="button" id="backToStep1Btn" class="btn btn-outline-soft px-5">
+                      Back
+                    </button>
+                    <button type="submit" id="submitBtn" class="btn btn-recovery px-5" disabled>
+                      Update Password
+                    </button>
+                  </div>
+                </div>
+
+                <p class="text-sm text-center mt-4 mb-0">
+                  Remember your password?
+                  <a href="/admin/a/sign/in" class="text-dark font-weight-bolder">Sign in</a>
+                </p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="/customer/assets/js/core/popper.min.js"></script>
+  <script src="/customer/assets/js/core/bootstrap.min.js"></script>
+  <script src="/customer/assets/js/plugins/perfect-scrollbar.min.js"></script>
+  <script src="/customer/assets/js/plugins/smooth-scrollbar.min.js"></script>
+  <script src="/customer/assets/js/soft-ui-dashboard.min.js?v=1.0.3"></script>
+
+  <script>
+    (function () {
+      const form = document.getElementById("recoveryForm");
+      const step1 = document.getElementById("step1");
+      const step2 = document.getElementById("step2");
+      const toStep2Btn = document.getElementById("toStep2Btn");
+      const backToStep1Btn = document.getElementById("backToStep1Btn");
+      const submitBtn = document.getElementById("submitBtn");
+
+      const password = document.getElementById("password");
+      const confirmPassword = document.getElementById("confirm_password");
+      const strengthBar = document.getElementById("strengthBar");
+      const strengthText = document.getElementById("strengthText");
+      const matchHint = document.getElementById("matchHint");
+
+      const rules = {
+        length: document.querySelector('[data-rule="length"]'),
+        upper: document.querySelector('[data-rule="upper"]'),
+        lower: document.querySelector('[data-rule="lower"]'),
+        number: document.querySelector('[data-rule="number"]'),
+        special: document.querySelector('[data-rule="special"]'),
+      };
+
+      function setActiveStep(step) {
+        step1.classList.remove("active");
+        step2.classList.remove("active");
+
+        if (step === 1) step1.classList.add("active");
+        if (step === 2) step2.classList.add("active");
+      }
+
+      function checkPasswordRules(value) {
+        return {
+          length: value.length >= 8,
+          upper: /[A-Z]/.test(value),
+          lower: /[a-z]/.test(value),
+          number: /\d/.test(value),
+          special: /[^A-Za-z0-9]/.test(value),
+        };
+      }
+
+      function strengthState(passedCount) {
+        if (passedCount <= 1) return { width: "20%", label: "Very weak", color: "#dc3545" };
+        if (passedCount === 2) return { width: "40%", label: "Weak", color: "#fd7e14" };
+        if (passedCount === 3) return { width: "60%", label: "Okay", color: "#ffc107" };
+        if (passedCount === 4) return { width: "80%", label: "Strong", color: "#0d6efd" };
+        return { width: "100%", label: "Your password is strong", color: "#198754" };
+      }
+
+      function updateStrength() {
+        const value = password.value || "";
+        const checks = checkPasswordRules(value);
+        const passedCount = Object.values(checks).filter(Boolean).length;
+        const state = strengthState(passedCount);
+
+        strengthBar.style.width = state.width;
+        strengthBar.style.background = state.color;
+        strengthText.textContent = state.label;
+        strengthText.style.color = state.color;
+
+        Object.keys(rules).forEach((key) => {
+          const el = rules[key];
+          const icon = el.querySelector("i");
+
+          if (checks[key]) {
+            el.classList.remove("invalid");
+            el.classList.add("valid");
+            icon.className = "fa-solid fa-circle-check";
+          } else {
+            el.classList.remove("valid");
+            el.classList.add("invalid");
+            icon.className = "fa-regular fa-circle-xmark";
+          }
+        });
+
+        const confirmValue = confirmPassword.value || "";
+        const matches = value.length > 0 && confirmValue.length > 0 && value === confirmValue;
+
+        if (!confirmValue) {
+          matchHint.textContent = "Passwords must match.";
+          matchHint.style.color = "#6c757d";
+        } else if (matches) {
+          matchHint.innerHTML = '<span class="inline-badge ok"><i class="fa-solid fa-circle-check"></i> Passwords match</span>';
+        } else {
+          matchHint.innerHTML = '<span class="inline-badge bad"><i class="fa-solid fa-circle-xmark"></i> Passwords do not match</span>';
+        }
+
+        const strong = passedCount === 5 && matches;
+        submitBtn.disabled = !strong;
+
+        return { strong, matches, passedCount };
+      }
+
+      function updatePasswordVisibility(button) {
+        const targetId = button.getAttribute("data-target");
+        const input = document.getElementById(targetId);
+        const icon = button.querySelector("i");
+
+        if (!input) return;
+
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        icon.className = isPassword ? "fa-solid fa-eye-slash" : "fa-solid fa-eye";
+      }
+
+      toStep2Btn.addEventListener("click", function () {
+        setActiveStep(2);
+        password.focus();
+      });
+
+      backToStep1Btn.addEventListener("click", function () {
+        setActiveStep(1);
+      });
+
+      password.addEventListener("input", updateStrength);
+      confirmPassword.addEventListener("input", updateStrength);
+
+      document.querySelectorAll(".toggle-password").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          updatePasswordVisibility(btn);
+        });
+      });
+
+      form.addEventListener("submit", function (e) {
+        const result = updateStrength();
+        if (!result.strong) {
+          e.preventDefault();
+          setActiveStep(2);
+          return;
+        }
+      });
+
+      updateStrength();
+    })();
+  </script>
+</body>
+</html>
