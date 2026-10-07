@@ -10,7 +10,7 @@ export default function AboutPage() {
       </h1>
       <div className="card" style={{ padding: '1.5rem', maxWidth: '760px' }}>
         <p style={{ marginBottom: '1rem' }}>
-          Jood is a quality goods &amp; products store. Our mission is to bring you a
+          JOODis a quality goods &amp; products store. Our mission is to bring you a
           curated selection of great products at fair prices, with a simple and reliable
           shopping experience.
         </p>

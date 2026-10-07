@@ -33,7 +33,7 @@ export default function AdminSignInPage() {
     <div className="auth-page" style={{ minHeight: '100vh' }}>
       <div className="auth-card card">
         <h1 className="auth-title">Admin Sign In</h1>
-        <p className="auth-subtitle">Jood Administration</p>
+        <p className="auth-subtitle">JOODAdministration</p>
         {error && <div className="auth-error">{error}</div>}
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-field">

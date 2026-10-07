@@ -1,4 +1,4 @@
-# Jood Frontend
+# JOODFrontend
 
 Next.js App Router + TypeScript storefront.
 

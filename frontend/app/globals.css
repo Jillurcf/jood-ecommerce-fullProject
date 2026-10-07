@@ -1,7 +1,9 @@
 :root {
-  --primary: #f59e0b;
-  --primary-dark: #d97706;
-  --primary-light: #fef3c7;
+  --primary: #1c953f;
+  --primary-dark: #157a33;
+  --primary-light: #e7f6ec;
+  --accent: #7f3f98;
+  --accent-light: #f3e9f8;
   --ink: #1f2937;
   --muted: #6b7280;
   --line: #e5e7eb;
@@ -964,7 +966,7 @@ textarea {
 
 /* ── Homepage hero ──────────────────────────────────────── */
 .hero {
-  background: linear-gradient(120deg, var(--primary-light), #fff7ed);
+  background: linear-gradient(120deg, var(--primary-light), var(--accent-light));
   border-radius: var(--radius);
   padding: 2.5rem 2rem;
   margin: 1.5rem 0;
@@ -1729,7 +1731,7 @@ textarea {
 }
 
 .admin-nav__link.is-active {
-  background: rgba(245, 158, 11, 0.15);
+  background: rgba(28, 149, 63, 0.15);
   color: var(--primary);
   font-weight: 600;
   border-left: 3px solid var(--primary);
@@ -2284,7 +2286,7 @@ textarea {
   grid-template-columns: 1.1fr 1fr;
   gap: 2rem;
   align-items: center;
-  background: linear-gradient(120deg, var(--primary-light), #fff7ed 55%, #fff);
+  background: linear-gradient(120deg, var(--primary-light), var(--accent-light) 55%, #fff);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
@@ -2419,7 +2421,7 @@ textarea {
 /*  Personalise promo strip in header                          */
 /* ══════════════════════════════════════════════════════════ */
 .promo-strip {
-  background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+  background: linear-gradient(90deg, var(--primary), var(--accent));
   color: #fff;
   font-size: 0.85rem;
   text-align: center;

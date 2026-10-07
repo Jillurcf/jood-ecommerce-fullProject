@@ -9,7 +9,7 @@ import { DEAL_PRODUCTS, PRODUCTS_BY_CATEGORY, STATIC_PRODUCTS } from '@/lib/stat
 import type { VariantCard } from '@/lib/types';
 
 export const metadata: Metadata = {
-  title: 'JOOD | Quality Goods & Products',
+  title: 'JOOD| Quality Goods & Products',
 };
 
 export const revalidate = 60;

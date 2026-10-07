@@ -1,4 +1,4 @@
-# Jood Frontend — Next.js
+# JOODFrontend — Next.js
 # Multi-stage: deps -> build (with standalone output) -> runtime
 # The standalone output is self-contained (includes node server + traced deps).
 

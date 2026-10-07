@@ -11,7 +11,7 @@ export default function LegalPage() {
       <div className="card" style={{ padding: '1.5rem', maxWidth: '760px' }}>
         <h3 style={{ marginBottom: '0.5rem' }}>Terms of Service</h3>
         <p style={{ marginBottom: '1rem' }}>
-          By using the Jood store you agree to purchase products in accordance with the
+          By using the JOODstore you agree to purchase products in accordance with the
           listed prices and stock availability. All prices are inclusive of applicable VAT.
         </p>
         <h3 style={{ marginBottom: '0.5rem' }}>Payments</h3>

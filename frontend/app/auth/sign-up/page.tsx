@@ -49,7 +49,7 @@ export default function SignUpPage() {
     <div className="auth-page">
       <div className="auth-card card">
         <h1 className="auth-title">Create Account</h1>
-        <p className="auth-subtitle">Join Jood today</p>
+        <p className="auth-subtitle">Join JOODtoday</p>
 
         {error && <div className="auth-error">{error}</div>}
 

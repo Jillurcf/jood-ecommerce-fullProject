@@ -88,7 +88,7 @@ export default async function ShopPage({
           <>
             <h1 className="shop__page-title">Shop All</h1>
             <p className="shop__intro">
-              Browse all products at Jood with fast filtering by department, category, brand, price, rating, and attributes.
+              Browse all products at JOODwith fast filtering by department, category, brand, price, rating, and attributes.
             </p>
           </>
         }

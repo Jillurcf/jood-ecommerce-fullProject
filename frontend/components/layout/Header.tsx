@@ -27,10 +27,10 @@ export default async function Header() {
         <div className="container header__inner">
           <Link href="/" className="logo">
             <Image
-              src="/web-img-vid/logo.png"
-              alt="Jood"
+              src="/ISA_Good_Life_Logo-02.png"
+              alt="JOOD"
               width={140}
-              height={50}
+              height={44}
               style={{ display: 'block', objectFit: 'contain' }}
             />
           </Link>

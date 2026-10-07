@@ -6,13 +6,22 @@ export default function Footer() {
     <footer className="footer">
       <div className="container footer__inner">
         <div>
-          <Image
-            src="/web-img-vid/logo.png"
-            alt="Jood"
-            width={140}
-            height={50}
-            style={{ display: 'block', objectFit: 'contain' }}
-          />
+          <span
+            style={{
+              display: 'inline-block',
+              background: '#fff',
+              padding: '0.5rem 0.75rem',
+              borderRadius: 8,
+            }}
+          >
+            <Image
+              src="/ISA_Good_Life_Logo-02.png"
+              alt="JOOD"
+              width={140}
+              height={44}
+              style={{ display: 'block', objectFit: 'contain' }}
+            />
+          </span>
           <p style={{ fontSize: '0.85rem', color: '#cfd3da', marginTop: '0.75rem' }}>
             Your one-stop online store for quality goods &amp; products.
           </p>
@@ -55,7 +64,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="footer__bottom container">
-        © {new Date().getFullYear()} Jood — Quality Goods &amp; Products. All rights reserved.
+        © {new Date().getFullYear()} JOOD— Quality Goods &amp; Products. All rights reserved.
       </div>
     </footer>
   );

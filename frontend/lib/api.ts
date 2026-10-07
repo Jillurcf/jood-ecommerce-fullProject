@@ -1,5 +1,5 @@
 /**
- * Jood API Client — reads NEXT_PUBLIC_API_URL, includes credentials,
+ * JOODAPI Client — reads NEXT_PUBLIC_API_URL, includes credentials,
  * unwraps the { success, data, message, error_code } envelope.
  */
 
