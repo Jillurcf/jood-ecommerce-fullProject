@@ -27,7 +27,7 @@ export default async function Header() {
         <div className="container header__inner">
           <Link href="/" className="logo">
             <Image
-              src="/ISA_Good_Life_Logo-02.png"
+              src="/isa_good_life_logo.jpeg"
               alt="JOOD"
               width={140}
               height={44}
